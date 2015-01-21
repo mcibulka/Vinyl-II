@@ -1,16 +1,26 @@
-//
-//  ViewController.swift
-//  Vinyl
-//
-//  Created by Matthew Cibulka on 2015-01-17.
-//  Copyright (c) 2015 Matthew Cibulka. All rights reserved.
-//
+/*******************************************************************************************************************************************************************************
+*
+*   Project: Vinyl
+*
+*   Directory: Vinyl
+*   File Name: ViewController.swift
+*
+*   Date Created: January 17, 2015
+*   Created By: Matthew Cibulka
+*
+*   Copyright (c) 2015 Matthew Cibulka. All rights reserved.
+*
+*******************************************************************************************************************************************************************************/
 
 import Cocoa
+import AVFoundation
 
-class ViewController: NSViewController {
-
-    override func viewDidLoad() {
+class ViewController: NSViewController
+{    
+    var audioPlayer = AVAudioPlayer()
+    
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
@@ -22,6 +32,13 @@ class ViewController: NSViewController {
         }
     }
 
-
+    @IBAction func playSong(sender: AnyObject)
+    {
+        let songURL = NSURL(string: "file:///Users/Matthew/Google%20Drive/Vinyl/Sample%20Music%20Library/M4A/03%20Sun%20&%20Moon.m4a")
+        
+        audioPlayer = AVAudioPlayer(contentsOfURL: songURL, error: nil)
+        audioPlayer.prepareToPlay()
+        audioPlayer.play()
+    }
 }
 

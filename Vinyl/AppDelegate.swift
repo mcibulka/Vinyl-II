@@ -1,26 +1,32 @@
-//
-//  AppDelegate.swift
-//  Vinyl
-//
-//  Created by Matthew Cibulka on 2015-01-17.
-//  Copyright (c) 2015 Matthew Cibulka. All rights reserved.
-//
+/*******************************************************************************************************************************************************************************
+*
+*   Project: Vinyl
+*
+*   Directory: Vinyl
+*   File Name: AppDelegate.swift
+*
+*   Date Created: January 17, 2015
+*   Created By: Matthew Cibulka
+*
+*   Copyright (c) 2015 Matthew Cibulka. All rights reserved.
+*
+*******************************************************************************************************************************************************************************/
 
 import Cocoa
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate {
-
-
-
-    func applicationDidFinishLaunching(aNotification: NSNotification) {
+class AppDelegate: NSObject, NSApplicationDelegate
+{
+    func applicationDidFinishLaunching(aNotification: NSNotification)
+    {
         // Insert code here to initialize your application
     }
 
-    func applicationWillTerminate(aNotification: NSNotification) {
+    func applicationWillTerminate(aNotification: NSNotification)
+    {
         // Insert code here to tear down your application
     }
-
+    
     // MARK: - Core Data stack
 
     lazy var applicationDocumentsDirectory: NSURL = {

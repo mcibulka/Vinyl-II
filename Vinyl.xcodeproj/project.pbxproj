@@ -13,6 +13,10 @@
 		346EF1AA1A6AF19300E52499 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 346EF1A91A6AF19300E52499 /* Images.xcassets */; };
 		346EF1AD1A6AF19300E52499 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346EF1AB1A6AF19300E52499 /* Main.storyboard */; };
 		346EF1B91A6AF19300E52499 /* VinylTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346EF1B81A6AF19300E52499 /* VinylTests.swift */; };
+		346EF1C91A6AF83200E52499 /* Play.png in Resources */ = {isa = PBXBuildFile; fileRef = 346EF1C81A6AF83200E52499 /* Play.png */; };
+		349A78201A6E295F00EF7A73 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349A781F1A6E295F00EF7A73 /* Song.swift */; };
+		349A78221A6E2EB900EF7A73 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349A78211A6E2EB900EF7A73 /* TableViewController.swift */; };
+		349A78261A6F07A100EF7A73 /* Pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 349A78251A6F07A100EF7A73 /* Pause.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +40,10 @@
 		346EF1B21A6AF19300E52499 /* VinylTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VinylTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		346EF1B71A6AF19300E52499 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		346EF1B81A6AF19300E52499 /* VinylTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VinylTests.swift; sourceTree = "<group>"; };
+		346EF1C81A6AF83200E52499 /* Play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Play.png; sourceTree = "<group>"; };
+		349A781F1A6E295F00EF7A73 /* Song.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
+		349A78211A6E2EB900EF7A73 /* TableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
+		349A78251A6F07A100EF7A73 /* Pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Pause.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,9 +87,12 @@
 			children = (
 				346EF1A21A6AF19300E52499 /* AppDelegate.swift */,
 				346EF1A41A6AF19300E52499 /* ViewController.swift */,
+				349A781F1A6E295F00EF7A73 /* Song.swift */,
+				349A78211A6E2EB900EF7A73 /* TableViewController.swift */,
 				346EF1A91A6AF19300E52499 /* Images.xcassets */,
 				346EF1AB1A6AF19300E52499 /* Main.storyboard */,
 				346EF1A61A6AF19300E52499 /* Vinyl.xcdatamodeld */,
+				346EF1C71A6AF83200E52499 /* Resources */,
 				346EF1A01A6AF19300E52499 /* Supporting Files */,
 			);
 			path = Vinyl;
@@ -110,6 +121,15 @@
 				346EF1B71A6AF19300E52499 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		346EF1C71A6AF83200E52499 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				346EF1C81A6AF83200E52499 /* Play.png */,
+				349A78251A6F07A100EF7A73 /* Pause.png */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -192,7 +212,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				346EF1C91A6AF83200E52499 /* Play.png in Resources */,
 				346EF1AA1A6AF19300E52499 /* Images.xcassets in Resources */,
+				349A78261A6F07A100EF7A73 /* Pause.png in Resources */,
 				346EF1AD1A6AF19300E52499 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -211,8 +233,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				349A78201A6E295F00EF7A73 /* Song.swift in Sources */,
 				346EF1A81A6AF19300E52499 /* Vinyl.xcdatamodeld in Sources */,
 				346EF1A51A6AF19300E52499 /* ViewController.swift in Sources */,
+				349A78221A6E2EB900EF7A73 /* TableViewController.swift in Sources */,
 				346EF1A31A6AF19300E52499 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -401,6 +425,7 @@
 				346EF1BE1A6AF19300E52499 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		346EF1BF1A6AF19300E52499 /* Build configuration list for PBXNativeTarget "VinylTests" */ = {
 			isa = XCConfigurationList;
@@ -409,6 +434,7 @@
 				346EF1C11A6AF19300E52499 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
