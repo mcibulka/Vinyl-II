@@ -60,6 +60,9 @@
                                     <items>
                                         <menuItem title="Add To Library..." keyEquivalent="a" id="TFh-r9-xfz" userLabel="Add To Library">
                                             <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                            <connections>
+                                                <action selector="AddToLibrary:" target="Voe-Tx-rLC" id="PTN-c2-tlE"/>
+                                            </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
                                         <menuItem title="Close" keyEquivalent="w" id="DVo-aG-piG">
@@ -403,7 +406,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="V7g-ZJ-9OA" id="9bp-6d-WAo">
-                                            <rect key="frame" x="0.0" y="0.0" width="768" height="19"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="798" height="19"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -658,7 +661,7 @@
                         <string>fileURL</string>
                     </declaredKeys>
                     <connections>
-                        <binding destination="jJl-EH-OvD" name="contentArray" keyPath="self.songArray" id="u7r-Xu-Uaq"/>
+                        <binding destination="jJl-EH-OvD" name="contentArray" keyPath="self.tableArray" id="tmD-un-omS"/>
                     </connections>
                 </arrayController>
             </objects>

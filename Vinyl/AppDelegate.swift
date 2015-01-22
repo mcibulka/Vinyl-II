@@ -13,19 +13,240 @@
 *******************************************************************************************************************************************************************************/
 
 import Cocoa
+import CoreData
+import AVFoundation
 
+let ID3V2_2ALBUM = "id3/%00TAL"
+let ID3V2_2ALBUMARTIST = "id3/%00TP2"
+let ID3V2_2ARTIST = "id3/%00TP1"
+let ID3V2_2COMMENTS = "id3/%00COM"
+let ID3V2_2COMPOSER = "id3/%00TCM"
+let ID3V2_2GENRE = "id3/%00TCO"
+let ID3V2_2GROUPING = "id3/%00TT1"
+let ID3V2_2NAME = "id3/%00TT2"
+let ID3V2_2YEAR = "id3/%00TYE"
+
+let ID3V2_4ALBUM = "id3/TALB"
+let ID3V2_4ALBUMARTIST = "id3/TPE2"
+let ID3V2_4ARTIST = "id3/TPE1"
+let ID3V2_4COMMENTS = "id3/COMM"
+let ID3V2_4COMPOSER = "id3/TCOM"
+let ID3V2_4GENRE = "id3/TCON"
+let ID3V2_4GROUPING = "id3/TIT1"
+let ID3V2_4NAME = "id3/TIT2"
+let ID3V2_4YEAR = "id3/TDRC"
+
+let MP4V2_0ALBUM = "itsk/%A9alb"
+let MP4V2_0ALBUMARTIST = "itsk/aART"
+let MP4V2_0ARTIST = "itsk/%A9ART"
+let MP4V2_0COMMENTS = "itsk/%A9cmt"
+let MP4V2_0COMPOSER = "itsk/%A9wrt"
+let MP4V2_0GENRE = "itsk/%A9gen"
+let MP4V2_0GROUPING = "itsk/%A9grp"
+let MP4V2_0ANAME = "itsk/%A9nam"
+let MP4V2_0YEAR = "itsk/%A9day"
+
+var songArray = [NSManagedObject]()
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate
 {
+    let addFileOpenPanel = NSOpenPanel()
+    //var songArray = [Song]()
+    
+    
     func applicationDidFinishLaunching(aNotification: NSNotification)
     {
-        // Insert code here to initialize your application
+        /* Insert code here to initialize your application
+        let appDelegate = NSApplication.sharedApplication().delegate as AppDelegate
+        let managedContext = appDelegate.managedObjectContext!
+        
+        // delete all records
+        for song in songArray {
+            managedContext.deleteObject(song)
+        }
+        
+        // save context
+        var error: NSError?
+        if !managedContext.save(&error) {
+            println("Could not save \(error), \(error?.userInfo)")
+        }
+        */
     }
 
     func applicationWillTerminate(aNotification: NSNotification)
     {
         // Insert code here to tear down your application
+        let appDelegate = NSApplication.sharedApplication().delegate as AppDelegate
+       // let managedContext = appDelegate.self.managedObjectContext!
+        
+        let fetchRequest = NSFetchRequest(entityName:"Song")
+        
+        var error: NSError?
+        
+        let fetchedResults = self.managedObjectContext!.executeFetchRequest(fetchRequest, error: &error) as [NSManagedObject]?
+        
+        if let results = fetchedResults {
+            var songs = results
+            for song in songs {
+                println(song)
+               // println(song.valueForKey("album")!)
+            }
+            
+        } else {
+            println("Could not fetch \(error), \(error!.userInfo)")
+        }
     }
+    
+    @IBAction func AddToLibrary(sender: AnyObject)
+    {
+        addFileOpenPanel.allowsMultipleSelection = true
+        addFileOpenPanel.canChooseDirectories = false
+        addFileOpenPanel.canChooseFiles = true
+        addFileOpenPanel.runModal()
+        //let appDelegate = NSApplication.sharedApplication().delegate as AppDelegate
+        //let managedContext = appDelegate.managedObjectContext!
+       // let managedContext = self.managedObjectContext!
+        let entity =  NSEntityDescription.entityForName("Song", inManagedObjectContext:self.managedObjectContext!)
+        
+        let mySong = NSManagedObject(entity: entity!, insertIntoManagedObjectContext:self.managedObjectContext!)
+        
+        // Set all of the song attributes
+       // song.setValue("new title", forKey: "title")
+        //song.setValue("new album", forKey: "album")
+        
+       
+        
+        // println("Count: \(addFileOpenPanel.URLs.count)")
+        var songsToAdd: NSArray = addFileOpenPanel.URLs
+        
+        for var i = 0; i < songsToAdd.count; i++
+        {
+            var asset = AVURLAsset(URL: songsToAdd[i] as NSURL, options: nil)
+            
+            if asset.URL != nil
+            {
+                var commonMetadata = asset.commonMetadata as NSArray
+                var formats : NSArray = asset.availableMetadataFormats
+                
+                var metaData : NSArray
+                //var mySong:Song = Song(album: "", albumArtist: "", artist: "", comments: "", composer: "", dateAdded: "", genre: "", grouping: "", name: "", time: "", year: "", fileURL: "")
+                
+                // Extract metadata based on file type of song
+                for format in formats
+                {
+                    if format as NSString == "org.id3"  // .mp3
+                    {
+                        metaData = asset.metadataForFormat("org.id3")
+                        var tag : AVMetadataItem
+                        for tag in metaData
+                        {
+                            // NOTE: Initially wrote these blocks as a combined if-else statement using logical || but Xcode couldn't compile
+                            // Xcode bug: SourceKitService is fluctuating up to 300% CPU Usage
+                            /* Extract metadata based on id3v2-00 frames */
+                            if tag.identifier == ID3V2_2ALBUM {                  // Album
+                                mySong.setValue(tag.stringValue, forKey:"album")
+                            } else if tag.identifier == ID3V2_2ALBUMARTIST {     // Album Artist
+                                mySong.setValue(tag.stringValue, forKey:"albumArtist")
+                            } else if tag.identifier == ID3V2_2ARTIST {          // Artist
+                                mySong.setValue(tag.stringValue, forKey:"artist")
+                            } else if tag.identifier == ID3V2_2COMMENTS {        // Comments
+                                mySong.setValue(tag.stringValue, forKey:"comments")
+                            } else if tag.identifier == ID3V2_2COMPOSER {        // Composer
+                                mySong.setValue(tag.stringValue, forKey:"composer")
+                            } else if tag.identifier == ID3V2_2GENRE {           // Genre
+                                mySong.setValue(tag.stringValue, forKey:"genre")
+                            } else if tag.identifier == ID3V2_2GROUPING {        // Grouping
+                                mySong.setValue(tag.stringValue, forKey:"grouping")
+                            } else if tag.identifier == ID3V2_2NAME {            // Name
+                                mySong.setValue(tag.stringValue, forKey:"name")
+                            } else if tag.identifier == ID3V2_2YEAR {            // Year
+                                mySong.setValue(tag.stringValue, forKey:"year")
+                            }
+                            
+                            /* Extract data based on id3v2.4.0 frames*/
+                            if tag.identifier == ID3V2_4ALBUM {                  // Album
+                                mySong.setValue(tag.stringValue, forKey:"album")
+                            } else if tag.identifier == ID3V2_4ALBUMARTIST {     // Album Artist
+                                mySong.setValue(tag.stringValue, forKey:"albumArtist")
+                            } else if tag.identifier == ID3V2_4ARTIST {          // Artist
+                                mySong.setValue(tag.stringValue, forKey:"artist")
+                            } else if tag.identifier == ID3V2_4COMMENTS {        // Comments
+                                mySong.setValue(tag.stringValue, forKey:"comments")
+                            } else if tag.identifier == ID3V2_4COMPOSER {        // Composer
+                                mySong.setValue(tag.stringValue, forKey:"composer")
+                            } else if tag.identifier == ID3V2_4GENRE {           // Genre
+                                mySong.setValue(tag.stringValue, forKey:"genre")
+                            } else if tag.identifier == ID3V2_4GROUPING {        // Grouping
+                                mySong.setValue(tag.stringValue, forKey:"grouping")
+                            } else if tag.identifier == ID3V2_4NAME {            // Name
+                                mySong.setValue(tag.stringValue, forKey:"name")
+                            } else if tag.identifier == ID3V2_4YEAR {            // Year
+                                mySong.setValue(tag.stringValue, forKey:"year")
+                            }
+                        }
+                    }
+                   /* else if format as NSString == "com.apple.itunes"    // .m4a
+                    {
+                        metaData = asset.metadataForFormat("com.apple.itunes")
+                        var tag : AVMetadataItem
+                        for tag in metaData
+                        {
+                            if tag.identifier == MP4V2_0ALBUM {                 // Album
+                                mySong.setValue(tag.stringValue, forKey:"album")
+                            } else if tag.identifier == MP4V2_0ALBUMARTIST{     // Album Artist
+                                mySong.setValue(tag.stringValue, forKey:"albumArtist")
+                            } else if tag.identifier == MP4V2_0ARTIST {         // Artist
+                                mySong.setValue(tag.stringValue, forKey:"artist")
+                            } else if tag.identifier == MP4V2_0COMMENTS {       // Comments
+                                mySong.setValue(tag.stringValue, forKey:"comments")
+                            } else if tag.identifier == MP4V2_0COMPOSER {       // Composer
+                                mySong.setValue(tag.stringValue, forKey:"composer")
+                            } else if tag.identifier == MP4V2_0GENRE {          // Genre - not yet decoded
+                                mySong.setValue(tag.stringValue, forKey:"genre")
+                            } else if tag.identifier == MP4V2_0GROUPING {       // Grouping
+                                mySong.setValue(tag.stringValue, forKey:"grouping")
+                            } else if tag.identifier == MP4V2_0ANAME {          // Name
+                                mySong.setValue(tag.stringValue, forKey:"name")
+                            } else if tag.identifier == MP4V2_0YEAR {           // Year
+                                mySong.setValue(tag.stringValue, forKey:"year")
+                            }
+                        }
+                    }*/
+                    else
+                    {
+                        println("\nERROR. Unrecognized file format: \(format)\n\n")
+                    }
+                }
+                
+                //Add file path
+               // mySong.fileURL = "\(asset.URL)"
+                mySong.setValue("\(asset.URL)", forKey:"fileURL")
+                //Add song to song array
+                songArray.append(mySong)
+                
+                // update table
+                //myTableView.reloadData()
+                
+                // Save context
+                var error: NSError?
+                if !self.managedObjectContext!.save(&error) {
+                    println("Could not save \(error), \(error?.userInfo)")
+                }
+                
+                /*print out song array
+                println("----------------------------------")
+                for i in songArray
+                {
+                    //iTunes
+                    println("\nAlbum: \(i.album)\nAlbum Artist: \(i.albumArtist)\nArtist: \(i.artist)\nComments: \(i.comments)\nComposer: \(i.composer)\nGenre: \(i.genre)\nGrouping: \(i.grouping)\nName \(i.name)\nYear: \(i.year)")
+                    
+                    //filepath
+                    println("\nFile path: \(i.fileURL)\n")
+                }*/
+            }
+        }
+    }
+    
     
     // MARK: - Core Data stack
 
