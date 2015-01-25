@@ -29,13 +29,13 @@ let MP4V2_0YEAR = "itsk/%A9day"
 
 extension FourCharCode
 {
-    func toString() -> String
+    func toString() -> NSString
     {
         let codes: [UInt32] = [
-            (self >> 24) & 0xFF,
-            (self >> 16) & 0xFF,
-            (self >> 8) & 0xFF,
-            self & 0xFF]
+            (self >> 24) & 255,
+            (self >> 16) & 255,
+            (self >> 8) & 255,
+            self & 255]
         return codes.map{String(UnicodeScalar($0))}.reduce("", +)
     }
 }
@@ -121,7 +121,7 @@ class AppDelegate: NSObject, NSApplicationDelegate
             if asset.URL != nil
             {
                 var mySong:Song = Song()
-                var metaDataItemArray: NSArray
+                var metadataItemArray: NSArray
                 
                 // Extract metadata based on file type of song
                 var formats: NSArray = asset.availableMetadataFormats
@@ -129,39 +129,37 @@ class AppDelegate: NSObject, NSApplicationDelegate
                 {
                     if format as NSString == AVMetadataFormatID3Metadata    // MP3
                     {
-                        metaDataItemArray = asset.metadataForFormat(AVMetadataFormatID3Metadata)
-//                        println(metaDataItemArray)
+                        metadataItemArray = asset.metadataForFormat(AVMetadataFormatID3Metadata)
                         
-                        for metadataItem in metaDataItemArray
+                        for metadataItem in metadataItemArray
                         {
                             if let numKey = AVMetadataItem.keyForIdentifier(metadataItem.identifier) as? NSNumber
                             {
                                 let strKey = numKey.unsignedIntValue.toString()
-                                let value = metadataItem.stringValue
                                 
                                 switch strKey {
                                 case AVMetadataID3MetadataKeyAlbumTitle:                    // Album
-                                    mySong.album = value
+                                    mySong.album = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyLeadPerformer:                 // Album Artist
-                                    mySong.artist = value
+                                    mySong.artist = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyBand:                          // Artist
-                                    mySong.albumArtist = value
+                                    mySong.albumArtist = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyBeatsPerMinute:                // Beats Per Minute
-                                    mySong.beatsPerMinute = value
+                                    mySong.beatsPerMinute = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyComments:                      // Comments
-                                    mySong.comments = value
+                                    mySong.comments = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyComposer:                      // Composer
-                                    mySong.composer = value
+                                    mySong.composer = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyContentType:                   // Genre
-                                    mySong.genre = value
+                                    mySong.genre = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyContentGroupDescription:       // Grouping
-                                    mySong.grouping = value
+                                    mySong.grouping = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyTitleDescription:              // Name
-                                    mySong.name = value
+                                    mySong.name = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyTrackNumber:                   // Track Number
-                                    mySong.trackNumber = value
+                                    mySong.trackNumber = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyYear:                          // Year
-                                    mySong.year = value
+                                    mySong.year = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyAttachedPicture:               // Album Artwork
                                     mySong.artwork = "Artwork"
                                 default:
@@ -172,32 +170,48 @@ class AppDelegate: NSObject, NSApplicationDelegate
                     }
                     else if format as NSString == AVMetadataFormatiTunesMetadata    // .m4a
                     {
-                        metaDataItemArray = asset.metadataForFormat(AVMetadataFormatiTunesMetadata)
-                        //var tag : AVMetadataItem
-//                        for metadataItem in metaDataItemArray
+                        println("\niTunes files not supported yet.\n")
+//                        metadataItemArray = asset.metadataForFormat(AVMetadataFormatiTunesMetadata)
+//                        println(metadataItemArray)
+//                        
+//                        for metadataItem in metadataItemArray
 //                        {
-//                            if metadataItem.identifier == MP4V2_0ALBUM {                 // Album
-//                                mySong.album = metadataItem.stringValue
-//                            } else if metadataItem.identifier == MP4V2_0ALBUMARTIST{     // Album Artist
-//                                mySong.albumArtist = metadataItem.stringValue
-//                            } else if metadataItem.identifier == MP4V2_0ARTIST {         // Artist
-//                                mySong.artist = metadataItem.stringValue
-//                            } else if metadataItem.identifier == MP4V2_0COMMENTS {       // Comments
-//                                mySong.comments = metadataItem.stringValue
-//                            } else if metadataItem.identifier == MP4V2_0COMPOSER {       // Composer
-//                                mySong.composer = metadataItem.stringValue
-//                            } else if metadataItem.identifier == MP4V2_0GENRE {          // Genre - not yet decoded
-//                                mySong.genre = metadataItem.stringValue
-//                            } else if metadataItem.identifier == MP4V2_0GROUPING {       // Grouping
-//                                mySong.grouping = metadataItem.stringValue
-//                            } else if metadataItem.identifier == MP4V2_0ANAME {          // Name
-//                                mySong.name = metadataItem.stringValue
-//                            } else if metadataItem.identifier == MP4V2_0YEAR {           // Year
-//                                mySong.year = metadataItem.stringValue
+//                            if let numKey = AVMetadataItem.keyForIdentifier(metadataItem.identifier) as? NSNumber
+//                            {
+//                                let strKey:NSString = numKey.unsignedIntValue.toString()
+//                                println("\(strKey) == \(AVMetadataiTunesMetadataKeyAlbum)")
+//                                
+//                                switch strKey {
+//                                case AVMetadataiTunesMetadataKeyAlbum:                    // Album
+//                                    mySong.album = metadataItem.stringValue
+//                                case AVMetadataiTunesMetadataKeyAlbumArtist:                 // Album Artist
+//                                    mySong.artist = metadataItem.stringValue
+//                                case AVMetadataiTunesMetadataKeyArtist:                          // Artist
+//                                    mySong.albumArtist = metadataItem.stringValue
+//                                case AVMetadataiTunesMetadataKeyBeatsPerMin:                // Beats Per Minute
+//                                    mySong.beatsPerMinute = metadataItem.stringValue
+//                                case AVMetadataiTunesMetadataKeyUserComment:                      // Comments
+//                                    mySong.comments = metadataItem.stringValue
+//                                case AVMetadataiTunesMetadataKeyComposer:                      // Composer
+//                                    mySong.composer = metadataItem.stringValue
+////                                case AVMetadataiTunesMetadataKeyUserGenre:                   // Genre
+////                                    mySong.genre = metadataItem.stringValue
+//                                case AVMetadataiTunesMetadataKeyGrouping:       // Grouping
+//                                    mySong.grouping = metadataItem.stringValue
+//                                case AVMetadataiTunesMetadataKeySongName:              // Name
+//                                    mySong.name = metadataItem.stringValue
+////                                case AVMetadataiTunesMetadataKeyTrackNumber:                   // Track Number
+////                                    mySong.trackNumber = metadataItem.stringValue
+//                                case AVMetadataiTunesMetadataKeyReleaseDate:                          // Year
+//                                    mySong.year = metadataItem.stringValue
+//                                case AVMetadataiTunesMetadataKeyCoverArt:               // Album Artwork
+//                                    mySong.artwork = "Artwork"
+//                                default:
+//                                    break
+//                                }
 //                            }
 //                        }
                     }
-
                     else
                     {
                         println("\nERROR. Unrecognized file format: \(format)\n\n")
@@ -207,11 +221,8 @@ class AppDelegate: NSObject, NSApplicationDelegate
                 //Add file path
                 mySong.fileURL = "\(asset.URL)"
 //                mySong.setValue("\(asset.URL)", forKey:"fileURL")
-                //Add song to song array
-                songArray.append(mySong)
                 
-                // update table
-                //myTableView.reloadData()
+                songArray.append(mySong)
                 
 //                // Save context
 //                var error: NSError?
@@ -219,7 +230,6 @@ class AppDelegate: NSObject, NSApplicationDelegate
 //                    println("Could not save \(error), \(error?.userInfo)")
 //                }
                 
-                //  print out song array
                 println("----------------------------------")
                 for song in songArray
                 {
