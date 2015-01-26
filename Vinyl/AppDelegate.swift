@@ -13,19 +13,7 @@
 *******************************************************************************************************************************************************************************/
 
 import Cocoa
-import CoreData
 import AVFoundation
-
-let MP4V2_0ALBUM = "itsk/%A9alb"
-let MP4V2_0ALBUMARTIST = "itsk/aART"
-let MP4V2_0ARTIST = "itsk/%A9ART"
-let MP4V2_0COMMENTS = "itsk/%A9cmt"
-let MP4V2_0COMPOSER = "itsk/%A9wrt"
-let MP4V2_0GENRE = "itsk/%A9gen"
-let MP4V2_0GROUPING = "itsk/%A9grp"
-let MP4V2_0ANAME = "itsk/%A9nam"
-let MP4V2_0YEAR = "itsk/%A9day"
-
 
 extension FourCharCode
 {
@@ -39,7 +27,6 @@ extension FourCharCode
         return codes.map{String(UnicodeScalar($0))}.reduce("", +)
     }
 }
-
 
 //var songArray = [NSManagedObject]()
 @NSApplicationMain
@@ -131,13 +118,11 @@ class AppDelegate: NSObject, NSApplicationDelegate
                     {
                         metadataItemArray = asset.metadataForFormat(AVMetadataFormatID3Metadata)
                         
-                        for metadataItem in metadataItemArray
+                        for metadataItem in metadataItemArray as [AVMetadataItem]
                         {
-                            if let numKey = AVMetadataItem.keyForIdentifier(metadataItem.identifier) as? NSNumber
+                            println(metadataItem.key() as NSString)
+                            switch metadataItem.key() as NSString
                             {
-                                let strKey = numKey.unsignedIntValue.toString()
-                                
-                                switch strKey {
                                 case AVMetadataID3MetadataKeyAlbumTitle:                    // Album
                                     mySong.album = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyLeadPerformer:                 // Album Artist
@@ -164,19 +149,19 @@ class AppDelegate: NSObject, NSApplicationDelegate
                                     mySong.artwork = "Artwork"
                                 default:
                                     break
-                                }
                             }
                         }
                     }
                     else if format as NSString == AVMetadataFormatiTunesMetadata    // .m4a
                     {
                         println("\niTunes files not supported yet.\n")
-//                        metadataItemArray = asset.metadataForFormat(AVMetadataFormatiTunesMetadata)
-//                        println(metadataItemArray)
-//                        
-//                        for metadataItem in metadataItemArray
+                        metadataItemArray = asset.metadataForFormat(AVMetadataFormatiTunesMetadata)
+                        //println(metadataItemArray)
+                        
+//                        for metadataItem in metadataItemArray as [AVMetadataItem]
 //                        {
-//                            if let numKey = AVMetadataItem.keyForIdentifier(metadataItem.identifier) as? NSNumber
+//                            println(metadataItem.key() as NSString?)
+//                            if let numKey = metadataItem.key() as? NSNumber
 //                            {
 //                                let strKey:NSString = numKey.unsignedIntValue.toString()
 //                                println("\(strKey) == \(AVMetadataiTunesMetadataKeyAlbum)")
