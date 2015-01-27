@@ -13,19 +13,8 @@
 **********************************************************************************************************************************************************************************/
 
 import Cocoa
-import CoreData
 import AVFoundation
 import Foundation
-
-let MP4V2_0ALBUM = "itsk/%A9alb"
-let MP4V2_0ALBUMARTIST = "itsk/aART"
-let MP4V2_0ARTIST = "itsk/%A9ART"
-let MP4V2_0COMMENTS = "itsk/%A9cmt"
-let MP4V2_0COMPOSER = "itsk/%A9wrt"
-let MP4V2_0GENRE = "itsk/%A9gen"
-let MP4V2_0GROUPING = "itsk/%A9grp"
-let MP4V2_0ANAME = "itsk/%A9nam"
-let MP4V2_0YEAR = "itsk/%A9day"
 
 var songArray = [Song]()
 var songsToSave = [NSString]()
@@ -43,8 +32,6 @@ extension FourCharCode
     }
 }
 
-
-//var songArray = [NSManagedObject]()
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate
 {
@@ -85,22 +72,6 @@ class AppDelegate: NSObject, NSApplicationDelegate
         } else {
             println("File empty\n")
         }
-        
-        //Core Data:
-//        let appDelegate = NSApplication.sharedApplication().delegate as AppDelegate
-//        let managedContext = appDelegate.managedObjectContext!
-//        
-//        // delete all records
-//        for song in songArray {
-//            managedContext.deleteObject(song)
-//        }
-//        
-//        // save context
-//        var error: NSError?
-//        if !managedContext.save(&error) {
-//            println("Could not save \(error), \(error?.userInfo)")
-//        }
-
     }
 
     func applicationWillTerminate(aNotification: NSNotification)
@@ -129,27 +100,6 @@ class AppDelegate: NSObject, NSApplicationDelegate
                 }
             }
         }
-        
-        //Core Data stuff:
-//        let appDelegate = NSApplication.sharedApplication().delegate as AppDelegate
-//       // let managedContext = appDelegate.self.managedObjectContext!
-//        
-//        let fetchRequest = NSFetchRequest(entityName:"Song")
-//        
-//        var error: NSError?
-//        
-//        let fetchedResults = self.managedObjectContext!.executeFetchRequest(fetchRequest, error: &error) as [NSManagedObject]?
-//        
-//        if let results = fetchedResults {
-//            var songs = results
-//            for song in songs {
-//                println(song)
-//               // println(song.valueForKey("album")!)
-//            }
-//            
-//        } else {
-//            println("Could not fetch \(error), \(error!.userInfo)")
-//        }
     }
     
     /* FUNCTION: isDirectory
@@ -346,16 +296,6 @@ class AppDelegate: NSObject, NSApplicationDelegate
         addFileOpenPanel.canChooseDirectories = true
         addFileOpenPanel.canChooseFiles = true
         addFileOpenPanel.runModal()
-//        let appDelegate = NSApplication.sharedApplication().delegate as AppDelegate
-//        let managedContext = appDelegate.managedObjectContext!
-//        let managedContext = self.managedObjectContext!
-//        let entity =  NSEntityDescription.entityForName("Song", inManagedObjectContext:self.managedObjectContext!)
-//
-//        let mySong = NSManagedObject(entity: entity!, insertIntoManagedObjectContext:self.managedObjectContext!)
-//
-        // Set all of the song attributes
-//        song.setValue("new title", forKey: "title")
-//        song.setValue("new album", forKey: "album")
         
         var songsToAdd: NSArray = addFileOpenPanel.URLs
         addSongs(songsToAdd)
