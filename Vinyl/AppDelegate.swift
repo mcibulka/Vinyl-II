@@ -13,28 +13,42 @@
 **********************************************************************************************************************************************************************************/
 
 import Cocoa
+import CoreData
 import AVFoundation
 import Foundation
 
-//extension FourCharCode
-//{
-//    func toString() -> NSString
-//    {
-//        let codes: [UInt32] = [
-//            (self >> 24) & 255,
-//            (self >> 16) & 255,
-//            (self >> 8) & 255,
-//            self & 255]
-//        return codes.map{String(UnicodeScalar($0))}.reduce("", +)
-//    }
-//}
+let MP4V2_0ALBUM = "itsk/%A9alb"
+let MP4V2_0ALBUMARTIST = "itsk/aART"
+let MP4V2_0ARTIST = "itsk/%A9ART"
+let MP4V2_0COMMENTS = "itsk/%A9cmt"
+let MP4V2_0COMPOSER = "itsk/%A9wrt"
+let MP4V2_0GENRE = "itsk/%A9gen"
+let MP4V2_0GROUPING = "itsk/%A9grp"
+let MP4V2_0ANAME = "itsk/%A9nam"
+let MP4V2_0YEAR = "itsk/%A9day"
+
+var songArray = [Song]()
+var songsToSave = [NSString]()
+
+extension FourCharCode
+{
+    func toString() -> NSString
+    {
+        let codes: [UInt32] = [
+            (self >> 24) & 255,
+            (self >> 16) & 255,
+            (self >> 8) & 255,
+            self & 255]
+        return codes.map{String(UnicodeScalar($0))}.reduce("", +)
+    }
+}
+
 
 //var songArray = [NSManagedObject]()
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate
 {
     let addFileOpenPanel = NSOpenPanel()
-    var songArray = [Song]()
     
     func applicationDidFinishLaunching(aNotification: NSNotification)
     {
@@ -144,21 +158,9 @@ class AppDelegate: NSObject, NSApplicationDelegate
     */
     func isDirectory(path: NSURL) -> Bool
     {
-        addFileOpenPanel.allowsMultipleSelection = true
-        addFileOpenPanel.canChooseDirectories = false
-        addFileOpenPanel.canChooseFiles = true
-        addFileOpenPanel.runModal()
-//        let appDelegate = NSApplication.sharedApplication().delegate as AppDelegate
-//        let managedContext = appDelegate.managedObjectContext!
-//        let managedContext = self.managedObjectContext!
-//        let entity =  NSEntityDescription.entityForName("Song", inManagedObjectContext:self.managedObjectContext!)
-//        
-//        let mySong = NSManagedObject(entity: entity!, insertIntoManagedObjectContext:self.managedObjectContext!)
-//        
-        // Set all of the song attributes
-//        song.setValue("new title", forKey: "title")
-//        song.setValue("new album", forKey: "album")
-       
+        var isDirectory: ObjCBool = ObjCBool(false)
+        
+        if NSFileManager.defaultManager().fileExistsAtPath(path.path!, isDirectory: &isDirectory) {}
         
         if isDirectory {
             return true
@@ -188,134 +190,11 @@ class AppDelegate: NSObject, NSApplicationDelegate
     {
         for var i = 0; i < songsToAdd.count; i++
         {
-            var mySong:Song = Song()
-            let asset = AVURLAsset(URL: songsToAdd[i] as NSURL, options: nil)
+            var asset = AVURLAsset(URL: songsToAdd[i] as NSURL, options: nil)
             
-            /* Determine song's time */
-            let cmTime: CMTime = asset.duration
-            let cmTimeSecs: Float64 = CMTimeGetSeconds(cmTime)
-            let intTime: Int64 = Int64(round(cmTimeSecs))
-            let minutes = (intTime % 3600) / 60
-            let seconds = (intTime % 3600) % 60
-            let timeStr: NSString = "\(minutes):\(seconds)"
-            
-            mySong.time = timeStr
-            
-            
-            /* Record time and date of when song is added to the library */
-            let dateAdded: NSDate = NSDate(timeIntervalSinceNow: 0.0)
-            let dateAddedStr: NSString = dateAdded.descriptionWithCalendarFormat("%Y-%m-%d %H:%M:%S", timeZone: nil, locale: nil)!
-            
-            mySong.dateAdded = dateAddedStr
-            
-            
-            if asset.URL != nil
+            if isDirectory(songsToAdd[i] as NSURL)
             {
-                var metadataItemArray: NSArray
-                
-                /* Extract metadata based on file type of song */
-                let formats: NSArray = asset.availableMetadataFormats
-                for format in formats
-                {
-                    if format as NSString == AVMetadataFormatID3Metadata    // MP3
-                    {
-                        metadataItemArray = asset.metadataForFormat(AVMetadataFormatID3Metadata)
-                        
-                        for metadataItem in metadataItemArray as [AVMetadataItem]
-                        {
-                            switch metadataItem.key() as NSString
-                            {
-                                case AVMetadataID3MetadataKeyAlbumTitle:                    // Album
-                                    mySong.album = metadataItem.stringValue
-                                case AVMetadataID3MetadataKeyLeadPerformer:                 // Album Artist
-                                    mySong.artist = metadataItem.stringValue
-                                case AVMetadataID3MetadataKeyBand:                          // Artist
-                                    mySong.albumArtist = metadataItem.stringValue
-                                case AVMetadataID3MetadataKeyBeatsPerMinute:                // Beats Per Minute
-                                    mySong.beatsPerMinute = metadataItem.stringValue
-                                case AVMetadataID3MetadataKeyComments:                      // Comments
-                                    mySong.comments = metadataItem.stringValue
-                                case AVMetadataID3MetadataKeyComposer:                      // Composer
-                                    mySong.composer = metadataItem.stringValue
-                                case AVMetadataID3MetadataKeyContentType:                   // Genre
-                                    mySong.genre = metadataItem.stringValue
-                                case AVMetadataID3MetadataKeyContentGroupDescription:       // Grouping
-                                    mySong.grouping = metadataItem.stringValue
-                                case AVMetadataID3MetadataKeyTitleDescription:              // Name
-                                    mySong.name = metadataItem.stringValue
-                                case AVMetadataID3MetadataKeyTrackNumber:                   // Track Number
-                                    mySong.trackNumber = metadataItem.stringValue
-                                case AVMetadataID3MetadataKeyRecordingTime,                 // Year
-                                     AVMetadataID3MetadataKeyYear:
-                                    mySong.year = metadataItem.stringValue
-                                case AVMetadataID3MetadataKeyAttachedPicture:               // Album Artwork
-                                    mySong.artwork = "Artwork"
-                                default:
-                                    break
-                            }
-                        }
-                    }
-                    else if format as NSString == AVMetadataFormatiTunesMetadata    // M4A
-                    {
-                        println("\niTunes files not supported yet.\n")
-//                        metadataItemArray = asset.metadataForFormat(AVMetadataFormatiTunesMetadata)
-//                        println(metadataItemArray)
-//
-//                        for metadataItem in metadataItemArray as [AVMetadataItem]
-//                        {
-//                            println(metadataItem.key().description)
-//                            var keyAsString: String
-//                            if let numKey = metadataItem.key() as? NSNumber {
-//                                keyAsString = numKey.unsignedIntValue.toString()
-//                            } else if let strKey = metadataItem.key() as? NSString {
-//                                keyAsString = strKey
-//                            } else {
-//                                keyAsString = metadataItem.key().description
-//                            }
-//                            println(keyAsString)
-//                        
-//                            println(metadataItem.key() as NSString?)
-//                            if let numKey = metadataItem.key() as? NSNumber
-//                            {
-//                                let strKey:NSString = numKey.unsignedIntValue.toString()
-//                                println("\(strKey) == \(AVMetadataiTunesMetadataKeyAlbum)")
-//                                
-//                                switch strKey {
-//                                case AVMetadataiTunesMetadataKeyAlbum:                    // Album
-//                                    mySong.album = metadataItem.stringValue
-//                                case AVMetadataiTunesMetadataKeyAlbumArtist:                 // Album Artist
-//                                    mySong.artist = metadataItem.stringValue
-//                                case AVMetadataiTunesMetadataKeyArtist:                          // Artist
-//                                    mySong.albumArtist = metadataItem.stringValue
-//                                case AVMetadataiTunesMetadataKeyBeatsPerMin:                // Beats Per Minute
-//                                    mySong.beatsPerMinute = metadataItem.stringValue
-//                                case AVMetadataiTunesMetadataKeyUserComment:                      // Comments
-//                                    mySong.comments = metadataItem.stringValue
-//                                case AVMetadataiTunesMetadataKeyComposer:                      // Composer
-//                                    mySong.composer = metadataItem.stringValue
-////                                case AVMetadataiTunesMetadataKeyUserGenre:                   // Genre
-////                                    mySong.genre = metadataItem.stringValue
-//                                case AVMetadataiTunesMetadataKeyGrouping:       // Grouping
-//                                    mySong.grouping = metadataItem.stringValue
-//                                case AVMetadataiTunesMetadataKeySongName:              // Name
-//                                    mySong.name = metadataItem.stringValue
-////                                case AVMetadataiTunesMetadataKeyTrackNumber:                   // Track Number
-////                                    mySong.trackNumber = metadataItem.stringValue
-//                                case AVMetadataiTunesMetadataKeyReleaseDate:                          // Year
-//                                    mySong.year = metadataItem.stringValue
-//                                case AVMetadataiTunesMetadataKeyCoverArt:               // Album Artwork
-//                                    mySong.artwork = "Artwork"
-//                                default:
-//                                    break
-//                                }
-//                            }
-//                        }
-                    }
-                    else
-                    {
-                        println("\nERROR. Unrecognized file format: \(format)\n\n")
-                    }
-                }
+                addSongs(dirIterator(songsToAdd[i] as NSURL))
                 
             } else if asset.URL != nil {
                 println("URL: \(asset)")
@@ -337,6 +216,24 @@ class AppDelegate: NSObject, NSApplicationDelegate
     func extractSongInfo(asset: AnyObject) -> Song
     {
         var mySong:Song = Song()
+        
+        /* Determine song's time */
+        let cmTime: CMTime = asset.duration
+        let cmTimeSecs: Float64 = CMTimeGetSeconds(cmTime)
+        let intTime: Int64 = Int64(round(cmTimeSecs))
+        let minutes = (intTime % 3600) / 60
+        let seconds = (intTime % 3600) % 60
+        let timeStr: NSString = "\(minutes):\(seconds)"
+        
+        mySong.time = timeStr
+        
+        /* Record time and date of when song is added to the library */
+        let dateAdded: NSDate = NSDate(timeIntervalSinceNow: 0.0)
+        let dateAddedStr: NSString = dateAdded.descriptionWithCalendarFormat("%Y-%m-%d %H:%M:%S", timeZone: nil, locale: nil)!
+        
+        mySong.dateAdded = dateAddedStr
+        
+        
         var metadataItemArray: NSArray
         
         // Extract metadata based on file type of song
@@ -347,13 +244,10 @@ class AppDelegate: NSObject, NSApplicationDelegate
             {
                 metadataItemArray = asset.metadataForFormat(AVMetadataFormatID3Metadata)
                 
-                for metadataItem in metadataItemArray
+                for metadataItem in metadataItemArray as [AVMetadataItem]
                 {
-                    if let numKey = AVMetadataItem.keyForIdentifier(metadataItem.identifier) as? NSNumber
+                    switch metadataItem.key() as NSString
                     {
-                        let strKey = numKey.unsignedIntValue.toString()
-                        
-                        switch strKey {
                         case AVMetadataID3MetadataKeyAlbumTitle:                    // Album
                             mySong.album = metadataItem.stringValue
                         case AVMetadataID3MetadataKeyLeadPerformer:                 // Album Artist
@@ -374,59 +268,59 @@ class AppDelegate: NSObject, NSApplicationDelegate
                             mySong.name = metadataItem.stringValue
                         case AVMetadataID3MetadataKeyTrackNumber:                   // Track Number
                             mySong.trackNumber = metadataItem.stringValue
-                        case AVMetadataID3MetadataKeyYear:                          // Year
+                        case AVMetadataID3MetadataKeyRecordingTime,                 // Year
+                             AVMetadataID3MetadataKeyYear:
                             mySong.year = metadataItem.stringValue
                         case AVMetadataID3MetadataKeyAttachedPicture:               // Album Artwork
                             mySong.artwork = "Artwork"
                         default:
                             break
-                        }
                     }
                 }
             }
             else if format as NSString == AVMetadataFormatiTunesMetadata    // .m4a
             {
                 println("\niTunes files not supported yet.\n")
-                //                        metadataItemArray = asset.metadataForFormat(AVMetadataFormatiTunesMetadata)
-                //                        println(metadataItemArray)
-                //
-                //                        for metadataItem in metadataItemArray
-                //                        {
-                //                            if let numKey = AVMetadataItem.keyForIdentifier(metadataItem.identifier) as? NSNumber
-                //                            {
-                //                                let strKey:NSString = numKey.unsignedIntValue.toString()
-                //                                println("\(strKey) == \(AVMetadataiTunesMetadataKeyAlbum)")
-                //
-                //                                switch strKey {
-                //                                case AVMetadataiTunesMetadataKeyAlbum:                    // Album
-                //                                    mySong.album = metadataItem.stringValue
-                //                                case AVMetadataiTunesMetadataKeyAlbumArtist:                 // Album Artist
-                //                                    mySong.artist = metadataItem.stringValue
-                //                                case AVMetadataiTunesMetadataKeyArtist:                          // Artist
-                //                                    mySong.albumArtist = metadataItem.stringValue
-                //                                case AVMetadataiTunesMetadataKeyBeatsPerMin:                // Beats Per Minute
-                //                                    mySong.beatsPerMinute = metadataItem.stringValue
-                //                                case AVMetadataiTunesMetadataKeyUserComment:                      // Comments
-                //                                    mySong.comments = metadataItem.stringValue
-                //                                case AVMetadataiTunesMetadataKeyComposer:                      // Composer
-                //                                    mySong.composer = metadataItem.stringValue
-                ////                                case AVMetadataiTunesMetadataKeyUserGenre:                   // Genre
-                ////                                    mySong.genre = metadataItem.stringValue
-                //                                case AVMetadataiTunesMetadataKeyGrouping:       // Grouping
-                //                                    mySong.grouping = metadataItem.stringValue
-                //                                case AVMetadataiTunesMetadataKeySongName:              // Name
-                //                                    mySong.name = metadataItem.stringValue
-                ////                                case AVMetadataiTunesMetadataKeyTrackNumber:                   // Track Number
-                ////                                    mySong.trackNumber = metadataItem.stringValue
-                //                                case AVMetadataiTunesMetadataKeyReleaseDate:                          // Year
-                //                                    mySong.year = metadataItem.stringValue
-                //                                case AVMetadataiTunesMetadataKeyCoverArt:               // Album Artwork
-                //                                    mySong.artwork = "Artwork"
-                //                                default:
-                //                                    break
-                //                                }
-                //                            }
-                //                        }
+//                metadataItemArray = asset.metadataForFormat(AVMetadataFormatiTunesMetadata)
+//                println(metadataItemArray)
+//
+//                for metadataItem in metadataItemArray
+//                {
+//                    if let numKey = AVMetadataItem.keyForIdentifier(metadataItem.identifier) as? NSNumber
+//                    {
+//                        let strKey:NSString = numKey.unsignedIntValue.toString()
+//                        println("\(strKey) == \(AVMetadataiTunesMetadataKeyAlbum)")
+//
+//                        switch strKey {
+//                        case AVMetadataiTunesMetadataKeyAlbum:                    // Album
+//                            mySong.album = metadataItem.stringValue
+//                        case AVMetadataiTunesMetadataKeyAlbumArtist:                 // Album Artist
+//                            mySong.artist = metadataItem.stringValue
+//                        case AVMetadataiTunesMetadataKeyArtist:                          // Artist
+//                            mySong.albumArtist = metadataItem.stringValue
+//                        case AVMetadataiTunesMetadataKeyBeatsPerMin:                // Beats Per Minute
+//                            mySong.beatsPerMinute = metadataItem.stringValue
+//                        case AVMetadataiTunesMetadataKeyUserComment:                      // Comments
+//                            mySong.comments = metadataItem.stringValue
+//                        case AVMetadataiTunesMetadataKeyComposer:                      // Composer
+//                            mySong.composer = metadataItem.stringValue
+////                                case AVMetadataiTunesMetadataKeyUserGenre:                   // Genre
+////                                    mySong.genre = metadataItem.stringValue
+//                        case AVMetadataiTunesMetadataKeyGrouping:       // Grouping
+//                            mySong.grouping = metadataItem.stringValue
+//                        case AVMetadataiTunesMetadataKeySongName:              // Name
+//                            mySong.name = metadataItem.stringValue
+////                                case AVMetadataiTunesMetadataKeyTrackNumber:                   // Track Number
+////                                    mySong.trackNumber = metadataItem.stringValue
+//                        case AVMetadataiTunesMetadataKeyReleaseDate:                          // Year
+//                            mySong.year = metadataItem.stringValue
+//                        case AVMetadataiTunesMetadataKeyCoverArt:               // Album Artwork
+//                            mySong.artwork = "Artwork"
+//                        default:
+//                            break
+//                        }
+//                    }
+//                }
             }
             else
             {
