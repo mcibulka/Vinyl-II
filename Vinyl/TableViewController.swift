@@ -19,6 +19,9 @@ class TableViewController: NSTableView
 {
     @IBOutlet weak var TableView: NSTableView!
     
+    func updateTable (){
+        var tableArray = songArray
+    }
 //    var tableArray = [Song(
 //        album: "Group Therapy",
 //        albumArtist: "Above & Beyond",
