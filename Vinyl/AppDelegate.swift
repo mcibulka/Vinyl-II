@@ -15,18 +15,18 @@
 import Cocoa
 import AVFoundation
 
-extension FourCharCode
-{
-    func toString() -> NSString
-    {
-        let codes: [UInt32] = [
-            (self >> 24) & 255,
-            (self >> 16) & 255,
-            (self >> 8) & 255,
-            self & 255]
-        return codes.map{String(UnicodeScalar($0))}.reduce("", +)
-    }
-}
+//extension FourCharCode
+//{
+//    func toString() -> NSString
+//    {
+//        let codes: [UInt32] = [
+//            (self >> 24) & 255,
+//            (self >> 16) & 255,
+//            (self >> 8) & 255,
+//            self & 255]
+//        return codes.map{String(UnicodeScalar($0))}.reduce("", +)
+//    }
+//}
 
 //var songArray = [NSManagedObject]()
 @NSApplicationMain
@@ -34,7 +34,6 @@ class AppDelegate: NSObject, NSApplicationDelegate
 {
     let addFileOpenPanel = NSOpenPanel()
     var songArray = [Song]()
-    
     
     func applicationDidFinishLaunching(aNotification: NSNotification)
     {
@@ -95,7 +94,6 @@ class AppDelegate: NSObject, NSApplicationDelegate
         // Set all of the song attributes
 //        song.setValue("new title", forKey: "title")
 //        song.setValue("new album", forKey: "album")
-        
        
         
         // println("Count: \(addFileOpenPanel.URLs.count)")
@@ -103,11 +101,19 @@ class AppDelegate: NSObject, NSApplicationDelegate
         
         for var i = 0; i < songsToAdd.count; i++
         {
+            var mySong:Song = Song()
+            
             let asset = AVURLAsset(URL: songsToAdd[i] as NSURL, options: nil)
+            let cmTime: CMTime = asset.duration
+            let cmTimeSecs: Float64 = CMTimeGetSeconds(cmTime)
+            let intTime: Int64 = Int64(round(cmTimeSecs))
+            let minutes = (intTime % 3600) / 60
+            let seconds = (intTime % 3600) % 60
+            
+            mySong.time = "\(minutes):\(seconds)"
             
             if asset.URL != nil
             {
-                var mySong:Song = Song()
                 var metadataItemArray: NSArray
                 
                 // Extract metadata based on file type of song
@@ -120,7 +126,6 @@ class AppDelegate: NSObject, NSApplicationDelegate
                         
                         for metadataItem in metadataItemArray as [AVMetadataItem]
                         {
-                            println(metadataItem.key() as NSString)
                             switch metadataItem.key() as NSString
                             {
                                 case AVMetadataID3MetadataKeyAlbumTitle:                    // Album
@@ -143,7 +148,7 @@ class AppDelegate: NSObject, NSApplicationDelegate
                                     mySong.name = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyTrackNumber:                   // Track Number
                                     mySong.trackNumber = metadataItem.stringValue
-                                case AVMetadataID3MetadataKeyYear:                          // Year
+                                case AVMetadataID3MetadataKeyRecordingTime:                 // Year
                                     mySong.year = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyAttachedPicture:               // Album Artwork
                                     mySong.artwork = "Artwork"
@@ -155,11 +160,22 @@ class AppDelegate: NSObject, NSApplicationDelegate
                     else if format as NSString == AVMetadataFormatiTunesMetadata    // .m4a
                     {
                         println("\niTunes files not supported yet.\n")
-                        metadataItemArray = asset.metadataForFormat(AVMetadataFormatiTunesMetadata)
-                        //println(metadataItemArray)
-                        
+//                        metadataItemArray = asset.metadataForFormat(AVMetadataFormatiTunesMetadata)
+//                        println(metadataItemArray)
+//
 //                        for metadataItem in metadataItemArray as [AVMetadataItem]
 //                        {
+//                            println(metadataItem.key().description)
+//                            var keyAsString: String
+//                            if let numKey = metadataItem.key() as? NSNumber {
+//                                keyAsString = numKey.unsignedIntValue.toString()
+//                            } else if let strKey = metadataItem.key() as? NSString {
+//                                keyAsString = strKey
+//                            } else {
+//                                keyAsString = metadataItem.key().description
+//                            }
+//                            println(keyAsString)
+//                        
 //                            println(metadataItem.key() as NSString?)
 //                            if let numKey = metadataItem.key() as? NSNumber
 //                            {
