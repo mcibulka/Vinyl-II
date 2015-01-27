@@ -287,6 +287,7 @@ class AppDelegate: NSObject, NSApplicationDelegate
             mySong.fileURL = "\(newstring)\n"
         }
         println("\(mySong.fileURL)")
+        println(mySong.toString())
         return mySong
     }
     
