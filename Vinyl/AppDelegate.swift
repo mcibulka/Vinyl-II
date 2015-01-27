@@ -102,22 +102,32 @@ class AppDelegate: NSObject, NSApplicationDelegate
         for var i = 0; i < songsToAdd.count; i++
         {
             var mySong:Song = Song()
-            
             let asset = AVURLAsset(URL: songsToAdd[i] as NSURL, options: nil)
+            
+            /* Determine song's time */
             let cmTime: CMTime = asset.duration
             let cmTimeSecs: Float64 = CMTimeGetSeconds(cmTime)
             let intTime: Int64 = Int64(round(cmTimeSecs))
             let minutes = (intTime % 3600) / 60
             let seconds = (intTime % 3600) % 60
+            let timeStr: NSString = "\(minutes):\(seconds)"
             
-            mySong.time = "\(minutes):\(seconds)"
+            mySong.time = timeStr
+            
+            
+            /* Record time and date of when song is added to the library */
+            let dateAdded: NSDate = NSDate(timeIntervalSinceNow: 0.0)
+            let dateAddedStr: NSString = dateAdded.descriptionWithCalendarFormat("%Y-%m-%d %H:%M:%S", timeZone: nil, locale: nil)!
+            
+            mySong.dateAdded = dateAddedStr
+            
             
             if asset.URL != nil
             {
                 var metadataItemArray: NSArray
                 
-                // Extract metadata based on file type of song
-                var formats: NSArray = asset.availableMetadataFormats
+                /* Extract metadata based on file type of song */
+                let formats: NSArray = asset.availableMetadataFormats
                 for format in formats
                 {
                     if format as NSString == AVMetadataFormatID3Metadata    // MP3
@@ -148,7 +158,8 @@ class AppDelegate: NSObject, NSApplicationDelegate
                                     mySong.name = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyTrackNumber:                   // Track Number
                                     mySong.trackNumber = metadataItem.stringValue
-                                case AVMetadataID3MetadataKeyRecordingTime:                 // Year
+                                case AVMetadataID3MetadataKeyRecordingTime,                 // Year
+                                     AVMetadataID3MetadataKeyYear:
                                     mySong.year = metadataItem.stringValue
                                 case AVMetadataID3MetadataKeyAttachedPicture:               // Album Artwork
                                     mySong.artwork = "Artwork"
@@ -157,7 +168,7 @@ class AppDelegate: NSObject, NSApplicationDelegate
                             }
                         }
                     }
-                    else if format as NSString == AVMetadataFormatiTunesMetadata    // .m4a
+                    else if format as NSString == AVMetadataFormatiTunesMetadata    // M4A
                     {
                         println("\niTunes files not supported yet.\n")
 //                        metadataItemArray = asset.metadataForFormat(AVMetadataFormatiTunesMetadata)

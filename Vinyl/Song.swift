@@ -19,18 +19,18 @@ class Song: NSObject
     var album: String = ""
     var albumArtist: String = ""
     var artist: String = ""
-    var beatsPerMinute: String = ""
+    var beatsPerMinute: NSString = ""
     var comments: String = ""
     var composer: String = ""
-    var dateAdded: String = ""
+    var dateAdded: NSString = ""
     var genre: String = ""
     var grouping: String = ""
     var name: String = ""
-    var time: String = ""
+    var time: NSString = ""
     var trackNumber: String = ""
     var year: String = ""
     
-    var fileURL: String = ""
+    var fileURL: NSString = ""
     var artwork: String = ""
     
 //    init(album: String, albumArtist: String, artist: String, beatsPerMinute: String, comments: String, composer: String, dateAdded: String, genre: String, grouping: String, name: String, time: String, trackNumber: String, year: String, fileURL: String, artwork: String)
