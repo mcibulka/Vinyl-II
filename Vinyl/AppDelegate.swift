@@ -16,26 +16,13 @@ import Cocoa
 import AVFoundation
 import Foundation
 
-var songArray = [Song]()
-var songsToSave = [NSString]()
-
-extension FourCharCode
-{
-    func toString() -> NSString
-    {
-        let codes: [UInt32] = [
-            (self >> 24) & 255,
-            (self >> 16) & 255,
-            (self >> 8) & 255,
-            self & 255]
-        return codes.map{String(UnicodeScalar($0))}.reduce("", +)
-    }
-}
-
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate
 {
     let addFileOpenPanel = NSOpenPanel()
+    
+    var songArray = [Song]()
+    var songsToSave = [NSString]()
     
     func applicationDidFinishLaunching(aNotification: NSNotification)
     {
@@ -49,7 +36,8 @@ class AppDelegate: NSObject, NSApplicationDelegate
         // Read content of file
         let content = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
         // Extract Song info
-        if content != "" {
+        if content != ""
+        {
             var urlArray: NSArray = content!.componentsSeparatedByString("\n")
             var url: NSString
             
@@ -57,20 +45,23 @@ class AppDelegate: NSObject, NSApplicationDelegate
             {
                 url = urlArray[i] as NSString
                 
-                if url != ""{
+                if url != ""
+                {
                     let songUrl = NSURL(string: url)
                     var asset = AVURLAsset(URL: songUrl, options: nil)
-                    var mySong = extractSongInfo(asset)
+                    var mySong = Song(asset: asset)
                     
-                    //Add song to song array
                     songArray.append(mySong)
-                    println(mySong.artist)
-                    // update table
-                    //////myTableView.reloadData()
                 }
             }
-        } else {
+        }
+        else {
             println("File empty\n")
+        }
+        
+        for var i=0 ; i<songArray.count ; i++
+        {
+            println(songArray[i].toString())
         }
     }
 
@@ -84,10 +75,12 @@ class AppDelegate: NSObject, NSApplicationDelegate
         var err:NSError?
         var fileHandle: NSFileHandle
         
-        if NSFileManager.defaultManager().fileExistsAtPath(path!) {
-            for song in songsToSave {
-                if let fileHandle = NSFileHandle(forWritingAtPath: path!) {
-                    
+        if NSFileManager.defaultManager().fileExistsAtPath(path!)
+        {
+            for song in songsToSave
+            {
+                if let fileHandle = NSFileHandle(forWritingAtPath: path!)
+                {
                     //Add file path to data.txt
                     var text = song as NSString
                     println(song)
@@ -95,7 +88,8 @@ class AppDelegate: NSObject, NSApplicationDelegate
                     fileHandle.seekToEndOfFile()
                     fileHandle.writeData(data!)
                     fileHandle.closeFile()
-                } else {
+                }
+                else {
                     println("Can't open fileHandle \(err)")
                 }
             }
@@ -114,7 +108,8 @@ class AppDelegate: NSObject, NSApplicationDelegate
         
         if isDirectory {
             return true
-        } else {
+        }
+        else {
             return false
         }
     }
@@ -126,10 +121,11 @@ class AppDelegate: NSObject, NSApplicationDelegate
     func dirIterator(dir: NSURL) -> NSArray
     {
         let fileManager = NSFileManager.defaultManager()
-        let enumerator: NSDirectoryEnumerator? = fileManager.enumeratorAtURL( dir as NSURL, includingPropertiesForKeys: [NSURLIsDirectoryKey], options: nil, errorHandler: nil)
+        let enumerator: NSDirectoryEnumerator? = fileManager.enumeratorAtURL(dir as NSURL, includingPropertiesForKeys: [NSURLIsDirectoryKey], options: nil, errorHandler: nil)
         var array = [NSURL]()
         
-        while let element = enumerator?.nextObject() as? NSURL {
+        while let element = enumerator?.nextObject() as? NSURL
+        {
             println("Found a file")
             array.append(element)
         }
@@ -142,152 +138,22 @@ class AppDelegate: NSObject, NSApplicationDelegate
         {
             var asset = AVURLAsset(URL: songsToAdd[i] as NSURL, options: nil)
             
-            if isDirectory(songsToAdd[i] as NSURL)
-            {
+            if isDirectory(songsToAdd[i] as NSURL) {
                 addSongs(dirIterator(songsToAdd[i] as NSURL))
-                
-            } else if asset.URL != nil {
+            }
+            else if asset.URL != nil
+            {
                 println("URL: \(asset)")
-                let mySong = extractSongInfo(asset)
+                let mySong = Song(asset: asset)
                 
                 //Add song to song array
                 songArray.append(mySong)
-                
-                // update table
-               ////////// myTableView.reloadData()
                 
                 //add to songsToSave
                 println("Songs to add:\(songsToAdd[i].absoluteString)")
                 songsToSave.append(songsToAdd[i].absoluteString!!)
             }
         }
-    }
-    
-    func extractSongInfo(asset: AnyObject) -> Song
-    {
-        var mySong:Song = Song()
-        
-        /* Determine song's time */
-        let cmTime: CMTime = asset.duration
-        let cmTimeSecs: Float64 = CMTimeGetSeconds(cmTime)
-        let intTime: Int64 = Int64(round(cmTimeSecs))
-        let minutes = (intTime % 3600) / 60
-        let seconds = (intTime % 3600) % 60
-        let timeStr: NSString = "\(minutes):\(seconds)"
-        
-        mySong.time = timeStr
-        
-        /* Record time and date of when song is added to the library */
-        let dateAdded: NSDate = NSDate(timeIntervalSinceNow: 0.0)
-        let dateAddedStr: NSString = dateAdded.descriptionWithCalendarFormat("%Y-%m-%d %H:%M:%S", timeZone: nil, locale: nil)!
-        
-        mySong.dateAdded = dateAddedStr
-        
-        
-        var metadataItemArray: NSArray
-        
-        // Extract metadata based on file type of song
-        var formats: NSArray = asset.availableMetadataFormats
-        for format in formats
-        {
-            if format as NSString == AVMetadataFormatID3Metadata    // MP3
-            {
-                metadataItemArray = asset.metadataForFormat(AVMetadataFormatID3Metadata)
-                
-                for metadataItem in metadataItemArray as [AVMetadataItem]
-                {
-                    switch metadataItem.key() as NSString
-                    {
-                        case AVMetadataID3MetadataKeyAlbumTitle:                    // Album
-                            mySong.album = metadataItem.stringValue
-                        case AVMetadataID3MetadataKeyLeadPerformer:                 // Album Artist
-                            mySong.artist = metadataItem.stringValue
-                        case AVMetadataID3MetadataKeyBand:                          // Artist
-                            mySong.albumArtist = metadataItem.stringValue
-                        case AVMetadataID3MetadataKeyBeatsPerMinute:                // Beats Per Minute
-                            mySong.beatsPerMinute = metadataItem.stringValue
-                        case AVMetadataID3MetadataKeyComments:                      // Comments
-                            mySong.comments = metadataItem.stringValue
-                        case AVMetadataID3MetadataKeyComposer:                      // Composer
-                            mySong.composer = metadataItem.stringValue
-                        case AVMetadataID3MetadataKeyContentType:                   // Genre
-                            mySong.genre = metadataItem.stringValue
-                        case AVMetadataID3MetadataKeyContentGroupDescription:       // Grouping
-                            mySong.grouping = metadataItem.stringValue
-                        case AVMetadataID3MetadataKeyTitleDescription:              // Name
-                            mySong.name = metadataItem.stringValue
-                        case AVMetadataID3MetadataKeyTrackNumber:                   // Track Number
-                            mySong.trackNumber = metadataItem.stringValue
-                        case AVMetadataID3MetadataKeyRecordingTime,                 // Year
-                             AVMetadataID3MetadataKeyYear:
-                            mySong.year = metadataItem.stringValue
-                        case AVMetadataID3MetadataKeyAttachedPicture:               // Album Artwork
-                            mySong.artwork = "Artwork"
-                        default:
-                            break
-                    }
-                }
-            }
-            else if format as NSString == AVMetadataFormatiTunesMetadata    // .m4a
-            {
-                println("\niTunes files not supported yet.\n")
-//                metadataItemArray = asset.metadataForFormat(AVMetadataFormatiTunesMetadata)
-//                println(metadataItemArray)
-//
-//                for metadataItem in metadataItemArray
-//                {
-//                    if let numKey = AVMetadataItem.keyForIdentifier(metadataItem.identifier) as? NSNumber
-//                    {
-//                        let strKey:NSString = numKey.unsignedIntValue.toString()
-//                        println("\(strKey) == \(AVMetadataiTunesMetadataKeyAlbum)")
-//
-//                        switch strKey {
-//                        case AVMetadataiTunesMetadataKeyAlbum:                    // Album
-//                            mySong.album = metadataItem.stringValue
-//                        case AVMetadataiTunesMetadataKeyAlbumArtist:                 // Album Artist
-//                            mySong.artist = metadataItem.stringValue
-//                        case AVMetadataiTunesMetadataKeyArtist:                          // Artist
-//                            mySong.albumArtist = metadataItem.stringValue
-//                        case AVMetadataiTunesMetadataKeyBeatsPerMin:                // Beats Per Minute
-//                            mySong.beatsPerMinute = metadataItem.stringValue
-//                        case AVMetadataiTunesMetadataKeyUserComment:                      // Comments
-//                            mySong.comments = metadataItem.stringValue
-//                        case AVMetadataiTunesMetadataKeyComposer:                      // Composer
-//                            mySong.composer = metadataItem.stringValue
-////                                case AVMetadataiTunesMetadataKeyUserGenre:                   // Genre
-////                                    mySong.genre = metadataItem.stringValue
-//                        case AVMetadataiTunesMetadataKeyGrouping:       // Grouping
-//                            mySong.grouping = metadataItem.stringValue
-//                        case AVMetadataiTunesMetadataKeySongName:              // Name
-//                            mySong.name = metadataItem.stringValue
-////                                case AVMetadataiTunesMetadataKeyTrackNumber:                   // Track Number
-////                                    mySong.trackNumber = metadataItem.stringValue
-//                        case AVMetadataiTunesMetadataKeyReleaseDate:                          // Year
-//                            mySong.year = metadataItem.stringValue
-//                        case AVMetadataiTunesMetadataKeyCoverArt:               // Album Artwork
-//                            mySong.artwork = "Artwork"
-//                        default:
-//                            break
-//                        }
-//                    }
-//                }
-            }
-            else
-            {
-                println("\nERROR. Unrecognized file format: \(format)\n\n")
-            }
-        }
-        // Add file path to Song object
-        if let x = asset.URL!{
-            var newstring = "\(asset.URL)"
-            newstring = newstring.stringByReplacingOccurrencesOfString("\"", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
-            newstring = newstring.stringByReplacingOccurrencesOfString("Optional(", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
-            newstring = newstring.stringByReplacingOccurrencesOfString(")", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
-            
-            mySong.fileURL = "\(newstring)\n"
-        }
-        println("\(mySong.fileURL)")
-        return mySong
     }
     
     @IBAction func AddToLibrary(sender: AnyObject)
