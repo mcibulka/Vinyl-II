@@ -48,19 +48,19 @@ class Song
         
         
         /* Get time and date of when song is added to the library */
-        let dateAdded: NSDate = NSDate(timeIntervalSinceNow: 0.0)
-        let dateAddedStr: NSString = dateAdded.descriptionWithCalendarFormat("%Y-%m-%d %H:%M:%S", timeZone: nil, locale: nil)!
+        let dateAdded = NSDate(timeIntervalSinceNow: 0.0)
+        let dateAddedStr = dateAdded.descriptionWithCalendarFormat("%Y-%m-%d %H:%M:%S", timeZone: nil, locale: nil)!
         
         self.dateAdded = dateAddedStr
         
         
         /* Get song's time */
-        let cmTime: CMTime = asset.duration
-        let cmTimeSecs: Float64 = CMTimeGetSeconds(cmTime)
-        let intTime: Int64 = Int64(round(cmTimeSecs))
+        let cmTime = asset.duration
+        let cmTimeSecs = CMTimeGetSeconds(cmTime)
+        let intTime = Int64(round(cmTimeSecs))
         let minutes = (intTime % 3600) / 60
         let seconds = (intTime % 3600) % 60
-        let timeStr: NSString = "\(minutes):\(seconds)"
+        let timeStr = "\(minutes):\(seconds)"
         
         self.time = timeStr
         
@@ -71,19 +71,17 @@ class Song
     
     func extractSongInfo(asset: AVURLAsset)
     {
-        var metadataItemArray: NSArray
-        
         // Extract metadata based on file type of song
         var formats: NSArray = asset.availableMetadataFormats
         for format in formats
         {
             if format as NSString == AVMetadataFormatID3Metadata    // MP3
             {
-                metadataItemArray = asset.metadataForFormat(AVMetadataFormatID3Metadata)
+                let metadataItemArray = asset.metadataForFormat(AVMetadataFormatID3Metadata)
                 
                 for metadataItem in metadataItemArray as [AVMetadataItem]
                 {
-                    switch metadataItem.key() as NSString
+                    switch metadataItem.key() as String
                     {
                     case AVMetadataID3MetadataKeyAlbumTitle:                    // Album
                         self.album = metadataItem.stringValue

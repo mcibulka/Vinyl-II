@@ -22,7 +22,7 @@ class AppDelegate: NSObject, NSApplicationDelegate
     let addFileOpenPanel = NSOpenPanel()
     
     var songArray = [Song]()
-    var songsToSave = [NSString]()
+    var songsToSave = [String]()
     
     func applicationDidFinishLaunching(aNotification: NSNotification)
     {
@@ -35,30 +35,27 @@ class AppDelegate: NSObject, NSApplicationDelegate
         
         // Read content of file
         let content = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
+        
         // Extract Song info
-        if content != ""
+        if content != nil
         {
-            var urlArray: NSArray = content!.componentsSeparatedByString("\n")
-            var url: NSString
+            let urlArray = content!.componentsSeparatedByString("\n")
             
             for var i = 0; i < urlArray.count; i++
             {
-                url = urlArray[i] as NSString
+                let songUrl = NSURL(string: urlArray[i])
                 
-                if url != ""
-                {
-                    let songUrl = NSURL(string: url)
-                    var asset = AVURLAsset(URL: songUrl, options: nil)
-                    var mySong = Song(asset: asset)
-                    
-                    songArray.append(mySong)
-                }
+                let asset = AVURLAsset(URL: songUrl, options: nil)
+                var mySong = Song(asset: asset)
+                
+                songArray.append(mySong)
             }
         }
         else {
             println("File empty\n")
         }
         
+        println(songArray.count)
         for var i=0 ; i<songArray.count ; i++
         {
             println(songArray[i].toString())
@@ -72,8 +69,6 @@ class AppDelegate: NSObject, NSApplicationDelegate
         println("SAVING:")
         let bundle = NSBundle.mainBundle()
         let path = bundle.pathForResource("data", ofType: "txt")
-        var err:NSError?
-        var fileHandle: NSFileHandle
         
         if NSFileManager.defaultManager().fileExistsAtPath(path!)
         {
@@ -82,15 +77,13 @@ class AppDelegate: NSObject, NSApplicationDelegate
                 if let fileHandle = NSFileHandle(forWritingAtPath: path!)
                 {
                     //Add file path to data.txt
-                    var text = song as NSString
-                    println(song)
-                    let data = ("\(text)\n").dataUsingEncoding(NSUTF8StringEncoding)
+                    let data = ("\(song)\n").dataUsingEncoding(NSUTF8StringEncoding)
                     fileHandle.seekToEndOfFile()
                     fileHandle.writeData(data!)
                     fileHandle.closeFile()
                 }
                 else {
-                    println("Can't open fileHandle \(err)")
+                    println("Can't open fileHandle.")
                 }
             }
         }
@@ -102,7 +95,7 @@ class AppDelegate: NSObject, NSApplicationDelegate
     */
     func isDirectory(path: NSURL) -> Bool
     {
-        var isDirectory: ObjCBool = ObjCBool(false)
+        var isDirectory: ObjCBool = ObjCBool(false)     // REFACTOR to Swift type Bool?
         
         if NSFileManager.defaultManager().fileExistsAtPath(path.path!, isDirectory: &isDirectory) {}
         
@@ -121,15 +114,15 @@ class AppDelegate: NSObject, NSApplicationDelegate
     func dirIterator(dir: NSURL) -> NSArray
     {
         let fileManager = NSFileManager.defaultManager()
-        let enumerator: NSDirectoryEnumerator? = fileManager.enumeratorAtURL(dir as NSURL, includingPropertiesForKeys: [NSURLIsDirectoryKey], options: nil, errorHandler: nil)
-        var array = [NSURL]()
+        let enumerator = fileManager.enumeratorAtURL(dir as NSURL, includingPropertiesForKeys: [NSURLIsDirectoryKey], options: nil, errorHandler: nil)
+        var urlArray = [NSURL]()
         
         while let element = enumerator?.nextObject() as? NSURL
         {
             println("Found a file")
-            array.append(element)
+            urlArray.append(element)
         }
-        return array
+        return urlArray
     }
     
     func addSongs(songsToAdd: NSArray)
