@@ -29,16 +29,5 @@ class ViewController: NSViewController
         // Update the view, if already loaded.
         }
     }
-
-    @IBAction func playSong(sender: AnyObject)
-    {
-        var audioPlayer = AVAudioPlayer()
-        
-        let songURL = NSURL(string: "file:///Users/Matthew/Google%20Drive/Vinyl/Sample%20Music%20Library/M4A/03%20Sun%20&%20Moon.m4a")
-        
-        audioPlayer = AVAudioPlayer(contentsOfURL: songURL, error: nil)
-        audioPlayer.prepareToPlay()
-        audioPlayer.play()
-    }
 }
 

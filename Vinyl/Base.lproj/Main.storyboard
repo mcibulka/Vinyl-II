@@ -373,12 +373,12 @@
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <rect key="contentRect" x="196" y="240" width="800" height="500"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
-                        <toolbar key="toolbar" implicitIdentifier="F7E962E2-1382-4E58-8806-EC2AB0E1C130" autosavesConfiguration="NO" allowsUserCustomization="NO" displayMode="iconOnly" sizeMode="regular" id="UsY-AZ-NF6">
+                        <toolbar key="toolbar" implicitIdentifier="F7E962E2-1382-4E58-8806-EC2AB0E1C130" autosavesConfiguration="NO" allowsUserCustomization="NO" displayMode="iconOnly" sizeMode="regular" id="UsY-AZ-NF6" customClass="ToolbarController" customModule="Vinyl" customModuleProvider="target">
                             <allowedToolbarItems>
                                 <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="Li9-z2-Xl6"/>
                                 <toolbarItem implicitItemIdentifier="CE7FC948-F4CB-4147-BD08-12FA7D4589D9" label="Play" paletteLabel="Play" tag="-1" image="Play" id="sjn-4D-tGb" userLabel="Play">
                                     <connections>
-                                        <action selector="playSong:" target="Oky-zY-oP4" id="Asr-r9-cKU"/>
+                                        <action selector="playSong:" target="UsY-AZ-NF6" id="b0p-xy-31T"/>
                                     </connections>
                                 </toolbarItem>
                             </allowedToolbarItems>
@@ -387,6 +387,9 @@
                                 <toolbarItem reference="sjn-4D-tGb"/>
                                 <toolbarItem reference="Li9-z2-Xl6"/>
                             </defaultToolbarItems>
+                            <connections>
+                                <outlet property="playToolbarItem" destination="sjn-4D-tGb" id="vdS-kD-w9E"/>
+                            </connections>
                         </toolbar>
                     </window>
                     <connections>
