@@ -16,26 +16,13 @@ import Cocoa
 import AVFoundation
 import Foundation
 
-var songArray = [Song]()
-var songsToSave = [NSString]()
-
-extension FourCharCode
-{
-    func toString() -> NSString
-    {
-        let codes: [UInt32] = [
-            (self >> 24) & 255,
-            (self >> 16) & 255,
-            (self >> 8) & 255,
-            self & 255]
-        return codes.map{String(UnicodeScalar($0))}.reduce("", +)
-    }
-}
-
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate
 {
     let addFileOpenPanel = NSOpenPanel()
+    
+    var songArray = [Song]()
+    var songsToSave = [String]()
     
     func applicationDidFinishLaunching(aNotification: NSNotification)
     {
@@ -48,29 +35,30 @@ class AppDelegate: NSObject, NSApplicationDelegate
         
         // Read content of file
         let content = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
+        
         // Extract Song info
-        if content != "" {
-            var urlArray: NSArray = content!.componentsSeparatedByString("\n")
-            var url: NSString
+        if content != nil
+        {
+            let urlArray = content!.componentsSeparatedByString("\n")
             
             for var i = 0; i < urlArray.count; i++
             {
-                url = urlArray[i] as NSString
+                let songUrl = NSURL(string: urlArray[i])
                 
-                if url != ""{
-                    let songUrl = NSURL(string: url)
-                    var asset = AVURLAsset(URL: songUrl, options: nil)
-                    var mySong = extractSongInfo(asset)
-                    
-                    //Add song to song array
-                    songArray.append(mySong)
-                    println(mySong.artist)
-                    // update table
-                    //////myTableView.reloadData()
-                }
+                let asset = AVURLAsset(URL: songUrl, options: nil)
+                var mySong = Song(asset: asset)
+                
+                songArray.append(mySong)
             }
-        } else {
+        }
+        else {
             println("File empty\n")
+        }
+        
+        println(songArray.count)
+        for var i=0 ; i<songArray.count ; i++
+        {
+            println(songArray[i].toString())
         }
     }
 
@@ -81,22 +69,21 @@ class AppDelegate: NSObject, NSApplicationDelegate
         println("SAVING:")
         let bundle = NSBundle.mainBundle()
         let path = bundle.pathForResource("data", ofType: "txt")
-        var err:NSError?
-        var fileHandle: NSFileHandle
         
-        if NSFileManager.defaultManager().fileExistsAtPath(path!) {
-            for song in songsToSave {
-                if let fileHandle = NSFileHandle(forWritingAtPath: path!) {
-                    
+        if NSFileManager.defaultManager().fileExistsAtPath(path!)
+        {
+            for song in songsToSave
+            {
+                if let fileHandle = NSFileHandle(forWritingAtPath: path!)
+                {
                     //Add file path to data.txt
-                    var text = song as NSString
-                    println(song)
-                    let data = ("\(text)\n").dataUsingEncoding(NSUTF8StringEncoding)
+                    let data = ("\(song)\n").dataUsingEncoding(NSUTF8StringEncoding)
                     fileHandle.seekToEndOfFile()
                     fileHandle.writeData(data!)
                     fileHandle.closeFile()
-                } else {
-                    println("Can't open fileHandle \(err)")
+                }
+                else {
+                    println("Can't open fileHandle.")
                 }
             }
         }
@@ -108,13 +95,14 @@ class AppDelegate: NSObject, NSApplicationDelegate
     */
     func isDirectory(path: NSURL) -> Bool
     {
-        var isDirectory: ObjCBool = ObjCBool(false)
+        var isDirectory: ObjCBool = ObjCBool(false)     // REFACTOR to Swift type Bool?
         
         if NSFileManager.defaultManager().fileExistsAtPath(path.path!, isDirectory: &isDirectory) {}
         
         if isDirectory {
             return true
-        } else {
+        }
+        else {
             return false
         }
     }
@@ -126,14 +114,15 @@ class AppDelegate: NSObject, NSApplicationDelegate
     func dirIterator(dir: NSURL) -> NSArray
     {
         let fileManager = NSFileManager.defaultManager()
-        let enumerator: NSDirectoryEnumerator? = fileManager.enumeratorAtURL( dir as NSURL, includingPropertiesForKeys: [NSURLIsDirectoryKey], options: nil, errorHandler: nil)
-        var array = [NSURL]()
+        let enumerator = fileManager.enumeratorAtURL(dir as NSURL, includingPropertiesForKeys: [NSURLIsDirectoryKey], options: nil, errorHandler: nil)
+        var urlArray = [NSURL]()
         
-        while let element = enumerator?.nextObject() as? NSURL {
+        while let element = enumerator?.nextObject() as? NSURL
+        {
             println("Found a file")
-            array.append(element)
+            urlArray.append(element)
         }
-        return array
+        return urlArray
     }
     
     func addSongs(songsToAdd: NSArray)
@@ -142,19 +131,16 @@ class AppDelegate: NSObject, NSApplicationDelegate
         {
             var asset = AVURLAsset(URL: songsToAdd[i] as NSURL, options: nil)
             
-            if isDirectory(songsToAdd[i] as NSURL)
-            {
+            if isDirectory(songsToAdd[i] as NSURL) {
                 addSongs(dirIterator(songsToAdd[i] as NSURL))
-                
-            } else if asset.URL != nil {
+            }
+            else if asset.URL != nil
+            {
                 println("URL: \(asset)")
-                let mySong = extractSongInfo(asset)
+                let mySong = Song(asset: asset)
                 
                 //Add song to song array
                 songArray.append(mySong)
-                
-                // update table
-               ////////// myTableView.reloadData()
                 
                 //add to songsToSave
                 println("Songs to add:\(songsToAdd[i].absoluteString)")
