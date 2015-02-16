@@ -605,11 +605,6 @@
                     </view>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-                <customObject id="jJl-EH-OvD" customClass="TableViewController" customModule="Vinyl" customModuleProvider="target">
-                    <connections>
-                        <outlet property="TableView" destination="9bp-6d-WAo" id="x2E-UH-8dT"/>
-                    </connections>
-                </customObject>
             </objects>
             <point key="canvasLocation" x="75" y="896"/>
         </scene>
