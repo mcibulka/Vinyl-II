@@ -17,16 +17,107 @@ import AVFoundation
 
 class ViewController: NSViewController
 {
-    override func viewDidLoad()
+    @IBOutlet weak var songArrayTableView: NSTableView!
+    
+    var audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: "file:///Users/Matthew/Google%20Drive/Vinyl/Sample%20Music%20Library/M4A/03%20Sun%20&%20Moon.m4a"), error: nil)
+    
+    let addFileOpenPanel = NSOpenPanel()
+    var songArray = [Song]()
+    var songsToSave = [String]()
+
+    
+    func addSongs(songsToAdd: NSArray)
     {
-        super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        /* FUNCTION: isDirectory
+        ** INPUT: NSURL
+        ** RETURN: true if the NSURL is a directory, false if not a directory
+        */
+        func isDirectory(path: NSURL) -> Bool
+        {
+            var isDirectory: ObjCBool = ObjCBool(false)     // REFACTOR to Swift type Bool?
+            
+            if NSFileManager.defaultManager().fileExistsAtPath(path.path!, isDirectory: &isDirectory) {}
+            
+            if isDirectory {
+                return true
+            }
+            else {
+                return false
+            }
+        }
+        
+        /* FUNCTION: dirIterator
+        ** INPUT: NSURL of a directory
+        ** RETURN: An NSArray of NSURLS that were contained in the directory
+        */
+        func dirIterator(dir: NSURL) -> NSArray
+        {
+            let fileManager = NSFileManager.defaultManager()
+            let enumerator = fileManager.enumeratorAtURL(dir as NSURL, includingPropertiesForKeys: [NSURLIsDirectoryKey], options: nil, errorHandler: nil)
+            var urlArray = [NSURL]()
+    
+            while let element = enumerator?.nextObject() as? NSURL
+            {
+                println("Found a file")
+                urlArray.append(element)
+            }
+            return urlArray
+        }
+        
+        
+        for var i = 0; i < songsToAdd.count; i++
+        {
+            var asset = AVURLAsset(URL: songsToAdd[i] as NSURL, options: nil)
+            
+            if isDirectory(songsToAdd[i] as NSURL) {
+                addSongs(dirIterator(songsToAdd[i] as NSURL))
+            }
+            else if asset.URL != nil
+            {
+                println("URL: \(asset)")
+                let mySong = Song(asset: asset)
+                
+                //Add song to song array
+                songArray.append(mySong)
+                
+                //add to songsToSave
+                println("Songs to add:\(songsToAdd[i].absoluteString)")
+                songsToSave.append(songsToAdd[i].absoluteString!!)
+            }
+        }
     }
+    
+    @IBAction func addToLibrary(sender: AnyObject)
+    {
 
-    override var representedObject: AnyObject? {
-        didSet {
-        // Update the view, if already loaded.
+    
+        addFileOpenPanel.allowsMultipleSelection = true
+        addFileOpenPanel.canChooseDirectories = true
+        addFileOpenPanel.canChooseFiles = true
+        addFileOpenPanel.runModal()
+
+//        var songsToAdd: NSArray = addFileOpenPanel.URLs
+//        addSongs(songsToAdd)
+//        
+//        var asset = AVURLAsset(URL: songsToAdd[0] as NSURL, options: nil)
+//        let mySong = Song(asset: asset)
+//        songArray.append(mySong)
+//        println(songArray[0].toString())
+        songArrayTableView.reloadData()
+    }
+    
+    @IBAction func playSong(sender: NSToolbarItem)
+    {
+        if audioPlayer.playing == false
+        {
+            audioPlayer.prepareToPlay()
+            audioPlayer.play()
+//            playToolbarItem.image = NSImage(byReferencingFile: "/Users/Matthew/Documents/Projects/Vinyl-II/Vinyl/Resources/Pause.png")
+        }
+        else
+        {
+            audioPlayer.pause()
+//            playToolbarItem.image = NSImage(byReferencingFile: "/Users/Matthew/Documents/Projects/Vinyl-II/Vinyl/Resources/Play.png")
         }
     }
 }

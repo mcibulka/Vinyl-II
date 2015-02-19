@@ -15,7 +15,7 @@
 import Foundation
 import AVFoundation
 
-class Song
+class Song: NSObject
 {
     private let dateAdded: String
     private let fileURL: String
@@ -35,6 +35,14 @@ class Song
     
     private var artwork: String?
     
+//    init (name: String)
+//    {
+//        self.dateAdded = ""
+//        self.fileURL = ""
+//        self.time = ""
+//        
+//        self.name = name
+//    }
     
     init(asset: AVURLAsset)
     {
@@ -63,7 +71,6 @@ class Song
         let timeStr = "\(minutes):\(seconds)"
         
         self.time = timeStr
-        
         
         extractSongInfo(asset)
     }
