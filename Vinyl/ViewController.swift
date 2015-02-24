@@ -18,6 +18,7 @@ import AVFoundation
 class ViewController: NSViewController
 {
     @IBOutlet weak var songArrayTableView: NSTableView!
+    @IBOutlet var songArrayController: NSArrayController!
     
     var audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: "file:///Users/Matthew/Google%20Drive/Vinyl/Sample%20Music%20Library/M4A/03%20Sun%20&%20Moon.m4a"), error: nil)
     
@@ -76,9 +77,10 @@ class ViewController: NSViewController
             {
                 println("URL: \(asset)")
                 let mySong = Song(asset: asset)
+                mySong.extractSongInfo(asset)
                 
                 //Add song to song array
-                songArray.append(mySong)
+                songArrayController.addObject(mySong)
                 
                 //add to songsToSave
                 println("Songs to add:\(songsToAdd[i].absoluteString)")
@@ -89,21 +91,12 @@ class ViewController: NSViewController
     
     @IBAction func addToLibrary(sender: AnyObject)
     {
-
-    
         addFileOpenPanel.allowsMultipleSelection = true
         addFileOpenPanel.canChooseDirectories = true
         addFileOpenPanel.canChooseFiles = true
         addFileOpenPanel.runModal()
 
-//        var songsToAdd: NSArray = addFileOpenPanel.URLs
-//        addSongs(songsToAdd)
-//        
-//        var asset = AVURLAsset(URL: songsToAdd[0] as NSURL, options: nil)
-//        let mySong = Song(asset: asset)
-//        songArray.append(mySong)
-//        println(songArray[0].toString())
-        songArrayTableView.reloadData()
+        addSongs(addFileOpenPanel.URLs)
     }
     
     @IBAction func playSong(sender: NSToolbarItem)
