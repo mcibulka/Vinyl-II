@@ -17,9 +17,9 @@ import AVFoundation
 
 class Song: NSObject
 {
-    let dateAdded: String
-    let fileURL: String
-    let time: String
+    var dateAdded: String
+    var fileURL: String
+    var time: String
 
     var album: String?
     var albumArtist: String?

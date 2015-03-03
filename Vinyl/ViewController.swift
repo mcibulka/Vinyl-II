@@ -24,8 +24,85 @@ class ViewController: NSViewController
     
     let addFileOpenPanel = NSOpenPanel()
     var songArray = [Song]()
-    var songsToSave = [String]()
-
+    var songsToSave = [NSString]()
+    
+    override func viewDidLoad() {
+      //  NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadLibrary:", name:"LoadSongs", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "saveLibrary:", name:"SaveSongs", object: nil)
+        println("BEFORE")
+        println(songArray)
+        
+        //open file with song URLS
+        println("OPENING:")
+        let bundle = NSBundle.mainBundle()
+        let path = bundle.pathForResource("data", ofType: "txt")
+        
+        // Read content of file
+        let content = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
+        
+        // Extract Song info
+        if content != nil
+        {
+            let urlArray = content!.componentsSeparatedByString("\n")
+            
+            for var i = 0; i < urlArray.count; i++
+            {
+                let songUrl = NSURL(string: urlArray[i])
+                
+                let asset = AVURLAsset(URL: songUrl, options: nil)
+                var mySong = Song(asset: asset)
+                
+                songArray.append(mySong)
+            }
+        }
+        else {
+            println("File empty\n")
+        }
+        
+        println(songArray.count)
+        for var i=0 ; i<songArray.count ; i++
+        {
+            println(songArray[i].toString())
+        }
+    }
+    
+    
+   // func loadLibrary(notification: NSNotification){
+     //   println("loading")
+        //let appDelegate = NSApplication.sharedApplication().delegate as AppDelegate
+       // addSongs(appDelegate.songArray)
+       // for song in appDelegate.songArray{
+            //songArrayController.add(song)
+           // self.songArray.append(song)
+            
+       // }
+   // }
+    
+    func saveLibrary(notification: NSNotification){
+        // Open file
+        println("SAVING:")
+        let bundle = NSBundle.mainBundle()
+        let path = bundle.pathForResource("data", ofType: "txt")
+        
+        if NSFileManager.defaultManager().fileExistsAtPath(path!)
+        {
+            for song in songsToSave
+            {
+                if let fileHandle = NSFileHandle(forWritingAtPath: path!)
+                {
+                    //Add file path to data.txt
+                    let data = ("\(song)\n").dataUsingEncoding(NSUTF8StringEncoding)
+                    fileHandle.seekToEndOfFile()
+                    fileHandle.writeData(data!)
+                    fileHandle.closeFile()
+                }
+                else {
+                    println("Can't open fileHandle.")
+                }
+            }
+        }
+        
+    }
     
     func addSongs(songsToAdd: NSArray)
     {
@@ -81,6 +158,7 @@ class ViewController: NSViewController
                 
                 //Add song to song array
                 songArrayController.addObject(mySong)
+                //songArray.append(mySong)
                 
                 //add to songsToSave
                 println("Songs to add:\(songsToAdd[i].absoluteString)")

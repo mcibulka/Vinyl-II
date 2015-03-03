@@ -19,71 +19,25 @@ import Foundation
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate
 {    
-//    var songArray = [Song]()
+    //var songArray = [Song]()
+    //var songsToSave = [NSString]()
     
     func applicationDidFinishLaunching(aNotification: NSNotification)
     {
         /* Insert code here to initialize your application */
         
-        //open file with song URLS
-//        println("OPENING:")
-//        let bundle = NSBundle.mainBundle()
-//        let path = bundle.pathForResource("data", ofType: "txt")
-//        
-//        // Read content of file
-//        let content = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
-//        
-//        // Extract Song info
-//        if content != nil
-//        {
-//            let urlArray = content!.componentsSeparatedByString("\n")
-//            
-//            for var i = 0; i < urlArray.count; i++
-//            {
-//                let songUrl = NSURL(string: urlArray[i])
-//                
-//                let asset = AVURLAsset(URL: songUrl, options: nil)
-//                var mySong = Song(asset: asset)
-//                
-//                songArray.append(mySong)
-//            }
-//        }
-//        else {
-//            println("File empty\n")
-//        }
-//        
-//        println(songArray.count)
-//        for var i=0 ; i<songArray.count ; i++
-//        {
-//            println(songArray[i].toString())
-//        }
+        
+        // send notification that songs are ready to be loaded
+       // NSNotificationCenter.defaultCenter().postNotificationName("LoadSongs", object: nil)
     }
 
     func applicationWillTerminate(aNotification: NSNotification)
     {
         // Insert code here to tear down your application
-        // Open file
-//        println("SAVING:")
-//        let bundle = NSBundle.mainBundle()
-//        let path = bundle.pathForResource("data", ofType: "txt")
-//        
-//        if NSFileManager.defaultManager().fileExistsAtPath(path!)
-//        {
-//            for song in songsToSave
-//            {
-//                if let fileHandle = NSFileHandle(forWritingAtPath: path!)
-//                {
-//                    //Add file path to data.txt
-//                    let data = ("\(song)\n").dataUsingEncoding(NSUTF8StringEncoding)
-//                    fileHandle.seekToEndOfFile()
-//                    fileHandle.writeData(data!)
-//                    fileHandle.closeFile()
-//                }
-//                else {
-//                    println("Can't open fileHandle.")
-//                }
-//            }
-//        }
+        // Notify view to update songs to save
+        NSNotificationCenter.defaultCenter().postNotificationName("SaveSongs", object: nil)
+        
+        
     }
 
     
