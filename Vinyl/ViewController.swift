@@ -24,7 +24,83 @@ class ViewController: NSViewController
     
     let addFileOpenPanel = NSOpenPanel()
     var songArray = [Song]()
-    var songsToSave = [String]()
+    
+    
+    override func viewDidLoad()
+    {
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadLibrary:", name:"LoadSongs", object: nil)
+    }
+    
+    
+    func loadLibrary(notification: NSNotification)
+    {
+        println("LOADING...\n")
+        
+        let mainBundle = NSBundle.mainBundle()
+        let path = mainBundle.pathForResource("songsList", ofType: "txt")
+        
+        if path != nil
+        {
+            let content = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
+            
+            if content != ""
+            {
+                let filePathArray = content!.componentsSeparatedByString("\n")
+
+                for filePath in filePathArray
+                {
+                    println(filePath)
+                    let songURL = NSURL(string: filePath)
+                    let asset = AVURLAsset(URL: songURL, options: nil)
+                    
+                    let mySong = Song(asset: asset)
+                    mySong.extractSongInfo(asset)
+
+                    songArrayController.addObject(mySong)
+                }
+            }
+            else {
+                println("File empty.")
+            }
+        }
+        else {
+            println("The file, \"songsList.txt\" could not be found.\n")
+        }
+        
+        println("\nLOAD COMPLETE.\n\n")
+    }
+    
+    
+    func saveLibrary()
+    {
+        println("SAVING...\n")
+        let mainBundle = NSBundle.mainBundle()
+        let path = mainBundle.pathForResource("songsList", ofType: "txt")
+        
+        if path != nil
+        {
+            var songsToWrite = ""
+            
+            for var i = 0; i < songArray.count; i++
+            {
+                if i != songArray.count - 1 {
+                    songsToWrite += songArray[i].fileURL + "\n"
+                }
+                else {
+                    songsToWrite += songArray[i].fileURL
+                }
+            }
+            
+            songsToWrite.writeToFile(path!, atomically: true, encoding: NSUTF8StringEncoding, error: nil)
+            println(songsToWrite)
+        }
+        else {
+            println("The file, \"songsList.txt\" could not be found.")
+        }
+        
+        println("\nSAVE COMPLETE.\n\n")
+    }
+    
     
     func addSongs(songsToAdd: NSArray)
     {
@@ -97,6 +173,24 @@ class ViewController: NSViewController
         addFileOpenPanel.runModal()
 
         addSongs(addFileOpenPanel.URLs)
+    }
+    
+    
+    @IBAction func playSong(sender: NSToolbarItem)
+    {
+        let mainBundle = NSBundle.mainBundle()
+        
+        if audioPlayer.playing == false
+        {
+            audioPlayer.prepareToPlay()
+            audioPlayer.play()
+            sender.image = NSImage(byReferencingFile: mainBundle.pathForResource("Pause", ofType: ".png")!)
+        }
+        else
+        {
+            audioPlayer.pause()
+            sender.image = NSImage(byReferencingFile: mainBundle.pathForResource("Play", ofType: ".png")!)
+        }
     }
 }
 
