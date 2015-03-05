@@ -64,6 +64,7 @@ class ViewController: NSViewController
             return urlArray
         }
         
+        println("ADDING...\n")
         
         for var i = 0; i < songsToAdd.count; i++
         {
@@ -74,19 +75,19 @@ class ViewController: NSViewController
             }
             else if asset.URL != nil
             {
-                println("URL: \(asset)")
                 let mySong = Song(asset: asset)
                 mySong.extractSongInfo(asset)
+                println(mySong.fileURL + "\n")
                 
-                //Add song to song array
                 songArrayController.addObject(mySong)
-                
-                //add to songsToSave
-                println("Songs to add:\(songsToAdd[i].absoluteString)")
-                songsToSave.append(songsToAdd[i].absoluteString!!)
             }
         }
+        
+        println("ADD Complete.\n\n")
+        
+        saveLibrary()
     }
+    
     
     @IBAction func addToLibrary(sender: AnyObject)
     {

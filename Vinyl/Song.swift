@@ -17,9 +17,9 @@ import AVFoundation
 
 class Song: NSObject
 {
-    let dateAdded: String
-    let fileURL: String
-    let time: String
+    var dateAdded: String
+    var fileURL: String
+    var time: String
 
     var album: String?
     var albumArtist: String?
@@ -43,7 +43,7 @@ class Song: NSObject
         fileURLString = fileURLString.stringByReplacingOccurrencesOfString("Optional(", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
         fileURLString = fileURLString.stringByReplacingOccurrencesOfString(")", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
         
-        self.fileURL = "\(fileURLString)\n"
+        self.fileURL = "\(fileURLString)"
         
         
         /* Get time and date of when song is added to the library */
