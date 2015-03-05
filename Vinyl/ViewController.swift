@@ -11,6 +11,7 @@
 *   Copyright (c) 2015 Matthew Cibulka. All rights reserved.
 *
 *******************************************************************************************************************************************************************************/
+
 import Cocoa
 import AVFoundation
 
@@ -19,22 +20,23 @@ class ViewController: NSViewController
     @IBOutlet weak var songArrayTableView: NSTableView!
     @IBOutlet var songArrayController: NSArrayController!
     
-    var audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: "file:///Users/claytonrose/Google%20Drive/Vinyl/Sample%20Music%20Library/M4A/03%20Sun%20&%20Moon.m4a"), error: nil)
+    var audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: "file:///Users/Matthew/Google%20Drive/Vinyl/Sample%20Music%20Library/M4A/03%20Sun%20&%20Moon.m4a"), error: nil)
     
     let addFileOpenPanel = NSOpenPanel()
     var songArray = [Song]()
     var songsToSave = [NSString]()
     
-    override func viewDidLoad() {
-      //  NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadLibrary:", name:"LoadSongs", object: nil)
+    override func viewDidLoad()
+    {
+        //  NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadLibrary:", name:"LoadSongs", object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "saveLibrary:", name:"SaveSongs", object: nil)
         println("BEFORE")
         println(songArray)
         
         //open file with song URLS
         println("OPENING:")
-        let bundle = NSBundle.mainBundle()
-        let path = bundle.pathForResource("data", ofType: "txt")
+        let mainBundle = NSBundle.mainBundle()
+        let path = mainBundle.pathForResource("data", ofType: "txt")
         
         // Read content of file
         let content = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
@@ -65,11 +67,12 @@ class ViewController: NSViewController
         }
     }
     
-    func saveLibrary(notification: NSNotification){
+    func saveLibrary(notification: NSNotification)
+    {
         // Open file
         println("SAVING:")
-        let bundle = NSBundle.mainBundle()
-        let path = bundle.pathForResource("data", ofType: "txt")
+        let mainBundle = NSBundle.mainBundle()
+        let path = mainBundle.pathForResource("data", ofType: "txt")
         
         if NSFileManager.defaultManager().fileExistsAtPath(path!)
         {
@@ -166,17 +169,18 @@ class ViewController: NSViewController
     
     @IBAction func playSong(sender: NSToolbarItem)
     {
+        let mainBundle = NSBundle.mainBundle()
         
         if audioPlayer.playing == false
         {
             audioPlayer.prepareToPlay()
             audioPlayer.play()
-            sender.image = NSImage(byReferencingFile: "/Users/claytonrose/Documents/Vinyl-II/Vinyl/Resources/Pause.png")
+            sender.image = NSImage(byReferencingFile: mainBundle.pathForResource("Pause", ofType: ".png")!)
         }
         else
         {
             audioPlayer.pause()
-            sender.image = NSImage(byReferencingFile: "/Users/claytonrose/Documents/Vinyl-II/Vinyl/Resources/Play.png")
+            sender.image = NSImage(byReferencingFile: mainBundle.pathForResource("Play", ofType: ".png")!)
         }
     }
 }
