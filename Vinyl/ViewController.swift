@@ -15,13 +15,13 @@
 import Cocoa
 import AVFoundation
 
-
-
 class ViewController: NSViewController
 {
     @IBOutlet weak var songArrayTableView: NSTableView!
     @IBOutlet var songArrayController: NSArrayController!
     
+    var audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: "file:///Users/Matthew/Google%20Drive/Vinyl/Sample%20Music%20Library/M4A/03%20Sun%20&%20Moon.m4a"), error: nil)
+
     let addFileOpenPanel = NSOpenPanel()
     var songArray = [Song]()
     
