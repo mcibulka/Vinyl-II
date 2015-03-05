@@ -18,26 +18,17 @@ import Foundation
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate
-{    
-    //var songArray = [Song]()
-    //var songsToSave = [NSString]()
-    
+{        
     func applicationDidFinishLaunching(aNotification: NSNotification)
     {
         /* Insert code here to initialize your application */
         
-        
-        // send notification that songs are ready to be loaded
-       // NSNotificationCenter.defaultCenter().postNotificationName("LoadSongs", object: nil)
+        NSNotificationCenter.defaultCenter().postNotificationName("LoadSongs", object: nil)
     }
 
     func applicationWillTerminate(aNotification: NSNotification)
     {
-        // Insert code here to tear down your application
-        // Notify view to update songs to save
-        NSNotificationCenter.defaultCenter().postNotificationName("SaveSongs", object: nil)
-        
-        
+        /* Insert code here to tear down your application */
     }
 
     

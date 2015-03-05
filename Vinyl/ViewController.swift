@@ -24,75 +24,83 @@ class ViewController: NSViewController
     
     let addFileOpenPanel = NSOpenPanel()
     var songArray = [Song]()
-    var songsToSave = [NSString]()
+    
     
     override func viewDidLoad()
     {
-        //  NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadLibrary:", name:"LoadSongs", object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "saveLibrary:", name:"SaveSongs", object: nil)
-        println("BEFORE")
-        println(songArray)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadLibrary:", name:"LoadSongs", object: nil)
+    }
+    
+    
+    func loadLibrary(notification: NSNotification)
+    {
+        println("LOADING...\n")
         
-        //open file with song URLS
-        println("OPENING:")
         let mainBundle = NSBundle.mainBundle()
-        let path = mainBundle.pathForResource("data", ofType: "txt")
+        let path = mainBundle.pathForResource("songsList", ofType: "txt")
         
-        // Read content of file
-        let content = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
-        
-        // Extract Song info
-        if content != nil
+        if path != nil
         {
-            let urlArray = content!.componentsSeparatedByString("\n")
+            let content = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
             
-            for var i = 0; i < urlArray.count; i++
+            if content != ""
             {
-                let songUrl = NSURL(string: urlArray[i])
-                
-                let asset = AVURLAsset(URL: songUrl, options: nil)
-                var mySong = Song(asset: asset)
-                
-                songArray.append(mySong)
+                let filePathArray = content!.componentsSeparatedByString("\n")
+
+                for filePath in filePathArray
+                {
+                    println(filePath)
+                    let songURL = NSURL(string: filePath)
+                    let asset = AVURLAsset(URL: songURL, options: nil)
+                    
+                    let mySong = Song(asset: asset)
+                    mySong.extractSongInfo(asset)
+
+                    songArrayController.addObject(mySong)
+                }
+            }
+            else {
+                println("File empty.\n")
             }
         }
         else {
-            println("File empty\n")
+            println("The file, \"songsList.txt\" could not be found.\n")
         }
         
-        println(songArray.count)
-        for var i=0 ; i<songArray.count ; i++
-        {
-            println(songArray[i].toString())
-        }
+        println("\nLOAD COMPLETE.\n\n")
     }
     
-    func saveLibrary(notification: NSNotification)
+    
+    func saveLibrary()
     {
-        // Open file
-        println("SAVING:")
+        println("SAVING...\n")
         let mainBundle = NSBundle.mainBundle()
-        let path = mainBundle.pathForResource("data", ofType: "txt")
+        let path = mainBundle.pathForResource("songsList", ofType: "txt")
         
-        if NSFileManager.defaultManager().fileExistsAtPath(path!)
+        if path != nil
         {
-            for song in songsToSave
+            var songsToWrite = ""
+            
+            for var i = 0; i < songArray.count; i++
             {
-                if let fileHandle = NSFileHandle(forWritingAtPath: path!)
-                {
-                    //Add file path to data.txt
-                    let data = ("\(song)\n").dataUsingEncoding(NSUTF8StringEncoding)
-                    fileHandle.seekToEndOfFile()
-                    fileHandle.writeData(data!)
-                    fileHandle.closeFile()
+                if i != songArray.count - 1 {
+                    songsToWrite += songArray[i].fileURL + "\n"
                 }
                 else {
-                    println("Can't open fileHandle.")
+                    songsToWrite += songArray[i].fileURL
                 }
             }
+            
+            songsToWrite.writeToFile(path!, atomically: true, encoding: NSUTF8StringEncoding, error: nil)
+            println(songsToWrite)
+        }
+        else {
+            println("The file, \"songsList.txt\" could not be found.")
         }
         
+        println("\nSAVE COMPLETE.\n\n")
     }
+    
     
     func addSongs(songsToAdd: NSArray)
     {
@@ -132,6 +140,7 @@ class ViewController: NSViewController
             return urlArray
         }
         
+        println("ADDING...\n")
         
         for var i = 0; i < songsToAdd.count; i++
         {
@@ -142,20 +151,19 @@ class ViewController: NSViewController
             }
             else if asset.URL != nil
             {
-                println("URL: \(asset)")
                 let mySong = Song(asset: asset)
                 mySong.extractSongInfo(asset)
+                println(mySong.fileURL + "\n")
                 
-                //Add song to song array
                 songArrayController.addObject(mySong)
-                //songArray.append(mySong)
-                
-                //add to songsToSave
-                println("Songs to add:\(songsToAdd[i].absoluteString)")
-                songsToSave.append(songsToAdd[i].absoluteString!!)
             }
         }
+        
+        println("ADD Complete.\n\n")
+        
+        saveLibrary()
     }
+    
     
     @IBAction func addToLibrary(sender: AnyObject)
     {
@@ -166,6 +174,7 @@ class ViewController: NSViewController
 
         addSongs(addFileOpenPanel.URLs)
     }
+    
     
     @IBAction func playSong(sender: NSToolbarItem)
     {
