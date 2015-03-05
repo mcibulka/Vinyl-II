@@ -60,7 +60,7 @@ class ViewController: NSViewController
                 }
             }
             else {
-                println("File empty.\n")
+                println("File empty.")
             }
         }
         else {
