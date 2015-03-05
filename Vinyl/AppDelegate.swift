@@ -18,48 +18,12 @@ import Foundation
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate
-{
-    let addFileOpenPanel = NSOpenPanel()
-    
-    var songArray = [Song]()
-    var songsToSave = [String]()
-    
+{        
     func applicationDidFinishLaunching(aNotification: NSNotification)
     {
         /* Insert code here to initialize your application */
         
-        //open file with song URLS
-        println("OPENING:")
-        let bundle = NSBundle.mainBundle()
-        let path = bundle.pathForResource("data", ofType: "txt")
-        
-        // Read content of file
-        let content = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
-        
-        // Extract Song info
-        if content != nil
-        {
-            let urlArray = content!.componentsSeparatedByString("\n")
-            
-            for var i = 0; i < urlArray.count; i++
-            {
-                let songUrl = NSURL(string: urlArray[i])
-                
-                let asset = AVURLAsset(URL: songUrl, options: nil)
-                var mySong = Song(asset: asset)
-                
-                songArray.append(mySong)
-            }
-        }
-        else {
-            println("File empty\n")
-        }
-        
-        println(songArray.count)
-        for var i=0 ; i<songArray.count ; i++
-        {
-            println(songArray[i].toString())
-        }
+        NSNotificationCenter.defaultCenter().postNotificationName("LoadSongs", object: nil)
     }
 
     func applicationWillTerminate(aNotification: NSNotification)

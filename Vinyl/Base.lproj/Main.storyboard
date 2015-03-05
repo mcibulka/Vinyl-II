@@ -62,7 +62,7 @@
                                         <menuItem title="Add To Library..." keyEquivalent="a" id="TFh-r9-xfz" userLabel="Add To Library">
                                             <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
                                             <connections>
-                                                <action selector="AddToLibrary:" target="Voe-Tx-rLC" id="PTN-c2-tlE"/>
+                                                <action selector="addToLibrary:" target="Ady-hI-5gd" id="CAx-DC-kQG"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
@@ -357,11 +357,6 @@
                 </application>
                 <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Vinyl" customModuleProvider="target"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-                <arrayController objectClassName="Song" avoidsEmptySelection="NO" id="GES-uq-ha4" userLabel="Song Array Controller">
-                    <connections>
-                        <binding destination="Voe-Tx-rLC" name="contentArray" keyPath="self.songArray" id="5Bd-Bh-dn6"/>
-                    </connections>
-                </arrayController>
             </objects>
             <point key="canvasLocation" x="-155.5" y="-140"/>
         </scene>
@@ -373,12 +368,12 @@
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <rect key="contentRect" x="196" y="240" width="800" height="500"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
-                        <toolbar key="toolbar" implicitIdentifier="F7E962E2-1382-4E58-8806-EC2AB0E1C130" autosavesConfiguration="NO" allowsUserCustomization="NO" displayMode="iconOnly" sizeMode="regular" id="UsY-AZ-NF6" customClass="ToolbarController" customModule="Vinyl" customModuleProvider="target">
+                        <toolbar key="toolbar" implicitIdentifier="F7E962E2-1382-4E58-8806-EC2AB0E1C130" autosavesConfiguration="NO" allowsUserCustomization="NO" displayMode="iconOnly" sizeMode="regular" id="UsY-AZ-NF6">
                             <allowedToolbarItems>
                                 <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="Li9-z2-Xl6"/>
                                 <toolbarItem implicitItemIdentifier="CE7FC948-F4CB-4147-BD08-12FA7D4589D9" label="Play" paletteLabel="Play" tag="-1" image="Play" id="sjn-4D-tGb" userLabel="Play">
                                     <connections>
-                                        <action selector="playSong:" target="UsY-AZ-NF6" id="b0p-xy-31T"/>
+                                        <action selector="playSong:" target="Oky-zY-oP4" id="exG-Fs-gHk"/>
                                     </connections>
                                 </toolbarItem>
                             </allowedToolbarItems>
@@ -387,9 +382,6 @@
                                 <toolbarItem reference="sjn-4D-tGb"/>
                                 <toolbarItem reference="Li9-z2-Xl6"/>
                             </defaultToolbarItems>
-                            <connections>
-                                <outlet property="playToolbarItem" destination="sjn-4D-tGb" id="vdS-kD-w9E"/>
-                            </connections>
                         </toolbar>
                     </window>
                     <connections>
@@ -433,6 +425,9 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="i4r-EW-XNP" name="value" keyPath="arrangedObjects.name" id="Nva-bl-YOz"/>
+                                                    </connections>
                                                 </tableColumn>
                                                 <tableColumn editable="NO" width="60" minWidth="31" maxWidth="1000" id="XhD-q9-kOI" userLabel="Time">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Time">
@@ -446,6 +441,13 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="i4r-EW-XNP" name="value" keyPath="arrangedObjects.time" id="u2u-eq-ufa">
+                                                            <dictionary key="options">
+                                                                <bool key="NSConditionallySetsEditable" value="YES"/>
+                                                            </dictionary>
+                                                        </binding>
+                                                    </connections>
                                                 </tableColumn>
                                                 <tableColumn width="60" minWidth="33" maxWidth="3.4028234663852886e+38" id="xin-hv-vjE" userLabel="Artist">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Artist">
@@ -459,6 +461,9 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="i4r-EW-XNP" name="value" keyPath="arrangedObjects.artist" id="5SC-w8-7Pj"/>
+                                                    </connections>
                                                 </tableColumn>
                                                 <tableColumn width="70" minWidth="70" maxWidth="3.4028234663852886e+38" id="urb-U1-EiD" userLabel="Album Artist">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Album Artist">
@@ -472,6 +477,9 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="i4r-EW-XNP" name="value" keyPath="arrangedObjects.albumArtist" id="0KL-Ev-CmC"/>
+                                                    </connections>
                                                 </tableColumn>
                                                 <tableColumn width="60" minWidth="60" maxWidth="3.4028234663852886e+38" id="yTV-tZ-QmQ" userLabel="Composer">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Composer">
@@ -485,6 +493,9 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="i4r-EW-XNP" name="value" keyPath="arrangedObjects.composer" id="hWW-dQ-A3O"/>
+                                                    </connections>
                                                 </tableColumn>
                                                 <tableColumn width="60" minWidth="39" maxWidth="3.4028234663852886e+38" id="QCe-ZK-zpJ" userLabel="Album">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Album">
@@ -498,6 +509,9 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="i4r-EW-XNP" name="value" keyPath="arrangedObjects.album" id="VvG-cp-7n7"/>
+                                                    </connections>
                                                 </tableColumn>
                                                 <tableColumn width="60" minWidth="54" maxWidth="3.4028234663852886e+38" id="Hqn-ah-yL1" userLabel="Grouping">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Grouping">
@@ -511,6 +525,9 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="i4r-EW-XNP" name="value" keyPath="arrangedObjects.grouping" id="cee-Lc-V5m"/>
+                                                    </connections>
                                                 </tableColumn>
                                                 <tableColumn width="60" minWidth="37" maxWidth="3.4028234663852886e+38" id="hh0-Ge-bX6" userLabel="Genre">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Genre">
@@ -524,6 +541,9 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="i4r-EW-XNP" name="value" keyPath="arrangedObjects.genre" id="Tpk-IE-Hy8"/>
+                                                    </connections>
                                                 </tableColumn>
                                                 <tableColumn width="60" minWidth="28" maxWidth="3.4028234663852886e+38" id="ia2-cq-TX6" userLabel="Year">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Year">
@@ -537,6 +557,9 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="i4r-EW-XNP" name="value" keyPath="arrangedObjects.year" id="bCz-CM-GwV"/>
+                                                    </connections>
                                                 </tableColumn>
                                                 <tableColumn width="62" minWidth="62" maxWidth="3.4028234663852886e+38" id="esV-SW-wPe" userLabel="Comments">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Comments">
@@ -550,6 +573,9 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="i4r-EW-XNP" name="value" keyPath="arrangedObjects.comments" id="0M1-d0-wOj"/>
+                                                    </connections>
                                                 </tableColumn>
                                                 <tableColumn editable="NO" width="60" minWidth="50" maxWidth="3.4028234663852886e+38" id="9Kt-5J-DPU" userLabel="Date Added">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Date Added">
@@ -563,6 +589,13 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="i4r-EW-XNP" name="value" keyPath="arrangedObjects.dateAdded" id="41z-hI-qyR">
+                                                            <dictionary key="options">
+                                                                <bool key="NSConditionallySetsEditable" value="YES"/>
+                                                            </dictionary>
+                                                        </binding>
+                                                    </connections>
                                                 </tableColumn>
                                                 <tableColumn width="90" minWidth="10" maxWidth="3.4028234663852886e+38" id="89Y-Xt-Gim" userLabel="File URL">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="File URL">
@@ -576,8 +609,14 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <connections>
+                                                        <binding destination="i4r-EW-XNP" name="value" keyPath="arrangedObjects.fileURL" id="T2I-d4-YlY"/>
+                                                    </connections>
                                                 </tableColumn>
                                             </tableColumns>
+                                            <connections>
+                                                <binding destination="i4r-EW-XNP" name="content" keyPath="arrangedObjects" id="3zj-2z-Why"/>
+                                            </connections>
                                         </tableView>
                                     </subviews>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -603,13 +642,17 @@
                             <constraint firstAttribute="trailing" secondItem="sig-PB-nCn" secondAttribute="trailing" id="h52-mo-Owo"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="songArrayController" destination="i4r-EW-XNP" id="CNx-ZJ-EGK"/>
+                        <outlet property="songArrayTableView" destination="9bp-6d-WAo" id="CAn-fy-LOS"/>
+                    </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-                <customObject id="jJl-EH-OvD" customClass="TableViewController" customModule="Vinyl" customModuleProvider="target">
+                <arrayController id="i4r-EW-XNP">
                     <connections>
-                        <outlet property="TableView" destination="9bp-6d-WAo" id="x2E-UH-8dT"/>
+                        <binding destination="XfG-lQ-9wD" name="contentArray" keyPath="self.songArray" id="r7h-xP-DYW"/>
                     </connections>
-                </customObject>
+                </arrayController>
             </objects>
             <point key="canvasLocation" x="75" y="896"/>
         </scene>

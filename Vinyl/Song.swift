@@ -15,43 +15,42 @@
 import Foundation
 import AVFoundation
 
-class Song
+class Song: NSObject
 {
-    private let dateAdded: String
-    private let fileURL: String
-    private let time: String
+    var dateAdded: String
+    var fileURL: String
+    var time: String
 
-    private var album: String?
-    private var albumArtist: String?
-    private var artist: String?
-    private var beatsPerMinute: String?
-    private var comments: String?
-    private var composer: String?
-    private var genre: String?
-    private var grouping: String?
-    private var name: String?
-    private var trackNumber: String?
-    private var year: String?
+    var album: String?
+    var albumArtist: String?
+    var artist: String?
+    var beatsPerMinute: String?
+    var comments: String?
+    var composer: String?
+    var genre: String?
+    var grouping: String?
+    var name: String?
+    var trackNumber: String?
+    var year: String?
     
-    private var artwork: String?
-    
+    var artwork: String?
     
     init(asset: AVURLAsset)
     {
         /* Get song's file path */
-        var newstring = "\(asset.URL)"
-        newstring = newstring.stringByReplacingOccurrencesOfString("\"", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
-        newstring = newstring.stringByReplacingOccurrencesOfString("Optional(", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
-        newstring = newstring.stringByReplacingOccurrencesOfString(")", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
+        var fileURLString = "\(asset.URL)"
+        fileURLString = fileURLString.stringByReplacingOccurrencesOfString("\"", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
+        fileURLString = fileURLString.stringByReplacingOccurrencesOfString("Optional(", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
+        fileURLString = fileURLString.stringByReplacingOccurrencesOfString(")", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
         
-        self.fileURL = "\(newstring)\n"
+        self.fileURL = "\(fileURLString)"
         
         
         /* Get time and date of when song is added to the library */
         let dateAdded = NSDate(timeIntervalSinceNow: 0.0)
-        let dateAddedStr = dateAdded.descriptionWithCalendarFormat("%Y-%m-%d %H:%M:%S", timeZone: nil, locale: nil)!
+        let dateAddedString = dateAdded.descriptionWithCalendarFormat("%Y-%m-%d %H:%M:%S", timeZone: nil, locale: nil)!
         
-        self.dateAdded = dateAddedStr
+        self.dateAdded = dateAddedString
         
         
         /* Get song's time */
@@ -60,12 +59,8 @@ class Song
         let intTime = Int64(round(cmTimeSecs))
         let minutes = (intTime % 3600) / 60
         let seconds = (intTime % 3600) % 60
-        let timeStr = "\(minutes):\(seconds)"
         
-        self.time = timeStr
-        
-        
-        extractSongInfo(asset)
+        self.time = "\(minutes):\(seconds)"
     }
     
     
