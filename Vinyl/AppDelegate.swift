@@ -13,8 +13,6 @@
 **********************************************************************************************************************************************************************************/
 
 import Cocoa
-import AVFoundation
-import Foundation
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate
