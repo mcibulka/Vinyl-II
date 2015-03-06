@@ -38,32 +38,27 @@ class ViewController: NSViewController
         let mainBundle = NSBundle.mainBundle()
         let path = mainBundle.pathForResource("songsList", ofType: "txt")
         
-        if path != nil
+        let content = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
+        
+        // If there are previously added songs, populate the song array
+        if content != ""
         {
-            let content = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
-            
-            if content != ""
+            let filePathArray = content!.componentsSeparatedByString("\n")
+
+            for filePath in filePathArray
             {
-                let filePathArray = content!.componentsSeparatedByString("\n")
+                let songURL = NSURL(string: filePath)
+                let asset = AVURLAsset(URL: songURL, options: nil)
+                
+                let song = Song(asset: asset)
+                song.extractSongInfo(asset)
+                println(song.fileURL)
 
-                for filePath in filePathArray
-                {
-                    println(filePath)
-                    let songURL = NSURL(string: filePath)
-                    let asset = AVURLAsset(URL: songURL, options: nil)
-                    
-                    let mySong = Song(asset: asset)
-                    mySong.extractSongInfo(asset)
-
-                    songArrayController.addObject(mySong)
-                }
-            }
-            else {
-                println("File empty.")
+                songArrayController.addObject(song)
             }
         }
         else {
-            println("The file, \"songsList.txt\" could not be found.\n")
+            println("File empty.")
         }
         
         println("\nLOAD COMPLETE.\n\n")
@@ -76,26 +71,21 @@ class ViewController: NSViewController
         let mainBundle = NSBundle.mainBundle()
         let path = mainBundle.pathForResource("songsList", ofType: "txt")
         
-        if path != nil
+        var songsToWrite = ""
+        
+        // Cycle through songs and create one continuous string of their file paths
+        for var i = 0; i < songArray.count; i++
         {
-            var songsToWrite = ""
-            
-            for var i = 0; i < songArray.count; i++
-            {
-                if i != songArray.count - 1 {
-                    songsToWrite += songArray[i].fileURL + "\n"
-                }
-                else {
-                    songsToWrite += songArray[i].fileURL
-                }
+            if i != songArray.count - 1 {
+                songsToWrite += songArray[i].fileURL + "\n"
             }
-            
-            songsToWrite.writeToFile(path!, atomically: true, encoding: NSUTF8StringEncoding, error: nil)
-            println(songsToWrite)
+            else {
+                songsToWrite += songArray[i].fileURL    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
+            }
         }
-        else {
-            println("The file, \"songsList.txt\" could not be found.")
-        }
+        
+        songsToWrite.writeToFile(path!, atomically: true, encoding: NSUTF8StringEncoding, error: nil)
+        println(songsToWrite)
         
         println("\nSAVE COMPLETE.\n\n")
     }
@@ -109,16 +99,12 @@ class ViewController: NSViewController
         */
         func isDirectory(path: NSURL) -> Bool
         {
-            var isDirectory: ObjCBool = ObjCBool(false)     // REFACTOR to Swift type Bool?
+            var isDirectory: ObjCBool = ObjCBool(false)
             
             if NSFileManager.defaultManager().fileExistsAtPath(path.path!, isDirectory: &isDirectory) {}
             
-            if isDirectory {
-                return true
-            }
-            else {
-                return false
-            }
+            if isDirectory {return true}
+            else {return false}
         }
         
         
@@ -130,9 +116,7 @@ class ViewController: NSViewController
         {
             let fileManager = NSFileManager.defaultManager()
             let filelist = fileManager.contentsOfDirectoryAtURL(dir, includingPropertiesForKeys: nil, options: nil, error: nil)
-            /*for filepath in filelist! {
-            println(filepath)
-            }*/
+
             return filelist!
         }
         
@@ -145,67 +129,58 @@ class ViewController: NSViewController
         {
             let fileManager = NSFileManager.defaultManager()
             
-            // Get path to documents directory... then our library folder
-            var paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)
-            var documentsDirectory: AnyObject = paths[0]
-            var dataPath = documentsDirectory.stringByAppendingPathComponent("VinylMusic")
+            // Get path to Documents directory, then the library folder
+            let paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)
+            let documentsDirectory: AnyObject = paths[0]
+            let dataPath = documentsDirectory.stringByAppendingPathComponent("VinylMusic")
             
-            // If the folder isnt already there, create it
+            // If the library folder doesn't exist, create it
             if (!NSFileManager.defaultManager().fileExistsAtPath(dataPath)) {
                 NSFileManager.defaultManager().createDirectoryAtPath(dataPath, withIntermediateDirectories: false, attributes: nil, error: nil)
             }
-            var error: NSError?
             
-            // Get the filename from the end of the sourceURL and append it to the datapath
-            var fileName = sourceURL.lastPathComponent?
-            var dataPathWithFileName = "\(dataPath)/\(fileName!)"
+            // Get the file name from the end of the song to be copied and append it to the file path of the library folder
+            let fileName = sourceURL.lastPathComponent?
+            let dataPathWithFileName = "\(dataPath)/\(fileName!)"
             
             let dataURLWithFileName = NSURL(fileURLWithPath: dataPathWithFileName)
             
             // Copy the file to the new location
-            fileManager.copyItemAtURL(sourceURL, toURL: dataURLWithFileName!, error:&error)
-//            println(error)
+            fileManager.copyItemAtURL(sourceURL, toURL: dataURLWithFileName!, error: nil)
             
             return dataURLWithFileName!
         }
         
         
         var songsToAddCopy = songsToAdd.mutableCopy() as NSMutableArray
-        var lastUrl: NSURL = songsToAddCopy.lastObject as NSURL
+        var lastUrl = songsToAddCopy.lastObject as NSURL
         
-        
-        //subpathsOfDirectoryAtPath()
         if lastUrl.absoluteString != nil
         {
             if isDirectory(lastUrl)
             {
-                //println("It was a dir")
                 songsToAddCopy.removeLastObject()
                 addSongs(dirIterator(lastUrl))
                 
-                // 1 to skip the dir which is saved as first elem. in array
+                // 1 to skip the directory which is saved as the first element in the array
                 if songsToAddCopy.count > 1 {
                     addSongs(songsToAddCopy)
                 }
             }
             else
             {
-                //copy song and get new URL
+                // Copy song and get its new URL
                 var newSongURL = copySongToLibrary(lastUrl)
-                
-                // Extract song info
                 var asset = AVURLAsset(URL: newSongURL as NSURL, options: nil)
-                //println("URL: \(asset)")
-                let mySong = Song(asset: asset)
-                mySong.extractSongInfo(asset)
+
+                let song = Song(asset: asset)
+                song.extractSongInfo(asset)
+                println(song.fileURL)
                 
-                //Add song to song array
-                songArrayController.addObject(mySong)
+                songArrayController.addObject(song)
                 
-                //add to songsToSave
-                //println("Songs to add:\(lastUrl.absoluteString)")
-//                songsToSave.append(newSongURL.absoluteString!)
                 songsToAddCopy.removeLastObject()
+                
                 if songsToAddCopy.count > 0 {
                     addSongs(songsToAddCopy)
                 }
@@ -214,20 +189,17 @@ class ViewController: NSViewController
     }
     
     
-    @IBAction func addToLibrary(sender: AnyObject)
+    @IBAction func addToLibrary(sender: NSMenuItem)
     {
         let addFileOpenPanel = NSOpenPanel()
-        
         addFileOpenPanel.allowsMultipleSelection = true
         addFileOpenPanel.canChooseDirectories = true
         addFileOpenPanel.canChooseFiles = true
         addFileOpenPanel.runModal()
         
         println("ADDING...\n")
-
         addSongs(addFileOpenPanel.URLs)
-        
-        println("ADD Complete.\n\n")
+        println("\nADD Complete.\n\n")
         
         saveLibrary()
     }

@@ -43,7 +43,7 @@ class Song: NSObject
         fileURLString = fileURLString.stringByReplacingOccurrencesOfString("Optional(", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
         fileURLString = fileURLString.stringByReplacingOccurrencesOfString(")", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
         
-        self.fileURL = "\(fileURLString)"
+        self.fileURL = fileURLString
         
         
         /* Get time and date of when song is added to the library */
