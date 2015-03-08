@@ -368,12 +368,12 @@
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <rect key="contentRect" x="196" y="240" width="800" height="500"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
-                        <toolbar key="toolbar" implicitIdentifier="F7E962E2-1382-4E58-8806-EC2AB0E1C130" autosavesConfiguration="NO" allowsUserCustomization="NO" displayMode="iconOnly" sizeMode="regular" id="UsY-AZ-NF6" customClass="ToolbarController" customModule="Vinyl" customModuleProvider="target">
+                        <toolbar key="toolbar" implicitIdentifier="F7E962E2-1382-4E58-8806-EC2AB0E1C130" autosavesConfiguration="NO" allowsUserCustomization="NO" displayMode="iconOnly" sizeMode="regular" id="UsY-AZ-NF6">
                             <allowedToolbarItems>
                                 <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="Li9-z2-Xl6"/>
                                 <toolbarItem implicitItemIdentifier="CE7FC948-F4CB-4147-BD08-12FA7D4589D9" label="Play" paletteLabel="Play" tag="-1" image="Play" id="sjn-4D-tGb" userLabel="Play">
                                     <connections>
-                                        <action selector="playSong:" target="UsY-AZ-NF6" id="QhI-yy-MI6"/>
+                                        <action selector="playSong:" target="Oky-zY-oP4" id="lsd-qm-vzV"/>
                                     </connections>
                                 </toolbarItem>
                             </allowedToolbarItems>
@@ -382,9 +382,6 @@
                                 <toolbarItem reference="sjn-4D-tGb"/>
                                 <toolbarItem reference="Li9-z2-Xl6"/>
                             </defaultToolbarItems>
-                            <connections>
-                                <outlet property="playToolbarItem" destination="sjn-4D-tGb" id="fdZ-se-wHy"/>
-                            </connections>
                         </toolbar>
                     </window>
                     <connections>
@@ -410,7 +407,6 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" headerView="V7g-ZJ-9OA" viewBased="YES" id="9bp-6d-WAo">
-                                            <rect key="frame" x="0.0" y="0.0" width="798" height="19"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -872,7 +868,7 @@
                                                         <tableCellView id="g1b-1L-VJd">
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="5wM-aJ-731">
+                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5wM-aJ-731">
                                                                     <rect key="frame" x="0.0" y="0.0" width="92" height="17"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="UhE-aX-Stk">
                                                                         <font key="font" metaFont="system"/>
