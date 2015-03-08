@@ -17,7 +17,6 @@
 		349A78201A6E295F00EF7A73 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349A781F1A6E295F00EF7A73 /* Song.swift */; };
 		349A78261A6F07A100EF7A73 /* Pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 349A78251A6F07A100EF7A73 /* Pause.png */; };
 		34BC43181AA8122A00EE7104 /* songsList.txt in Resources */ = {isa = PBXBuildFile; fileRef = 34BC43171AA8122A00EE7104 /* songsList.txt */; };
-		34C8605B1A8674AC007545FA /* ToolbarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C8605A1A8674AC007545FA /* ToolbarController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,7 +44,6 @@
 		349A781F1A6E295F00EF7A73 /* Song.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 		349A78251A6F07A100EF7A73 /* Pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Pause.png; sourceTree = "<group>"; };
 		34BC43171AA8122A00EE7104 /* songsList.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = songsList.txt; sourceTree = "<group>"; };
-		34C8605A1A8674AC007545FA /* ToolbarController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToolbarController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,7 +88,6 @@
 				346EF1A21A6AF19300E52499 /* AppDelegate.swift */,
 				346EF1A41A6AF19300E52499 /* ViewController.swift */,
 				349A781F1A6E295F00EF7A73 /* Song.swift */,
-				34C8605A1A8674AC007545FA /* ToolbarController.swift */,
 				346EF1A91A6AF19300E52499 /* Images.xcassets */,
 				346EF1AB1A6AF19300E52499 /* Main.storyboard */,
 				346EF1A61A6AF19300E52499 /* Vinyl.xcdatamodeld */,
@@ -240,7 +237,6 @@
 				349A78201A6E295F00EF7A73 /* Song.swift in Sources */,
 				346EF1A81A6AF19300E52499 /* Vinyl.xcdatamodeld in Sources */,
 				346EF1A51A6AF19300E52499 /* ViewController.swift in Sources */,
-				34C8605B1A8674AC007545FA /* ToolbarController.swift in Sources */,
 				346EF1A31A6AF19300E52499 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
