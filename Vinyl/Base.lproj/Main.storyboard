@@ -894,6 +894,11 @@
                                             </tableColumns>
                                             <connections>
                                                 <binding destination="i4r-EW-XNP" name="content" keyPath="arrangedObjects" id="l1S-JH-OvN"/>
+                                                <binding destination="XfG-lQ-9wD" name="doubleClickTarget" keyPath="self" id="Ygl-Ov-yJL">
+                                                    <dictionary key="options">
+                                                        <string key="NSSelectorName">doubleClick</string>
+                                                    </dictionary>
+                                                </binding>
                                             </connections>
                                         </tableView>
                                     </subviews>

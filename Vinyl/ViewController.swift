@@ -20,9 +20,9 @@ class ViewController: NSViewController
     @IBOutlet weak var songArrayTableView: NSTableView!
     @IBOutlet var songArrayController: NSArrayController!
     
-    var audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: "file:///Users/Matthew/Google%20Drive/Vinyl/Sample%20Music%20Library/M4A/03%20Sun%20&%20Moon.m4a"), error: nil)
-    
     var songArray = [Song]()
+    var audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: "x"), error: nil)
+    
     
     
     override func viewDidLoad()
@@ -205,21 +205,39 @@ class ViewController: NSViewController
     }
     
     
+    // should change function name to not confuse with "playTheSong" ... I didnt want to mess up the bindings
     @IBAction func playSong(sender: NSToolbarItem)
     {
         let mainBundle = NSBundle.mainBundle()
-        
-        if audioPlayer.playing == false
+
+        if (songArrayTableView.selectedRowIndexes.count > 0) // If table row selection isnt nil
         {
-            audioPlayer.prepareToPlay()
-            audioPlayer.play()
-            sender.image = NSImage(byReferencingFile: mainBundle.pathForResource("Pause", ofType: ".png")!)
+            if (!audioPlayer.playing)
+            {
+                playTheSong(songArray[songArrayTableView.selectedRow].fileURL)
+                sender.image = NSImage(byReferencingFile: mainBundle.pathForResource("Pause", ofType: ".png")!)
+            }
+            else
+            {
+                audioPlayer.pause()
+                sender.image = NSImage(byReferencingFile: mainBundle.pathForResource("Play", ofType: ".png")!)
+            }
         }
-        else
-        {
-            audioPlayer.pause()
-            sender.image = NSImage(byReferencingFile: mainBundle.pathForResource("Play", ofType: ".png")!)
-        }
+    }
+    
+    
+    func doubleClick(){
+        playTheSong(songArray[songArrayTableView.selectedRow].fileURL)
+    }
+    
+    
+    // Not the best name..
+    func playTheSong(fileURL: String)
+    {
+        var error: NSError
+        audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: fileURL), error: nil)
+        audioPlayer.prepareToPlay()
+        audioPlayer.play()
     }
 }
 
