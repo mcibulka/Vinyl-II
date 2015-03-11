@@ -21,24 +21,24 @@ class ViewController: NSViewController
     @IBOutlet var songArrayController: NSArrayController!
     
     var songArray = [Song]()
-    var audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: "x"), error: nil)
-    
+    var audioPlayer = AVAudioPlayer()
+    var firstSongPlayed = false
     
     
     override func viewDidLoad()
     {
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "loadLibrary:", name:"LoadSongs", object: nil)
+        let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
+        defaultNotificationCenter.addObserver(self, selector: "loadLibrary:", name:"LoadSongs", object: nil)
     }
     
     
     func loadLibrary(notification: NSNotification)
     {
-        println("LOADING...\n")
-        
         let mainBundle = NSBundle.mainBundle()
         let path = mainBundle.pathForResource("songsList", ofType: "txt")
-        
         let content = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
+     
+        println("LOADING...\n")
         
         // If there are previously added songs, populate the song array
         if content != ""
@@ -67,11 +67,12 @@ class ViewController: NSViewController
     
     func saveLibrary()
     {
-        println("SAVING...\n")
         let mainBundle = NSBundle.mainBundle()
         let path = mainBundle.pathForResource("songsList", ofType: "txt")
         
         var songsToWrite = ""
+     
+        println("SAVING...\n")
         
         // Cycle through songs and create one continuous string of their file paths
         for var i = 0; i < songArray.count; i++
@@ -99,12 +100,13 @@ class ViewController: NSViewController
         */
         func isDirectory(path: NSURL) -> Bool
         {
+            let defaultFileManager = NSFileManager.defaultManager()
             var isDirectory: ObjCBool = ObjCBool(false)
             
-            if NSFileManager.defaultManager().fileExistsAtPath(path.path!, isDirectory: &isDirectory) {}
+            if defaultFileManager.fileExistsAtPath(path.path!, isDirectory: &isDirectory) {}
             
-            if isDirectory {return true}
-            else {return false}
+            if isDirectory { return true }
+            else { return false }
         }
         
         
@@ -114,8 +116,8 @@ class ViewController: NSViewController
         */
         func dirIterator(dir: NSURL) -> NSArray
         {
-            let fileManager = NSFileManager.defaultManager()
-            let filelist = fileManager.contentsOfDirectoryAtURL(dir, includingPropertiesForKeys: nil, options: nil, error: nil)
+            let defaultFileManager = NSFileManager.defaultManager()
+            let filelist = defaultFileManager.contentsOfDirectoryAtURL(dir, includingPropertiesForKeys: nil, options: nil, error: nil)
 
             return filelist!
         }
@@ -127,16 +129,16 @@ class ViewController: NSViewController
         */
         func copySongToLibrary(sourceURL: NSURL) -> NSURL
         {
-            let fileManager = NSFileManager.defaultManager()
+            let defaultFileManager = NSFileManager.defaultManager()
             
-            // Get path to Documents directory, then the library folder
+            // Get path to the Documents directory, then the library folder
             let paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)
             let documentsDirectory: AnyObject = paths[0]
             let dataPath = documentsDirectory.stringByAppendingPathComponent("VinylMusic")
             
             // If the library folder doesn't exist, create it
-            if (!NSFileManager.defaultManager().fileExistsAtPath(dataPath)) {
-                NSFileManager.defaultManager().createDirectoryAtPath(dataPath, withIntermediateDirectories: false, attributes: nil, error: nil)
+            if (!defaultFileManager.fileExistsAtPath(dataPath)) {
+                defaultFileManager.createDirectoryAtPath(dataPath, withIntermediateDirectories: false, attributes: nil, error: nil)
             }
             
             // Get the file name from the end of the song to be copied and append it to the file path of the library folder
@@ -146,21 +148,21 @@ class ViewController: NSViewController
             let dataURLWithFileName = NSURL(fileURLWithPath: dataPathWithFileName)
             
             // Copy the file to the new location
-            fileManager.copyItemAtURL(sourceURL, toURL: dataURLWithFileName!, error: nil)
+            defaultFileManager.copyItemAtURL(sourceURL, toURL: dataURLWithFileName!, error: nil)
             
             return dataURLWithFileName!
         }
         
         
         var songsToAddCopy = songsToAdd.mutableCopy() as NSMutableArray
-        var lastUrl = songsToAddCopy.lastObject as NSURL
+        var lastURL = songsToAddCopy.lastObject as NSURL
         
-        if lastUrl.absoluteString != nil
+        if lastURL.absoluteString != nil
         {
-            if isDirectory(lastUrl)
+            if isDirectory(lastURL)
             {
                 songsToAddCopy.removeLastObject()
-                addSongs(dirIterator(lastUrl))
+                addSongs(dirIterator(lastURL))
                 
                 // 1 to skip the directory which is saved as the first element in the array
                 if songsToAddCopy.count > 1 {
@@ -169,15 +171,19 @@ class ViewController: NSViewController
             }
             else
             {
-                // Copy song and get its new URL
-                var newSongURL = copySongToLibrary(lastUrl)
-                var asset = AVURLAsset(URL: newSongURL as NSURL, options: nil)
-
-                let song = Song(asset: asset)
-                song.extractSongInfo(asset)
-                println(song.fileURL)
-                
-                songArrayController.addObject(song)
+                // Only add MP3 files
+                if lastURL.pathExtension?.lowercaseString == "mp3"
+                {
+                    // Copy song and get its new URL
+                    var newSongURL = copySongToLibrary(lastURL)
+                    var asset = AVURLAsset(URL: newSongURL as NSURL, options: nil)
+                    
+                    let song = Song(asset: asset)
+                    song.extractSongInfo(asset)
+                    println(song.fileURL)
+                    
+                    songArrayController.addObject(song)
+                }
                 
                 songsToAddCopy.removeLastObject()
                 
@@ -191,50 +197,70 @@ class ViewController: NSViewController
     
     @IBAction func addToLibrary(sender: NSMenuItem)
     {
-        let addFileOpenPanel = NSOpenPanel()
-        addFileOpenPanel.allowsMultipleSelection = true
-        addFileOpenPanel.canChooseDirectories = true
-        addFileOpenPanel.canChooseFiles = true
-        addFileOpenPanel.runModal()
+        let addToLibraryOpenPanel = NSOpenPanel()
+        addToLibraryOpenPanel.allowsMultipleSelection = true
+        addToLibraryOpenPanel.canChooseDirectories = true
+        addToLibraryOpenPanel.canChooseFiles = true
         
-        println("ADDING...\n")
-        addSongs(addFileOpenPanel.URLs)
-        println("\nADD Complete.\n\n")
-        
-        saveLibrary()
+        // Only add songs if the user clicks OK
+        if addToLibraryOpenPanel.runModal() == NSFileHandlingPanelOKButton
+        {
+            println("ADDING...\n")
+            addSongs(addToLibraryOpenPanel.URLs)
+            println("\nADD Complete.\n\n")
+            
+            saveLibrary()
+        }
     }
     
     
-    // should change function name to not confuse with "playTheSong" ... I didnt want to mess up the bindings
-    @IBAction func playSong(sender: NSToolbarItem)
+    @IBAction func clickPlayToolbarItem(sender: NSToolbarItem)
     {
-        let mainBundle = NSBundle.mainBundle()
-
-        if (songArrayTableView.selectedRowIndexes.count > 0) // If table row selection isnt nil
+        let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
+        
+        if sender.image?.name() == "Play"
         {
-            if (!audioPlayer.playing)
-            {
-                playTheSong(songArray[songArrayTableView.selectedRow].fileURL)
-                sender.image = NSImage(byReferencingFile: mainBundle.pathForResource("Pause", ofType: ".png")!)
+            if firstSongPlayed == false {
+                playSong(songArray[0].fileURL)
+                firstSongPlayed = true
             }
-            else
-            {
+            
+            defaultNotificationCenter.postNotificationName("DisplayPauseImage", object: nil)
+        }
+        else    // Image must be "Pause"
+        {
+            if audioPlayer.playing == true {
                 audioPlayer.pause()
-                sender.image = NSImage(byReferencingFile: mainBundle.pathForResource("Play", ofType: ".png")!)
+                defaultNotificationCenter.postNotificationName("DisplayPlayImage", object: nil)
+            }
+            else {
+                audioPlayer.play()
+                defaultNotificationCenter.postNotificationName("DisplayPauseImage", object: nil)
             }
         }
     }
     
     
-    func doubleClick(){
-        playTheSong(songArray[songArrayTableView.selectedRow].fileURL)
+    func doubleClick()
+    {
+        let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
+        
+        // Ensure the double click occurs on a song in the table
+        if songArrayTableView.selectedRow <= songArrayTableView.numberOfRows
+        {
+            playSong(songArray[songArrayTableView.selectedRow].fileURL)
+            
+            if firstSongPlayed == false {
+                firstSongPlayed = true
+            }
+            
+            defaultNotificationCenter.postNotificationName("DisplayPauseImage", object: nil)
+        }
     }
     
     
-    // Not the best name..
-    func playTheSong(fileURL: String)
+    func playSong(fileURL: String)
     {
-        var error: NSError
         audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: fileURL), error: nil)
         audioPlayer.prepareToPlay()
         audioPlayer.play()

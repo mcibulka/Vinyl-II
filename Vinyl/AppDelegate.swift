@@ -16,12 +16,13 @@ import Cocoa
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate
-{        
+{
+    let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
+
     func applicationDidFinishLaunching(aNotification: NSNotification)
     {
         /* Insert code here to initialize your application */
-        
-        NSNotificationCenter.defaultCenter().postNotificationName("LoadSongs", object: nil)
+        defaultNotificationCenter.postNotificationName("LoadSongs", object: nil)
     }
 
     func applicationWillTerminate(aNotification: NSNotification)
