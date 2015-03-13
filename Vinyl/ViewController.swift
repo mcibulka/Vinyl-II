@@ -29,6 +29,8 @@ class ViewController: NSViewController
     {
         let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
         defaultNotificationCenter.addObserver(self, selector: "loadLibrary:", name:"LoadSongs", object: nil)
+        
+        
     }
     
     
@@ -36,25 +38,29 @@ class ViewController: NSViewController
     {
         let mainBundle = NSBundle.mainBundle()
         let path = mainBundle.pathForResource("songsList", ofType: "txt")
-        let content = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
+        let songsListFileContent = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
      
         println("LOADING...\n")
         
         // If there are previously added songs, populate the song array
-        if content != ""
+        if songsListFileContent != ""
         {
-            let filePathArray = content!.componentsSeparatedByString("\n")
+            let entryArray = songsListFileContent!.componentsSeparatedByString("\n")
 
-            for filePath in filePathArray
+            for entry in entryArray
             {
-                let songURL = NSURL(string: filePath)
-                let asset = AVURLAsset(URL: songURL, options: nil)
+                let entryComponentsArray = entry.componentsSeparatedByString(",")
+                let existingSongFileURL = entryComponentsArray[0]
+                let existingSongDateAdded = entryComponentsArray[1]
+                let existingSongTime = entryComponentsArray[2]
                 
-                let song = Song(asset: asset)
-                song.extractSongInfo(asset)
-                println(song.fileURL)
+                let existingAsset = AVURLAsset(URL: NSURL(string: existingSongFileURL), options: nil)
+                
+                let existingSong = Song(fileURLString: existingSongFileURL, dateAddedString: existingSongDateAdded, timeString: existingSongTime)
+                existingSong.extractMetaData(existingAsset)
+                println(existingSong.fileURL)
 
-                songArrayController.addObject(song)
+                songArrayController.addObject(existingSong)
             }
         }
         else {
@@ -78,10 +84,10 @@ class ViewController: NSViewController
         for var i = 0; i < songArray.count; i++
         {
             if i != songArray.count - 1 {
-                songsToWrite += songArray[i].fileURL + "\n"
+                songsToWrite += songArray[i].fileURL + "," + songArray[i].dateAdded + "," + songArray[i].time + "\n"
             }
             else {
-                songsToWrite += songArray[i].fileURL    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
+                songsToWrite += songArray[i].fileURL + "," + songArray[i].dateAdded + "," + songArray[i].time    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
             }
         }
         
@@ -176,13 +182,14 @@ class ViewController: NSViewController
                 {
                     // Copy song and get its new URL
                     var newSongURL = copySongToLibrary(lastURL)
-                    var asset = AVURLAsset(URL: newSongURL as NSURL, options: nil)
+                    var newAsset = AVURLAsset(URL: newSongURL as NSURL, options: nil)
                     
-                    let song = Song(asset: asset)
-                    song.extractSongInfo(asset)
-                    println(song.fileURL)
+                    let newSong = Song(newAsset: newAsset)
+                    newSong.extractMetaData(newAsset)
+                    println(newSong.trackNumber)
+                    println(newSong.fileURL)
                     
-                    songArrayController.addObject(song)
+                    songArrayController.addObject(newSong)
                 }
                 
                 songsToAddCopy.removeLastObject()
@@ -246,7 +253,7 @@ class ViewController: NSViewController
         let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
         
         // Ensure the double click occurs on a song in the table
-        if songArrayTableView.selectedRow <= songArrayTableView.numberOfRows
+        if songArrayTableView.selectedRow != -1
         {
             playSong(songArray[songArrayTableView.selectedRow].fileURL)
             
