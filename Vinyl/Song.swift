@@ -31,14 +31,16 @@ class Song: NSObject
     var grouping: String?
     var name: String?
     var trackNumber: String?
+    var totalTracks: String?
     var year: String?
     
     var artwork: String?
     
-    init(asset: AVURLAsset)
+    
+    init(newAsset: AVURLAsset)
     {
-        /* Get song's file path */
-        var fileURLString = "\(asset.URL)"
+        // Get song's file path
+        var fileURLString = "\(newAsset.URL)"
         fileURLString = fileURLString.stringByReplacingOccurrencesOfString("\"", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
         fileURLString = fileURLString.stringByReplacingOccurrencesOfString("Optional(", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
         fileURLString = fileURLString.stringByReplacingOccurrencesOfString(")", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
@@ -46,34 +48,65 @@ class Song: NSObject
         self.fileURL = fileURLString
         
         
-        /* Get time and date of when song is added to the library */
+        // Get time and date of when song is added to the library
         let dateAdded = NSDate(timeIntervalSinceNow: 0.0)
         let dateAddedString = dateAdded.descriptionWithCalendarFormat("%Y-%m-%d %H:%M:%S", timeZone: nil, locale: nil)!
         
         self.dateAdded = dateAddedString
         
         
-        /* Get song's time */
-        let cmTime = asset.duration
-        let cmTimeSecs = CMTimeGetSeconds(cmTime)
+        // Get song's time
+        let cmTimeSecs = CMTimeGetSeconds(newAsset.duration)
         let intTime = Int64(round(cmTimeSecs))
         let minutes = (intTime % 3600) / 60
         let seconds = (intTime % 3600) % 60
+        var timeString = "\(minutes):"
         
-        self.time = "\(minutes):\(seconds)"
+        // Pad seconds with a zero if a single digit
+        if seconds < 10 {
+            timeString += "0"
+        }
+        timeString += "\(seconds)"
+        
+        self.time = timeString
     }
     
     
-    func extractSongInfo(asset: AVURLAsset)
+    init(fileURLString: String, dateAddedString: String, timeString: String)
     {
+        self.fileURL = fileURLString
+        self.dateAdded = dateAddedString
+        self.time = timeString
+    }
+    
+    
+    func extractMetaData(asset: AVURLAsset)
+    {
+        func splitTrackNumbers(trackNumberString: String)
+        {
+            let trackNumbers = trackNumberString.componentsSeparatedByString("/")
+            println(trackNumbers)
+            
+            if trackNumbers.count >= 1
+            {
+                if trackNumbers.count == 2 {
+                    self.totalTracks = trackNumbers[1]
+                }
+                
+                self.trackNumber = trackNumbers[0]
+            }
+        }
+        
+        
         // Extract metadata based on file type of song
         var formats: NSArray = asset.availableMetadataFormats
-        for format in formats
+        
+        for format in formats as [NSString]
         {
-            if format as NSString == AVMetadataFormatID3Metadata    // MP3
+            if format == AVMetadataFormatID3Metadata
             {
                 let metadataItemArray = asset.metadataForFormat(AVMetadataFormatID3Metadata)
-                
+                                
                 for metadataItem in metadataItemArray as [AVMetadataItem]
                 {
                     switch metadataItem.key() as String
@@ -97,7 +130,7 @@ class Song: NSObject
                     case AVMetadataID3MetadataKeyTitleDescription:              // Name
                         self.name = metadataItem.stringValue
                     case AVMetadataID3MetadataKeyTrackNumber:                   // Track Number
-                        self.trackNumber = metadataItem.stringValue
+                        splitTrackNumbers(metadataItem.stringValue)
                     case AVMetadataID3MetadataKeyRecordingTime,                 // Year
                          AVMetadataID3MetadataKeyYear:
                         self.year = metadataItem.stringValue
