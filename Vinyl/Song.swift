@@ -74,6 +74,7 @@ class Song: NSObject
     
     init(fileURLString: String, dateAddedString: String, timeString: String)
     {
+        println("Hello")
         self.fileURL = fileURLString
         self.dateAdded = dateAddedString
         self.time = timeString
