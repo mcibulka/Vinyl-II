@@ -23,14 +23,13 @@ class ViewController: NSViewController
     var songArray = [Song]()
     var audioPlayer = AVAudioPlayer()
     var firstSongPlayed = false
+    var currentlyPlayingIndex = 0
     
     
     override func viewDidLoad()
     {
         let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
         defaultNotificationCenter.addObserver(self, selector: "loadLibrary:", name:"LoadSongs", object: nil)
-        
-        
     }
     
     
@@ -221,15 +220,31 @@ class ViewController: NSViewController
     }
     
     
+    @IBAction func clickPreviousToolbarItem(sender: NSToolbarItem)
+    {
+        currentlyPlayingIndex--
+        
+        // Jump from the start of the table to the end to loop playback
+        if currentlyPlayingIndex == -1 {
+            currentlyPlayingIndex = songArray.count - 1
+        }
+        
+        playSong(songArray[currentlyPlayingIndex].fileURL)
+    }
+    
+    
     @IBAction func clickPlayToolbarItem(sender: NSToolbarItem)
     {
         let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
         
         if sender.image?.name() == "Play"
         {
-            if firstSongPlayed == false {
-                playSong(songArray[0].fileURL)
+            if firstSongPlayed == false
+            {
+                songArrayTableView.selectedRow
+                playSong(songArray[currentlyPlayingIndex].fileURL)
                 firstSongPlayed = true
+                defaultNotificationCenter.postNotificationName("EnableNextAndPrevious", object: nil)
             }
             
             defaultNotificationCenter.postNotificationName("DisplayPauseImage", object: nil)
@@ -248,6 +263,19 @@ class ViewController: NSViewController
     }
     
     
+    @IBAction func clickNextToolbarItem(sender: NSToolbarItem)
+    {
+        currentlyPlayingIndex++
+
+        // Jump from the end of the table to the start to loop playback
+        if currentlyPlayingIndex == songArray.count {
+            currentlyPlayingIndex = 0
+        }
+        
+        playSong(songArray[currentlyPlayingIndex].fileURL)
+    }
+    
+    
     func doubleClick()
     {
         let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
@@ -255,10 +283,12 @@ class ViewController: NSViewController
         // Ensure the double click occurs on a song in the table
         if songArrayTableView.selectedRow != -1
         {
-            playSong(songArray[songArrayTableView.selectedRow].fileURL)
+            currentlyPlayingIndex = songArrayTableView.selectedRow
+            playSong(songArray[currentlyPlayingIndex].fileURL)
             
             if firstSongPlayed == false {
                 firstSongPlayed = true
+                defaultNotificationCenter.postNotificationName("EnableNextAndPrevious", object: nil)
             }
             
             defaultNotificationCenter.postNotificationName("DisplayPauseImage", object: nil)

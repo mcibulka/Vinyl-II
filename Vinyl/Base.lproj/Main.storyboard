@@ -358,7 +358,7 @@
                 <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Vinyl" customModuleProvider="target"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-355.5" y="-293"/>
+            <point key="canvasLocation" x="-305.5" y="-293"/>
         </scene>
         <!--Window Controller-->
         <scene sceneID="R2V-B0-nI4">
@@ -371,19 +371,33 @@
                         <toolbar key="toolbar" implicitIdentifier="F7E962E2-1382-4E58-8806-EC2AB0E1C130" autosavesConfiguration="NO" allowsUserCustomization="NO" displayMode="iconOnly" sizeMode="regular" id="UsY-AZ-NF6" customClass="MyNSToolbar" customModule="Vinyl" customModuleProvider="target">
                             <allowedToolbarItems>
                                 <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="Li9-z2-Xl6"/>
+                                <toolbarItem implicitItemIdentifier="0F4E5ACA-F62B-47DF-B616-592DB29F7B1F" label="Previous" paletteLabel="Previous" tag="-1" image="Previous" id="atY-Qz-14D">
+                                    <connections>
+                                        <action selector="clickPreviousToolbarItem:" target="Oky-zY-oP4" id="WsG-aM-rOA"/>
+                                    </connections>
+                                </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="CE7FC948-F4CB-4147-BD08-12FA7D4589D9" label="Play" paletteLabel="Play" tag="-1" image="Play" id="sjn-4D-tGb" userLabel="Play">
                                     <connections>
                                         <action selector="clickPlayToolbarItem:" target="Oky-zY-oP4" id="use-cx-tFr"/>
                                     </connections>
                                 </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="8481A5EF-4FB4-44D1-A920-7F072EDC6D82" label="Next" paletteLabel="Next" tag="-1" image="Next" id="V6E-0a-sfe">
+                                    <connections>
+                                        <action selector="clickNextToolbarItem:" target="Oky-zY-oP4" id="9tQ-f0-1Ky"/>
+                                    </connections>
+                                </toolbarItem>
                             </allowedToolbarItems>
                             <defaultToolbarItems>
                                 <toolbarItem reference="Li9-z2-Xl6"/>
+                                <toolbarItem reference="atY-Qz-14D"/>
                                 <toolbarItem reference="sjn-4D-tGb"/>
+                                <toolbarItem reference="V6E-0a-sfe"/>
                                 <toolbarItem reference="Li9-z2-Xl6"/>
                             </defaultToolbarItems>
                             <connections>
+                                <outlet property="nextToolbarItem" destination="V6E-0a-sfe" id="st4-Vv-zGm"/>
                                 <outlet property="playToolbarItem" destination="sjn-4D-tGb" id="4mz-K3-MiC"/>
+                                <outlet property="previousToolbarItem" destination="atY-Qz-14D" id="HJH-Ko-BKe"/>
                             </connections>
                         </toolbar>
                     </window>
@@ -552,7 +566,7 @@
                                                         <tableCellView id="q5K-jY-3M6">
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="kFF-CB-whz">
+                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kFF-CB-whz">
                                                                     <rect key="frame" x="0.0" y="0.0" width="4" height="17"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="Table View Cell" id="I3G-26-Noc">
                                                                         <font key="font" metaFont="system"/>
@@ -962,7 +976,7 @@
                                     <rect key="frame" x="1" y="119" width="223" height="15"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
-                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="yrS-am-CrL">
+                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="yrS-am-CrL">
                                     <rect key="frame" x="224" y="17" width="15" height="102"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
@@ -995,6 +1009,8 @@
         </scene>
     </scenes>
     <resources>
+        <image name="Next" width="72" height="72"/>
         <image name="Play" width="72" height="72"/>
+        <image name="Previous" width="72" height="72"/>
     </resources>
 </document>
