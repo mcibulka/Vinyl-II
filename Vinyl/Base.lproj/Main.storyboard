@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14C109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="6751" systemVersion="14C1510" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6751"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -370,10 +370,14 @@
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <toolbar key="toolbar" implicitIdentifier="F7E962E2-1382-4E58-8806-EC2AB0E1C130" autosavesConfiguration="NO" allowsUserCustomization="NO" displayMode="iconOnly" sizeMode="regular" id="UsY-AZ-NF6" customClass="MyNSToolbar" customModule="Vinyl" customModuleProvider="target">
                             <allowedToolbarItems>
-                                <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="Li9-z2-Xl6"/>
                                 <toolbarItem implicitItemIdentifier="0F4E5ACA-F62B-47DF-B616-592DB29F7B1F" label="Previous" paletteLabel="Previous" tag="-1" image="Previous" id="atY-Qz-14D">
                                     <connections>
                                         <action selector="clickPreviousToolbarItem:" target="Oky-zY-oP4" id="WsG-aM-rOA"/>
+                                    </connections>
+                                </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="E885836C-5C4C-4157-BD7F-6A207C8394B8" label="Seek Backward" paletteLabel="Seek Backward" tag="-1" image="Seek-Backward" id="cYr-dh-QuN" userLabel="Seek Backward">
+                                    <connections>
+                                        <action selector="clickSeekBackward:" target="Oky-zY-oP4" id="vq9-Rq-4qF"/>
                                     </connections>
                                 </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="CE7FC948-F4CB-4147-BD08-12FA7D4589D9" label="Play" paletteLabel="Play" tag="-1" image="Play" id="sjn-4D-tGb" userLabel="Play">
@@ -381,23 +385,33 @@
                                         <action selector="clickPlayToolbarItem:" target="Oky-zY-oP4" id="use-cx-tFr"/>
                                     </connections>
                                 </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="FB5D028C-D0EA-4C69-BD50-03CCFC38C293" label="Seek Forward" paletteLabel="Seek Forward" tag="-1" image="Seek-Forward" id="HJB-Bh-Om6" userLabel="Seek Forward">
+                                    <connections>
+                                        <action selector="clickSeekForward:" target="Oky-zY-oP4" id="ub8-jn-js4"/>
+                                    </connections>
+                                </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="8481A5EF-4FB4-44D1-A920-7F072EDC6D82" label="Next" paletteLabel="Next" tag="-1" image="Next" id="V6E-0a-sfe">
                                     <connections>
                                         <action selector="clickNextToolbarItem:" target="Oky-zY-oP4" id="9tQ-f0-1Ky"/>
                                     </connections>
                                 </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="PpA-Gj-sP6"/>
                             </allowedToolbarItems>
                             <defaultToolbarItems>
-                                <toolbarItem reference="Li9-z2-Xl6"/>
+                                <toolbarItem reference="PpA-Gj-sP6"/>
                                 <toolbarItem reference="atY-Qz-14D"/>
+                                <toolbarItem reference="cYr-dh-QuN"/>
                                 <toolbarItem reference="sjn-4D-tGb"/>
+                                <toolbarItem reference="HJB-Bh-Om6"/>
                                 <toolbarItem reference="V6E-0a-sfe"/>
-                                <toolbarItem reference="Li9-z2-Xl6"/>
+                                <toolbarItem reference="PpA-Gj-sP6"/>
                             </defaultToolbarItems>
                             <connections>
                                 <outlet property="nextToolbarItem" destination="V6E-0a-sfe" id="st4-Vv-zGm"/>
                                 <outlet property="playToolbarItem" destination="sjn-4D-tGb" id="4mz-K3-MiC"/>
                                 <outlet property="previousToolbarItem" destination="atY-Qz-14D" id="HJH-Ko-BKe"/>
+                                <outlet property="seekBackwardToolbarItem" destination="cYr-dh-QuN" id="TXm-Ik-wZt"/>
+                                <outlet property="seekForwardToolbarItem" destination="HJB-Bh-Om6" id="2ng-xK-fol"/>
                             </connections>
                         </toolbar>
                     </window>
@@ -1012,5 +1026,7 @@
         <image name="Next" width="72" height="72"/>
         <image name="Play" width="72" height="72"/>
         <image name="Previous" width="72" height="72"/>
+        <image name="Seek-Backward" width="72" height="72"/>
+        <image name="Seek-Forward" width="72" height="72"/>
     </resources>
 </document>

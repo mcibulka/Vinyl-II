@@ -22,6 +22,8 @@ class ViewController: NSViewController
     
     var songArray = [Song]()
     var audioPlayer = AVAudioPlayer()
+    let seekInterval = 15.0
+    
     var firstSongPlayed = false
     var currentlyPlayingIndex = 0
     
@@ -29,7 +31,7 @@ class ViewController: NSViewController
     override func viewDidLoad()
     {
         let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
-        defaultNotificationCenter.addObserver(self, selector: "loadLibrary:", name:"LoadSongs", object: nil)
+        defaultNotificationCenter.addObserver(self, selector: "loadLibrary:", name:"LoadLibrary", object: nil)
     }
     
     
@@ -38,7 +40,7 @@ class ViewController: NSViewController
         let mainBundle = NSBundle.mainBundle()
         let path = mainBundle.pathForResource("songsList", ofType: "txt")
         let songsListFileContent = String(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
-     
+        
         println("LOADING...\n")
         
         // If there are previously added songs, populate the song array
@@ -158,7 +160,6 @@ class ViewController: NSViewController
             return dataURLWithFileName!
         }
         
-        
         var songsToAddCopy = songsToAdd.mutableCopy() as NSMutableArray
         var lastURL = songsToAddCopy.lastObject as NSURL
         
@@ -185,7 +186,6 @@ class ViewController: NSViewController
                     
                     let newSong = Song(newAsset: newAsset)
                     newSong.extractMetaData(newAsset)
-                    println(newSong.trackNumber)
                     println(newSong.fileURL)
                     
                     songArrayController.addObject(newSong)
@@ -222,14 +222,33 @@ class ViewController: NSViewController
     
     @IBAction func clickPreviousToolbarItem(sender: NSToolbarItem)
     {
-        currentlyPlayingIndex--
-        
-        // Jump from the start of the table to the end to loop playback
-        if currentlyPlayingIndex == -1 {
-            currentlyPlayingIndex = songArray.count - 1
+        if songArray.count > 0
+        {
+            currentlyPlayingIndex--
+            
+            // Jump from the start of the table to the end to loop playback
+            if currentlyPlayingIndex == -1 {
+                currentlyPlayingIndex = songArray.count - 1
+            }
+            
+            playSong(songArray[currentlyPlayingIndex].fileURL)
         }
-        
-        playSong(songArray[currentlyPlayingIndex].fileURL)
+    }
+    
+    
+    @IBAction func clickSeekBackward(sender: NSToolbarItem)
+    {
+        if songArray.count > 0
+        {
+            var seekTo = audioPlayer.currentTime - seekInterval
+            
+            if seekTo >= 0 {
+                audioPlayer.currentTime = seekTo
+            }
+            else {
+                audioPlayer.currentTime = audioPlayer.duration + seekTo     // seekTo is actually a negative number in this case, causing it to be subtracted from duration
+            }
+        }
     }
     
     
@@ -239,15 +258,18 @@ class ViewController: NSViewController
         
         if sender.image?.name() == "Play"
         {
-            if firstSongPlayed == false
+            if songArray.count > 0
             {
-                songArrayTableView.selectedRow
-                playSong(songArray[currentlyPlayingIndex].fileURL)
-                firstSongPlayed = true
-                defaultNotificationCenter.postNotificationName("EnableNextAndPrevious", object: nil)
+                if firstSongPlayed == false
+                {
+                    songArrayTableView.selectedRow
+                    playSong(songArray[currentlyPlayingIndex].fileURL)
+                    firstSongPlayed = true
+                    defaultNotificationCenter.postNotificationName("EnableNextAndPrevious", object: nil)
+                }
+                
+                defaultNotificationCenter.postNotificationName("DisplayPauseImage", object: nil)
             }
-            
-            defaultNotificationCenter.postNotificationName("DisplayPauseImage", object: nil)
         }
         else    // Image must be "Pause"
         {
@@ -263,16 +285,39 @@ class ViewController: NSViewController
     }
     
     
+    @IBAction func clickSeekForward(sender: NSToolbarItem)
+    {
+        if songArray.count > 0
+        {
+            var seekTo = audioPlayer.currentTime + seekInterval
+            
+            if seekTo < audioPlayer.duration {
+                audioPlayer.currentTime = seekTo
+            }
+            else if seekTo == audioPlayer.duration {
+                audioPlayer.currentTime = 0
+                audioPlayer.play()
+            }
+            else {
+                audioPlayer.currentTime = seekTo - audioPlayer.duration
+            }
+        }
+    }
+    
+    
     @IBAction func clickNextToolbarItem(sender: NSToolbarItem)
     {
-        currentlyPlayingIndex++
-
-        // Jump from the end of the table to the start to loop playback
-        if currentlyPlayingIndex == songArray.count {
-            currentlyPlayingIndex = 0
+        if songArray.count > 0
+        {
+            currentlyPlayingIndex++
+            
+            // Jump from the end of the table to the start to loop playback
+            if currentlyPlayingIndex == songArray.count {
+                currentlyPlayingIndex = 0
+            }
+            
+            playSong(songArray[currentlyPlayingIndex].fileURL)
         }
-        
-        playSong(songArray[currentlyPlayingIndex].fileURL)
     }
     
     

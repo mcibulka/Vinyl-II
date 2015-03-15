@@ -17,30 +17,25 @@ import Cocoa
 class MyNSToolbar: NSToolbar
 {
     @IBOutlet weak var previousToolbarItem: NSToolbarItem!
+    @IBOutlet weak var seekBackwardToolbarItem: NSToolbarItem!
     @IBOutlet weak var playToolbarItem: NSToolbarItem!
+    @IBOutlet weak var seekForwardToolbarItem: NSToolbarItem!
     @IBOutlet weak var nextToolbarItem: NSToolbarItem!
     
     let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
     let mainBundle = NSBundle.mainBundle()
     
-    var enabled = false
-    
     
     override func validateVisibleItems()
-    {
+    {        
         defaultNotificationCenter.addObserver(self, selector: "displayPauseImage:", name:"DisplayPauseImage", object: nil)
         defaultNotificationCenter.addObserver(self, selector: "displayPlayImage:", name:"DisplayPlayImage", object: nil)
-        defaultNotificationCenter.addObserver(self, selector: "enableNextAndPrevious:", name:"EnableNextAndPrevious", object: nil)
 
         previousToolbarItem.validate()
+        seekBackwardToolbarItem.validate()
         playToolbarItem.validate()
+        seekForwardToolbarItem.validate()
         nextToolbarItem.validate()
-        
-        if enabled == false {
-            nextToolbarItem.enabled = false
-            previousToolbarItem.enabled = false
-        }
-
     }
     
     
@@ -53,13 +48,5 @@ class MyNSToolbar: NSToolbar
     func displayPlayImage(notification: NSNotification)
     {
         playToolbarItem.image = NSImage(byReferencingFile: mainBundle.pathForResource("Play", ofType: ".png")!)
-    }
-    
-    
-    func enableNextAndPrevious(notification: NSNotification)
-    {
-        enabled = true
-        previousToolbarItem.enabled = true
-        nextToolbarItem.enabled = true
     }
 }

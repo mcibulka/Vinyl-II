@@ -74,7 +74,6 @@ class Song: NSObject
     
     init(fileURLString: String, dateAddedString: String, timeString: String)
     {
-        println("Hello")
         self.fileURL = fileURLString
         self.dateAdded = dateAddedString
         self.time = timeString
@@ -86,7 +85,6 @@ class Song: NSObject
         func splitTrackNumbers(trackNumberString: String)
         {
             let trackNumbers = trackNumberString.componentsSeparatedByString("/")
-            println(trackNumbers)
             
             if trackNumbers.count >= 1
             {
