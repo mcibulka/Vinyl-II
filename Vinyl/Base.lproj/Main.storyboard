@@ -408,7 +408,7 @@
                                     </slider>
                                 </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="3dk-oc-DsP"/>
-                                <toolbarItem implicitItemIdentifier="433BBABC-8B08-40E1-AE53-CD686BAC120F" label="Custom View" paletteLabel="Custom View" tag="-1" id="tRb-zS-XUT">
+                                <toolbarItem implicitItemIdentifier="433BBABC-8B08-40E1-AE53-CD686BAC120F" label="Custom View" paletteLabel="Custom View" tag="-1" id="tRb-zS-XUT" userLabel="Now Playing">
                                     <nil key="toolTip"/>
                                     <size key="minSize" width="150" height="32"/>
                                     <size key="maxSize" width="400" height="32"/>
@@ -416,8 +416,8 @@
                                         <rect key="frame" x="0.0" y="14" width="163" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <subviews>
-                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EN1-X2-TWm">
-                                                <rect key="frame" x="30" y="10" width="103" height="14"/>
+                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EN1-X2-TWm" userLabel="Song Name">
+                                                <rect key="frame" x="30" y="8" width="103" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Label" placeholderString="Song" id="REC-0i-xHF">
                                                     <font key="font" metaFont="systemBold"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -448,17 +448,13 @@
                                 </toolbarItem>
                             </allowedToolbarItems>
                             <defaultToolbarItems>
+                                <toolbarItem reference="PpA-Gj-sP6"/>
                                 <toolbarItem reference="atY-Qz-14D"/>
                                 <toolbarItem reference="cYr-dh-QuN"/>
                                 <toolbarItem reference="sjn-4D-tGb"/>
                                 <toolbarItem reference="HJB-Bh-Om6"/>
                                 <toolbarItem reference="V6E-0a-sfe"/>
                                 <toolbarItem reference="PpA-Gj-sP6"/>
-                                <toolbarItem reference="Uu9-Au-dyu"/>
-                                <toolbarItem reference="PpA-Gj-sP6"/>
-                                <toolbarItem reference="tRb-zS-XUT"/>
-                                <toolbarItem reference="PpA-Gj-sP6"/>
-                                <toolbarItem reference="jpA-QD-JKq"/>
                             </defaultToolbarItems>
                             <connections>
                                 <outlet property="next" destination="V6E-0a-sfe" id="Xfg-yh-yEP"/>

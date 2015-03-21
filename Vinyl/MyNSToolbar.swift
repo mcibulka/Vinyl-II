@@ -29,28 +29,12 @@ class MyNSToolbar: NSToolbar
 
         defaultNotificationCenter.addObserver(self, selector: "displayPauseImage:", name:"DisplayPauseImage", object: nil)
         defaultNotificationCenter.addObserver(self, selector: "displayPlayImage:", name:"DisplayPlayImage", object: nil)
+        defaultNotificationCenter.addObserver(self, selector: "enableOtherPlaybackControls:", name:"EnableOtherPlaybackControls", object: nil)
 
-        previous.validate()
-        seekBackward.validate()
-        playPause.validate()
-        seekForward.validate()
-        next.validate()
+        playPause.enabled = true
     }
- 
-   
-//    override func validateToolbarItem(theItem: NSToolbarItem) -> Bool
-//    {
-//        println("HELLO")
-//        var enable = false
-//
-//        if theItem.itemIdentifier == previousToolbarItem.itemIdentifier {
-//            enable = true
-//        }
-//
-//        return enable
-//    }
     
-
+    
     func displayPauseImage(aNotification: NSNotification)
     {
         let mainBundle = NSBundle.mainBundle()
@@ -64,5 +48,14 @@ class MyNSToolbar: NSToolbar
         let mainBundle = NSBundle.mainBundle()
         
         playPause.image = NSImage(byReferencingFile: mainBundle.pathForResource("Play", ofType: ".png")!)
+    }
+    
+    
+    func enableOtherPlaybackControls(aNotification: NSNotification)
+    {
+        previous.enabled = true
+        seekBackward.enabled = true
+        seekForward.enabled = true
+        next.enabled = true
     }
 }

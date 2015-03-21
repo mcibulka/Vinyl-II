@@ -242,12 +242,10 @@ class ViewController: NSViewController
             }
             
             if audioPlayer.playing {
-                audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: songArray[currentlyPlayingIndex].fileURL), error: nil)
-                audioPlayer.prepareToPlay()
-                audioPlayer.play()
+                loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: true)
             }
             else {
-                audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: songArray[currentlyPlayingIndex].fileURL), error: nil)
+                loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: false)
             }
         }
     }
@@ -279,9 +277,9 @@ class ViewController: NSViewController
             {
                 if firstSongPlayed == false
                 {
-                    playSong(songArray[currentlyPlayingIndex].fileURL)
+                    loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: true)
                     firstSongPlayed = true
-                    defaultNotificationCenter.postNotificationName("EnableNextAndPrevious", object: nil)
+                    defaultNotificationCenter.postNotificationName("EnableOtherPlaybackControls", object: nil)
                 }
                 
                 defaultNotificationCenter.postNotificationName("DisplayPauseImage", object: nil)
@@ -333,12 +331,10 @@ class ViewController: NSViewController
             }
             
             if audioPlayer.playing {
-                audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: songArray[currentlyPlayingIndex].fileURL), error: nil)
-                audioPlayer.prepareToPlay()
-                audioPlayer.play()
+                loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: true)
             }
             else {
-                audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: songArray[currentlyPlayingIndex].fileURL), error: nil)
+                loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: false)
             }
             
             
@@ -354,11 +350,10 @@ class ViewController: NSViewController
         if songArrayTableView.selectedRow != -1
         {
             currentlyPlayingIndex = songArrayTableView.selectedRow
-            playSong(songArray[currentlyPlayingIndex].fileURL)
+            loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: true)
             
             if firstSongPlayed == false {
                 firstSongPlayed = true
-                defaultNotificationCenter.postNotificationName("EnableNextAndPrevious", object: nil)
             }
             
             defaultNotificationCenter.postNotificationName("DisplayPauseImage", object: nil)
@@ -366,11 +361,14 @@ class ViewController: NSViewController
     }
     
     
-    func playSong(fileURL: String)
+    func loadSongForPlayback(fileURL: String, beginPlaying: Bool)
     {
         audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: fileURL), error: nil)
         audioPlayer.prepareToPlay()
-        audioPlayer.play()
+        
+        if beginPlaying == true {
+            audioPlayer.play()
+        }
     }
 }
 
