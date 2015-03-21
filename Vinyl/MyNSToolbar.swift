@@ -16,37 +16,53 @@ import Cocoa
 
 class MyNSToolbar: NSToolbar
 {
-    @IBOutlet weak var previousToolbarItem: NSToolbarItem!
-    @IBOutlet weak var seekBackwardToolbarItem: NSToolbarItem!
-    @IBOutlet weak var playToolbarItem: NSToolbarItem!
-    @IBOutlet weak var seekForwardToolbarItem: NSToolbarItem!
-    @IBOutlet weak var nextToolbarItem: NSToolbarItem!
-    
-    let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
-    let mainBundle = NSBundle.mainBundle()
+    @IBOutlet weak var previous: NSToolbarItem!
+    @IBOutlet weak var seekBackward: NSToolbarItem!
+    @IBOutlet weak var playPause: NSToolbarItem!
+    @IBOutlet weak var seekForward: NSToolbarItem!
+    @IBOutlet weak var next: NSToolbarItem!
     
     
     override func validateVisibleItems()
-    {        
+    {
+        let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
+
         defaultNotificationCenter.addObserver(self, selector: "displayPauseImage:", name:"DisplayPauseImage", object: nil)
         defaultNotificationCenter.addObserver(self, selector: "displayPlayImage:", name:"DisplayPlayImage", object: nil)
 
-        previousToolbarItem.validate()
-        seekBackwardToolbarItem.validate()
-        playToolbarItem.validate()
-        seekForwardToolbarItem.validate()
-        nextToolbarItem.validate()
+        previous.validate()
+        seekBackward.validate()
+        playPause.validate()
+        seekForward.validate()
+        next.validate()
+    }
+ 
+   
+//    override func validateToolbarItem(theItem: NSToolbarItem) -> Bool
+//    {
+//        println("HELLO")
+//        var enable = false
+//
+//        if theItem.itemIdentifier == previousToolbarItem.itemIdentifier {
+//            enable = true
+//        }
+//
+//        return enable
+//    }
+    
+
+    func displayPauseImage(aNotification: NSNotification)
+    {
+        let mainBundle = NSBundle.mainBundle()
+     
+        playPause.image = NSImage(byReferencingFile: mainBundle.pathForResource("Pause", ofType: ".png")!)
     }
     
     
-    func displayPauseImage(notification: NSNotification)
+    func displayPlayImage(aNotification: NSNotification)
     {
-        playToolbarItem.image = NSImage(byReferencingFile: mainBundle.pathForResource("Pause", ofType: ".png")!)
-    }
-    
-    
-    func displayPlayImage(notification: NSNotification)
-    {
-        playToolbarItem.image = NSImage(byReferencingFile: mainBundle.pathForResource("Play", ofType: ".png")!)
+        let mainBundle = NSBundle.mainBundle()
+        
+        playPause.image = NSImage(byReferencingFile: mainBundle.pathForResource("Play", ofType: ".png")!)
     }
 }

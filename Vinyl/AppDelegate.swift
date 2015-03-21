@@ -20,7 +20,8 @@ class AppDelegate: NSObject, NSApplicationDelegate
     func applicationDidFinishLaunching(aNotification: NSNotification)
     {
         /* Insert code here to initialize your application */
-        NSNotificationCenter.defaultCenter().postNotificationName("LoadLibrary", object: nil)
+        let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
+        defaultNotificationCenter.postNotificationName("LoadLibrary", object: nil)
     }
 
     func applicationWillTerminate(aNotification: NSNotification)

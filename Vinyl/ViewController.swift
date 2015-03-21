@@ -21,6 +21,8 @@ class ViewController: NSViewController
     @IBOutlet var songArrayController: NSArrayController!
     
     var songArray = [Song]()
+    var tempSongArray = [Song]()
+    
     var audioPlayer = AVAudioPlayer()
     let seekInterval = 15.0
     
@@ -35,7 +37,7 @@ class ViewController: NSViewController
     }
     
     
-    func loadLibrary(notification: NSNotification)
+    func loadLibrary(aNotification: NSNotification)
     {
         let mainBundle = NSBundle.mainBundle()
         let path = mainBundle.pathForResource("songsList", ofType: "txt")
@@ -117,14 +119,14 @@ class ViewController: NSViewController
         }
         
         
-        /* FUNCTION: dirIterator
+        /* FUNCTION: directoryIterator
         ** INPUT: NSURL of a directory
         ** RETURN: An NSArray of NSURLS that were contained in the directory
         */
-        func dirIterator(dir: NSURL) -> NSArray
+        func directoryIterator(directory: NSURL) -> NSArray
         {
             let defaultFileManager = NSFileManager.defaultManager()
-            let filelist = defaultFileManager.contentsOfDirectoryAtURL(dir, includingPropertiesForKeys: nil, options: nil, error: nil)
+            let filelist = defaultFileManager.contentsOfDirectoryAtURL(directory, includingPropertiesForKeys: nil, options: nil, error: nil)
 
             return filelist!
         }
@@ -168,7 +170,7 @@ class ViewController: NSViewController
             if isDirectory(lastURL)
             {
                 songsToAddCopy.removeLastObject()
-                addSongs(dirIterator(lastURL))
+                addSongs(directoryIterator(lastURL))
                 
                 // 1 to skip the directory which is saved as the first element in the array
                 if songsToAddCopy.count > 1 {
@@ -188,7 +190,7 @@ class ViewController: NSViewController
                     newSong.extractMetaData(newAsset)
                     println(newSong.fileURL)
                     
-                    songArrayController.addObject(newSong)
+                    tempSongArray.insert(newSong, atIndex: 0)
                 }
                 
                 songsToAddCopy.removeLastObject()
@@ -213,6 +215,14 @@ class ViewController: NSViewController
         {
             println("ADDING...\n")
             addSongs(addToLibraryOpenPanel.URLs)
+            println(addToLibraryOpenPanel.URLs)
+            
+            if tempSongArray.count > 0
+            {
+                songArrayController.addObjects(tempSongArray)
+                tempSongArray.removeAll()
+            }
+            
             println("\nADD Complete.\n\n")
             
             saveLibrary()
@@ -220,8 +230,8 @@ class ViewController: NSViewController
     }
     
     
-    @IBAction func clickPreviousToolbarItem(sender: NSToolbarItem)
-    {
+    @IBAction func clickPrevious(sender: NSToolbarItem)
+    {        
         if songArray.count > 0
         {
             currentlyPlayingIndex--
@@ -231,7 +241,14 @@ class ViewController: NSViewController
                 currentlyPlayingIndex = songArray.count - 1
             }
             
-            playSong(songArray[currentlyPlayingIndex].fileURL)
+            if audioPlayer.playing {
+                audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: songArray[currentlyPlayingIndex].fileURL), error: nil)
+                audioPlayer.prepareToPlay()
+                audioPlayer.play()
+            }
+            else {
+                audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: songArray[currentlyPlayingIndex].fileURL), error: nil)
+            }
         }
     }
     
@@ -252,7 +269,7 @@ class ViewController: NSViewController
     }
     
     
-    @IBAction func clickPlayToolbarItem(sender: NSToolbarItem)
+    @IBAction func clickPlay(sender: NSToolbarItem)
     {
         let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
         
@@ -262,7 +279,6 @@ class ViewController: NSViewController
             {
                 if firstSongPlayed == false
                 {
-                    songArrayTableView.selectedRow
                     playSong(songArray[currentlyPlayingIndex].fileURL)
                     firstSongPlayed = true
                     defaultNotificationCenter.postNotificationName("EnableNextAndPrevious", object: nil)
@@ -305,7 +321,7 @@ class ViewController: NSViewController
     }
     
     
-    @IBAction func clickNextToolbarItem(sender: NSToolbarItem)
+    @IBAction func clickNext(sender: NSToolbarItem)
     {
         if songArray.count > 0
         {
@@ -316,7 +332,16 @@ class ViewController: NSViewController
                 currentlyPlayingIndex = 0
             }
             
-            playSong(songArray[currentlyPlayingIndex].fileURL)
+            if audioPlayer.playing {
+                audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: songArray[currentlyPlayingIndex].fileURL), error: nil)
+                audioPlayer.prepareToPlay()
+                audioPlayer.play()
+            }
+            else {
+                audioPlayer = AVAudioPlayer(contentsOfURL: NSURL(string: songArray[currentlyPlayingIndex].fileURL), error: nil)
+            }
+            
+            
         }
     }
     
