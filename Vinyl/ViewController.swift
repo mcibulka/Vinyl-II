@@ -352,7 +352,10 @@ class ViewController: NSViewController
             currentlyPlayingIndex = songArrayTableView.selectedRow
             loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: true)
             
-            if firstSongPlayed == false {
+            if firstSongPlayed == false
+            {
+                defaultNotificationCenter.postNotificationName("EnableOtherPlaybackControls", object: nil)
+            
                 firstSongPlayed = true
             }
             
