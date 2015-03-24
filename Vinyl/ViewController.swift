@@ -136,25 +136,41 @@ class ViewController: NSViewController
         ** INPUT: Copies a song from the supplied NSURL to the library folder
         ** RETURN: URL to copy of file in library folder
         */
-        func copySongToLibrary(sourceURL: NSURL) -> NSURL
+        func copySongToLibrary(sourceURL: NSURL, var albumArtist: String, var album: String, var name: String) -> NSURL
         {
             let defaultFileManager = NSFileManager.defaultManager()
             
             // Get path to the Documents directory, then the library folder
             let paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)
             let documentsDirectory: AnyObject = paths[0]
-            let dataPath = documentsDirectory.stringByAppendingPathComponent("VinylMusic")
+            var dataPath = documentsDirectory.stringByAppendingPathComponent("VinylMusic")
             
             // If the library folder doesn't exist, create it
             if (!defaultFileManager.fileExistsAtPath(dataPath)) {
                 defaultFileManager.createDirectoryAtPath(dataPath, withIntermediateDirectories: false, attributes: nil, error: nil)
             }
             
-            // Get the file name from the end of the song to be copied and append it to the file path of the library folder
-            let fileName = sourceURL.lastPathComponent?
-            let dataPathWithFileName = "\(dataPath)/\(fileName!)"
+            // Add artist to the path
+            dataPath = dataPath.stringByAppendingPathComponent(albumArtist.lowercaseString)
+            // If the artist folder dosent exist, create it
+            if (!defaultFileManager.fileExistsAtPath(dataPath)) {
+                defaultFileManager.createDirectoryAtPath(dataPath, withIntermediateDirectories: false, attributes: nil, error: nil)
+            }
             
-            let dataURLWithFileName = NSURL(fileURLWithPath: dataPathWithFileName)
+            // Add album to the path
+            dataPath = dataPath.stringByAppendingPathComponent(album.lowercaseString)
+            // If the album folder dosent exist, create it
+            if (!defaultFileManager.fileExistsAtPath(dataPath)) {
+                defaultFileManager.createDirectoryAtPath(dataPath, withIntermediateDirectories: false, attributes: nil, error: nil)
+            }
+            
+            // Get the file name from the end of the song to be copied and append it to the file path
+            let fileName = sourceURL.lastPathComponent?
+            //let dataPathWithFileName = "\(dataPath)/\(fileName!)"
+            
+            
+            dataPath = dataPath.stringByAppendingPathComponent(fileName!)
+            let dataURLWithFileName = NSURL(fileURLWithPath: dataPath)
             
             // Copy the file to the new location
             defaultFileManager.copyItemAtURL(sourceURL, toURL: dataURLWithFileName!, error: nil)
@@ -183,13 +199,16 @@ class ViewController: NSViewController
                 if lastURL.pathExtension?.lowercaseString == "mp3"
                 {
                     // Copy song and get its new URL
-                    var newSongURL = copySongToLibrary(lastURL)
-                    var newAsset = AVURLAsset(URL: newSongURL as NSURL, options: nil)
+                    //var newSongURL = copySongToLibrary(lastURL)
+                    //var newAsset = AVURLAsset(URL: newSongURL as NSURL, options: nil)
+                    var newAsset = AVURLAsset(URL: lastURL as NSURL, options: nil)
                     
                     let newSong = Song(newAsset: newAsset)
                     newSong.extractMetaData(newAsset)
-                    println(newSong.fileURL)
                     
+                    var newSongURL = copySongToLibrary(lastURL, newSong.albumArtist!, newSong.album!, newSong.name!)
+                    newSong.fileURL = "\(newSongURL)"
+                    println(newSong.fileURL)
                     tempSongArray.insert(newSong, atIndex: 0)
                 }
                 
