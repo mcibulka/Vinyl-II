@@ -96,6 +96,32 @@ class Song: NSObject
             }
         }
         
+        let ID3AlbumIdentifier = "id3/%00TAL"
+        let ID3AlbumArtistIdentifier = "id3/%00TP2"
+        let ID3ArtistIdentifier = "id3/%00TP1"
+        let ID3BeatsPerMinuteIdentiifier = "id3/%00BPM"
+        let ID3CommentsIdentifier = "id3/%00COM"
+        let ID3ComposerIdentifier = "id3/%00TCM"
+        let ID3GenreIdentifier = "id3/%00TCO"
+        let ID3GroupingIdentifier = "id3/%00TT1"
+        let ID3NameIdentifier = "id3/%00TT2"
+        let ID3TrackNumberIdentifier = "id3/%00TRK"
+        let ID3YearIdentifier = "id3/%00TYE"
+        let ID3AlbumArtworkIdentifier = "id3/%00PIC"
+        
+        let ID3AlbumIdentifierII = "id3/TALB"
+        let ID3AlbumArtistIdentifierII = "id3/TPE2"
+        let ID3ArtistIdentifierII = "id3/TPE1"
+        let ID3BeatsPerMinuteIdentiifierII = "id3/TBPM"
+        let ID3CommentsIdentifierII = "id3/COMM"
+        let ID3ComposerIdentifierII = "id3/TCOM"
+        let ID3GenreIdentifierII = "id3/TCON"
+        let ID3GroupingIdentifierII = "id3/TIT1"
+        let ID3NameIdentifierII = "id3/TIT2"
+        let ID3TrackNumberIdentifierII = "id3/TRCK"
+        let ID3YearIdentifierII = "id3/TDRC"
+        let ID3AlbumArtworkIdentifierII = "id3/APIC"
+
         
         // Extract metadata based on file type of song
         var formats: NSArray = asset.availableMetadataFormats
@@ -105,43 +131,41 @@ class Song: NSObject
             if format == AVMetadataFormatID3Metadata
             {
                 let metadataItemArray = asset.metadataForFormat(AVMetadataFormatID3Metadata)
-                                
+                
                 for metadataItem in metadataItemArray as [AVMetadataItem]
                 {
-                    switch metadataItem.key() as String
+                    switch metadataItem.identifier
                     {
-                    case AVMetadataID3MetadataKeyAlbumTitle:                    // Album
+                    case ID3AlbumIdentifier, ID3AlbumIdentifierII:                          // Album
                         self.album = metadataItem.stringValue
-                    case AVMetadataID3MetadataKeyLeadPerformer:                 // Album Artist
+                    case ID3AlbumArtistIdentifier, ID3AlbumArtistIdentifierII:              // Album Artist
                         self.artist = metadataItem.stringValue
-                    case AVMetadataID3MetadataKeyBand:                          // Artist
+                    case ID3ArtistIdentifier, ID3ArtistIdentifierII:                        // Artist
                         self.albumArtist = metadataItem.stringValue
-                    case AVMetadataID3MetadataKeyBeatsPerMinute:                // Beats Per Minute
+                    case ID3BeatsPerMinuteIdentiifier, ID3BeatsPerMinuteIdentiifierII:      // Beats Per Minute
                         self.beatsPerMinute = metadataItem.stringValue
-                    case AVMetadataID3MetadataKeyComments:                      // Comments
+                    case ID3CommentsIdentifier, ID3CommentsIdentifierII:                    // Comments
                         self.comments = metadataItem.stringValue
-                    case AVMetadataID3MetadataKeyComposer:                      // Composer
+                    case ID3ComposerIdentifier, ID3ComposerIdentifierII:                    // Composer
                         self.composer = metadataItem.stringValue
-                    case AVMetadataID3MetadataKeyContentType:                   // Genre
+                    case ID3GenreIdentifier, ID3GenreIdentifierII:                          // Genre
                         self.genre = metadataItem.stringValue
-                    case AVMetadataID3MetadataKeyContentGroupDescription:       // Grouping
+                    case ID3GroupingIdentifier, ID3GroupingIdentifierII:                    // Grouping
                         self.grouping = metadataItem.stringValue
-                    case AVMetadataID3MetadataKeyTitleDescription:              // Name
+                    case ID3NameIdentifier, ID3NameIdentifierII:                            // Name
                         self.name = metadataItem.stringValue
-                    case AVMetadataID3MetadataKeyTrackNumber:                   // Track Number
+                    case ID3TrackNumberIdentifier, ID3TrackNumberIdentifierII:              // Track Number
                         splitTrackNumbers(metadataItem.stringValue)
-                    case AVMetadataID3MetadataKeyRecordingTime,                 // Year
-                         AVMetadataID3MetadataKeyYear:
+                    case ID3YearIdentifier, ID3YearIdentifierII:                            // Year
                         self.year = metadataItem.stringValue
-                    case AVMetadataID3MetadataKeyAttachedPicture:               // Album Artwork
+                    case ID3AlbumArtworkIdentifier, ID3AlbumArtworkIdentifierII:            // Album Artwork
                         self.artwork = "Artwork"
                     default:
                         break
                     }
                 }
             }
-            else
-            {
+            else {
                 println("\nERROR. Unrecognized file format: \(format)\n\n")
             }
         }

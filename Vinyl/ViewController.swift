@@ -52,7 +52,7 @@ class ViewController: NSViewController
 
             for entry in entryArray
             {
-                let entryComponentsArray = entry.componentsSeparatedByString(",")
+                let entryComponentsArray = entry.componentsSeparatedByString(";")
                 let existingSongFileURL = entryComponentsArray[0]
                 let existingSongDateAdded = entryComponentsArray[1]
                 let existingSongTime = entryComponentsArray[2]
@@ -87,10 +87,10 @@ class ViewController: NSViewController
         for var i = 0; i < songArray.count; i++
         {
             if i != songArray.count - 1 {
-                songsToWrite += songArray[i].fileURL + "," + songArray[i].dateAdded + "," + songArray[i].time + "\n"
+                songsToWrite += songArray[i].fileURL + ";" + songArray[i].dateAdded + ";" + songArray[i].time + "\n"
             }
             else {
-                songsToWrite += songArray[i].fileURL + "," + songArray[i].dateAdded + "," + songArray[i].time    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
+                songsToWrite += songArray[i].fileURL + ";" + songArray[i].dateAdded + ";" + songArray[i].time    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
             }
         }
         
@@ -215,17 +215,16 @@ class ViewController: NSViewController
         {
             println("ADDING...\n")
             addSongs(addToLibraryOpenPanel.URLs)
-            println(addToLibraryOpenPanel.URLs)
             
             if tempSongArray.count > 0
             {
                 songArrayController.addObjects(tempSongArray)
                 tempSongArray.removeAll()
+
+                saveLibrary()
             }
             
             println("\nADD Complete.\n\n")
-            
-            saveLibrary()
         }
     }
     
@@ -279,7 +278,7 @@ class ViewController: NSViewController
                 {
                     loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: true)
                     firstSongPlayed = true
-                    defaultNotificationCenter.postNotificationName("EnableOtherPlaybackControls", object: nil)
+                    defaultNotificationCenter.postNotificationName("EnableOtherPlaybackButtons", object: nil)
                 }
                 
                 defaultNotificationCenter.postNotificationName("DisplayPauseImage", object: nil)
@@ -354,7 +353,7 @@ class ViewController: NSViewController
             
             if firstSongPlayed == false
             {
-                defaultNotificationCenter.postNotificationName("EnableOtherPlaybackControls", object: nil)
+                defaultNotificationCenter.postNotificationName("EnableOtherPlaybackButtons", object: nil)
             
                 firstSongPlayed = true
             }
