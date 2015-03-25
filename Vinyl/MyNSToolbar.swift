@@ -27,11 +27,20 @@ class MyNSToolbar: NSToolbar
     {
         let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
 
+        defaultNotificationCenter.addObserver(self, selector: "enableOtherPlaybackButtons:", name:"EnableOtherPlaybackButtons", object: nil)
         defaultNotificationCenter.addObserver(self, selector: "displayPauseImage:", name:"DisplayPauseImage", object: nil)
         defaultNotificationCenter.addObserver(self, selector: "displayPlayImage:", name:"DisplayPlayImage", object: nil)
-        defaultNotificationCenter.addObserver(self, selector: "enableOtherPlaybackControls:", name:"EnableOtherPlaybackControls", object: nil)
-
+        
         playPause.enabled = true
+    }
+    
+    
+    func enableOtherPlaybackButtons(aNotification: NSNotification)
+    {
+        previous.enabled = true
+        seekBackward.enabled = true
+        seekForward.enabled = true
+        next.enabled = true
     }
     
     
@@ -48,14 +57,5 @@ class MyNSToolbar: NSToolbar
         let mainBundle = NSBundle.mainBundle()
         
         playPause.image = NSImage(byReferencingFile: mainBundle.pathForResource("Play", ofType: ".png")!)
-    }
-    
-    
-    func enableOtherPlaybackControls(aNotification: NSNotification)
-    {
-        previous.enabled = true
-        seekBackward.enabled = true
-        seekForward.enabled = true
-        next.enabled = true
     }
 }
