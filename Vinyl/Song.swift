@@ -39,11 +39,7 @@ class Song: NSObject
     
     init(newAsset: AVURLAsset)
     {
-        // Get song's file path
         var fileURLString = "\(newAsset.URL)"
-        fileURLString = fileURLString.stringByReplacingOccurrencesOfString("\"", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
-        fileURLString = fileURLString.stringByReplacingOccurrencesOfString("Optional(", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
-        fileURLString = fileURLString.stringByReplacingOccurrencesOfString(")", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
         
         self.fileURL = fileURLString
         
@@ -84,11 +80,11 @@ class Song: NSObject
     {
         func splitTrackNumbers(trackNumberString: String)
         {
-            let trackNumbers = trackNumberString.componentsSeparatedByString("/")
+            let trackNumbers = trackNumberString.componentsSeparatedByString("/")   // track number string is represented as "#/#"
             
-            if trackNumbers.count >= 1
+            if trackNumbers.count >= 1  // track number is available
             {
-                if trackNumbers.count == 2 {
+                if trackNumbers.count == 2 {    // total track numbers is available
                     self.totalTracks = trackNumbers[1]
                 }
                 
@@ -96,6 +92,8 @@ class Song: NSObject
             }
         }
         
+        
+        // Identifiers for ID3 version 2.2
         let ID3AlbumIdentifier = "id3/%00TAL"
         let ID3AlbumArtistIdentifier = "id3/%00TP2"
         let ID3ArtistIdentifier = "id3/%00TP1"
@@ -109,6 +107,7 @@ class Song: NSObject
         let ID3YearIdentifier = "id3/%00TYE"
         let ID3AlbumArtworkIdentifier = "id3/%00PIC"
         
+        // Identifiers for ID3 versions 2.3 and 2.4
         let ID3AlbumIdentifierII = "id3/TALB"
         let ID3AlbumArtistIdentifierII = "id3/TPE2"
         let ID3ArtistIdentifierII = "id3/TPE1"
@@ -119,7 +118,8 @@ class Song: NSObject
         let ID3GroupingIdentifierII = "id3/TIT1"
         let ID3NameIdentifierII = "id3/TIT2"
         let ID3TrackNumberIdentifierII = "id3/TRCK"
-        let ID3YearIdentifierII = "id3/TDRC"
+        let ID3YearIdentifierII = "id3/TYER"
+        let ID3YearIdentifierIII = "id3/TDRC"           // TYER was deprecated in 2.4
         let ID3AlbumArtworkIdentifierII = "id3/APIC"
 
         
@@ -139,9 +139,9 @@ class Song: NSObject
                     case ID3AlbumIdentifier, ID3AlbumIdentifierII:                          // Album
                         self.album = metadataItem.stringValue
                     case ID3AlbumArtistIdentifier, ID3AlbumArtistIdentifierII:              // Album Artist
-                        self.artist = metadataItem.stringValue
-                    case ID3ArtistIdentifier, ID3ArtistIdentifierII:                        // Artist
                         self.albumArtist = metadataItem.stringValue
+                    case ID3ArtistIdentifier, ID3ArtistIdentifierII:                        // Artist
+                        self.artist = metadataItem.stringValue
                     case ID3BeatsPerMinuteIdentiifier, ID3BeatsPerMinuteIdentiifierII:      // Beats Per Minute
                         self.beatsPerMinute = metadataItem.stringValue
                     case ID3CommentsIdentifier, ID3CommentsIdentifierII:                    // Comments
@@ -156,7 +156,7 @@ class Song: NSObject
                         self.name = metadataItem.stringValue
                     case ID3TrackNumberIdentifier, ID3TrackNumberIdentifierII:              // Track Number
                         splitTrackNumbers(metadataItem.stringValue)
-                    case ID3YearIdentifier, ID3YearIdentifierII:                            // Year
+                    case ID3YearIdentifier, ID3YearIdentifierII, ID3YearIdentifierIII:      // Year
                         self.year = metadataItem.stringValue
                     case ID3AlbumArtworkIdentifier, ID3AlbumArtworkIdentifierII:            // Album Artwork
                         self.artwork = "Artwork"
@@ -166,7 +166,7 @@ class Song: NSObject
                 }
             }
             else {
-                println("\nERROR. Unrecognized file format: \(format)\n\n")
+                println("\nERROR. Unable to extract metadata for the file format: \(format)\n\n")
             }
         }
     }

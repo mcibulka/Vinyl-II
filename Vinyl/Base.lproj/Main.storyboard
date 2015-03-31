@@ -630,8 +630,8 @@
                                                         <tableCellView id="q5K-jY-3M6">
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kFF-CB-whz">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="4" height="17"/>
+                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="kFF-CB-whz">
+                                                                    <rect key="frame" x="0.0" y="-9" width="4" height="17"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="Table View Cell" id="I3G-26-Noc">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -819,7 +819,7 @@
                                                         </tableCellView>
                                                     </prototypeCellViews>
                                                 </tableColumn>
-                                                <tableColumn width="68" minWidth="28" maxWidth="3.4028234663852886e+38" id="ia2-cq-TX6" userLabel="Year">
+                                                <tableColumn width="91" minWidth="28" maxWidth="3.4028234663852886e+38" id="ia2-cq-TX6" userLabel="Year">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Year">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -833,11 +833,11 @@
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="nju-Vh-7kf">
-                                                            <rect key="frame" x="1032" y="1" width="68" height="17"/>
+                                                            <rect key="frame" x="1032" y="1" width="91" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="aq3-SH-cpM">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="70" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="93" height="17"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="Table View Cell" id="oc4-vy-tEe">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
