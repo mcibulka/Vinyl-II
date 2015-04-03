@@ -169,6 +169,15 @@ class Song: NSObject
                 println("\nERROR. Unable to extract metadata for the file format: \(format)\n\n")
             }
         }
+        
+        
+        if self.albumArtist == nil {
+            self.albumArtist = self.artist
+        }
+        
+        if self.name == nil {
+            self.name = asset.URL.lastPathComponent!.stringByDeletingPathExtension
+        }
     }
     
     
