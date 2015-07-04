@@ -178,8 +178,8 @@ class ViewController: NSViewController
             defaultFileManager.copyItemAtURL(sourceURL, toURL: newSongURL!, error: nil)
         }
         
-        var songsToAddCopy = songsToAdd.mutableCopy() as NSMutableArray
-        var songURL = songsToAddCopy.lastObject as NSURL
+        var songsToAddCopy = songsToAdd.mutableCopy() as! NSMutableArray
+        var songURL = songsToAddCopy.lastObject as! NSURL
         
         if songURL.absoluteString != nil
         {

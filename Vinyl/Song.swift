@@ -126,13 +126,13 @@ class Song: NSObject
         // Extract metadata based on file type of song
         var formats: NSArray = asset.availableMetadataFormats
         
-        for format in formats as [NSString]
+        for format in formats as! [NSString]
         {
             if format == AVMetadataFormatID3Metadata
             {
                 let metadataItemArray = asset.metadataForFormat(AVMetadataFormatID3Metadata)
                 
-                for metadataItem in metadataItemArray as [AVMetadataItem]
+                for metadataItem in metadataItemArray as! [AVMetadataItem]
                 {
                     switch metadataItem.identifier
                     {
