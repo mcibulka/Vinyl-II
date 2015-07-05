@@ -151,9 +151,9 @@ class ViewController: NSViewController
             }
             
             // Add artist to the path
-            let albumArtistPathComponent = songToCopy.albumArtist!.stringByReplacingOccurrencesOfString("/", withString: ":")
+            let albumArtistPathComponent = songToCopy.albumArtist!.stringByReplacingOccurrencesOfString("/", withString: ":")   // Ensure "/" are not interpreted as directories
             dataPath = dataPath.stringByAppendingPathComponent(albumArtistPathComponent)
-            
+        
             // If the artist folder dosent exist, create it
             if (!defaultFileManager.fileExistsAtPath(dataPath)) {
                 defaultFileManager.createDirectoryAtPath(dataPath, withIntermediateDirectories: false, attributes: nil, error: nil)
@@ -168,8 +168,22 @@ class ViewController: NSViewController
                 defaultFileManager.createDirectoryAtPath(dataPath, withIntermediateDirectories: false, attributes: nil, error: nil)
             }
             
-            let namePathComponent = sourceURL.lastPathComponent!.stringByReplacingOccurrencesOfString("/", withString: ":")
-            dataPath = dataPath.stringByAppendingPathComponent(namePathComponent)
+            
+            // Create own file name to ensure a consistent naming convention, "<Track Number><Space><Track Name>.mp3"
+            var trackNumber = songToCopy.trackNumber!
+            
+            if count(trackNumber) == 1 {   // Track number is a single digit
+                trackNumber.insert("0", atIndex: trackNumber.startIndex)
+            }
+
+            dataPath = dataPath.stringByAppendingPathComponent(trackNumber)
+            dataPath += " "
+            
+            let namePathComponent = songToCopy.name!.stringByReplacingOccurrencesOfString("/", withString: ":")
+            dataPath += namePathComponent
+            
+            dataPath = dataPath.stringByAppendingPathExtension("mp3")!
+            
             
             let newSongURL = NSURL(fileURLWithPath: dataPath)
             songToCopy.fileURL = "\(newSongURL!)"
