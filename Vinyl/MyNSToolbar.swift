@@ -27,11 +27,9 @@ class MyNSToolbar: NSToolbar
     {
         let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
 
-        defaultNotificationCenter.addObserver(self, selector: "enableOtherPlaybackButtons:", name:"EnableOtherPlaybackButtons", object: nil)
-        defaultNotificationCenter.addObserver(self, selector: "displayPauseImage:", name:"DisplayPauseImage", object: nil)
-        defaultNotificationCenter.addObserver(self, selector: "displayPlayImage:", name:"DisplayPlayImage", object: nil)
-        
-        playPause.enabled = true
+        defaultNotificationCenter.addObserver(self, selector: #selector(MyNSToolbar.enableOtherPlaybackButtons(_:)), name:"EnableOtherPlaybackButtons", object: nil)
+        defaultNotificationCenter.addObserver(self, selector: #selector(MyNSToolbar.displayPauseImage(_:)), name:"DisplayPauseImage", object: nil)
+        defaultNotificationCenter.addObserver(self, selector: #selector(MyNSToolbar.displayPlayImage(_:)), name:"DisplayPlayImage", object: nil)
     }
     
     
