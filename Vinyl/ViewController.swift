@@ -33,11 +33,11 @@ class ViewController: NSViewController
     override func viewDidLoad()
     {
         let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
-        defaultNotificationCenter.addObserver(self, selector: "loadLibrary:", name:"LoadLibrary", object: nil)
+        defaultNotificationCenter.addObserver(self, selector:#selector(ViewController.loadLibrary(_:)), name:"LoadLibrary", object:nil)
     }
     
     
-    func loadLibrary(aNotification: NSNotification)
+    func loadLibrary(aNotification:NSNotification)
     {
         let mainBundle = NSBundle.mainBundle()
         let path = mainBundle.pathForResource("songsList", ofType: "txt")
@@ -84,13 +84,13 @@ class ViewController: NSViewController
         print("\nSAVING...\n")
         
         // Cycle through songs and create one continuous string of their file paths
-        for var i = 0; i < songArray.count; i++
+        for index in 0..<songArray.count
         {
-            if i != songArray.count - 1 {
-                songsToWrite += songArray[i].fileURL + ";" + songArray[i].dateAdded + ";" + songArray[i].time + "\n"
+            if index != songArray.count - 1 {
+                songsToWrite += songArray[index].fileURL + ";" + songArray[index].dateAdded + ";" + songArray[index].time + "\n"
             }
             else {
-                songsToWrite += songArray[i].fileURL + ";" + songArray[i].dateAdded + ";" + songArray[i].time    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
+                songsToWrite += songArray[index].fileURL + ";" + songArray[index].dateAdded + ";" + songArray[index].time    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
             }
         }
         
@@ -146,7 +146,7 @@ class ViewController: NSViewController
             // Get path to the Documents directory, then the library folder
             let paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)
             let documentsDirectory: AnyObject = paths[0]
-            var dataPath = documentsDirectory.stringByAppendingPathComponent("VinylMusic")
+            var dataPath = documentsDirectory.stringByAppendingPathComponent("Development/VinylMusic")
             
             // If the library folder doesn't exist, create it
             if (!defaultFileManager.fileExistsAtPath(dataPath)) {
@@ -278,18 +278,24 @@ class ViewController: NSViewController
     {        
         if songArray.count > 0
         {
-            currentlyPlayingIndex--
-            
-            // Jump from the start of the table to the end to loop playback
-            if currentlyPlayingIndex == -1 {
-                currentlyPlayingIndex = songArray.count - 1
+            if audioPlayer.currentTime > 1.0 {  // restart song from beginning
+                audioPlayer.currentTime = 0
             }
-            
-            if audioPlayer.playing {
-                loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: true)
-            }
-            else {
-                loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: false)
+            else
+            {
+                currentlyPlayingIndex -= 1
+    
+                // Jump from the start of the table to the end to loop playback
+                if currentlyPlayingIndex == -1 {
+                    currentlyPlayingIndex = songArray.count - 1
+                }
+    
+                if audioPlayer.playing {
+                    loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: true)
+                }
+                else {
+                    loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: false)
+                }
             }
         }
     }
@@ -367,7 +373,7 @@ class ViewController: NSViewController
     {
         if songArray.count > 0
         {
-            currentlyPlayingIndex++
+            currentlyPlayingIndex += 1
             
             // Jump from the end of the table to the start to loop playback
             if currentlyPlayingIndex == songArray.count {
