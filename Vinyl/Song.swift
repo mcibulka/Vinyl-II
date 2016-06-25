@@ -8,7 +8,7 @@
 *   Date Created: January 20, 2015
 *   Created By: Matthew Cibulka
 *
-*   Copyright (c) 2015 Matthew Cibulka. All rights reserved.
+*   Copyright (c) 2016 Matthew Cibulka. All rights reserved.
 *
 *******************************************************************************************************************************************************************************/
 
