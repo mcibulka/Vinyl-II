@@ -35,7 +35,6 @@ class MyNSToolbar: NSToolbar
     
     func enableOtherPlaybackButtons(aNotification: NSNotification)
     {
-        print("YES")
         previous.enabled = true
         seekBackward.enabled = true
         seekForward.enabled = true
