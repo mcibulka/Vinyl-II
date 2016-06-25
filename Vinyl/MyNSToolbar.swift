@@ -8,7 +8,7 @@
 *   Date Created: March 11, 2015
 *   Created By: Matthew Cibulka
 *
-*   Copyright (c) 2015 Matthew Cibulka. All rights reserved.
+*   Copyright (c) 2016 Matthew Cibulka. All rights reserved.
 *
 *******************************************************************************************************************************************************************************/
 
@@ -35,6 +35,7 @@ class MyNSToolbar: NSToolbar
     
     func enableOtherPlaybackButtons(aNotification: NSNotification)
     {
+        print("YES")
         previous.enabled = true
         seekBackward.enabled = true
         seekForward.enabled = true
