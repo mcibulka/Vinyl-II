@@ -39,16 +39,16 @@ class Song: NSObject
     
     init(newAsset: AVURLAsset)
     {
-        let fileURLString = "\(newAsset.URL)"
+        let fileURLString = "\(newAsset.url)"
         
         self.fileURL = fileURLString
         
         
         // Get time and date of when song is added to the library
-        let dateAdded = NSDate(timeIntervalSinceNow: 0.0)
-        let dateAddedString = dateAdded.descriptionWithCalendarFormat("%Y-%m-%d %H:%M:%S", timeZone: nil, locale: nil)!
+        let dateAdded = Date()
+//        let dateAddedString = dateAdded.description(withCalendarFormat: "%Y-%m-%d %H:%M:%S", timeZone: nil, locale: nil)!
         
-        self.dateAdded = dateAddedString
+        self.dateAdded = dateAdded.description(with: nil)
         
         
         // Get song's time
@@ -76,11 +76,11 @@ class Song: NSObject
     }
     
     
-    func extractMetaData(asset: AVURLAsset)
+    func extractMetaData(_ asset: AVURLAsset)
     {
-        func splitTrackNumbers(trackNumberString: String)
+        func splitTrackNumbers(_ trackNumberString: String)
         {
-            let trackNumbers = trackNumberString.componentsSeparatedByString("/")   // track number string is represented as "#/#"
+            let trackNumbers = trackNumberString.components(separatedBy: "/")   // track number string is represented as "#/#"
             
             if trackNumbers.count >= 1  // track number is available
             {
@@ -130,7 +130,7 @@ class Song: NSObject
         {
             if format == AVMetadataFormatID3Metadata
             {
-                let metadataItemArray = asset.metadataForFormat(AVMetadataFormatID3Metadata)
+                let metadataItemArray = asset.metadata(forFormat: AVMetadataFormatID3Metadata)
                 
                 for metadataItem in metadataItemArray 
                 {
@@ -181,7 +181,7 @@ class Song: NSObject
         }
         
         if self.name == nil {
-            self.name = (asset.URL.lastPathComponent! as NSString).stringByDeletingPathExtension
+            self.name = (asset.url.lastPathComponent! as NSString).deletingPathExtension
         }
     }
     
