@@ -37,54 +37,39 @@ class Song: NSObject
     var artwork: String?
     
     
-    init(newAsset: AVURLAsset)
-    {
-        let fileURLString = "\(newAsset.URL)"
-        
-        self.fileURL = fileURLString
-        
-        
-        // Get time and date of when song is added to the library
-        let dateAdded = NSDate(timeIntervalSinceNow: 0.0)
-        let dateAddedString = dateAdded.descriptionWithCalendarFormat("%Y-%m-%d %H:%M:%S", timeZone: nil, locale: nil)!
-        
-        self.dateAdded = dateAddedString
-        
+    init(newAsset: AVURLAsset) {
+        self.fileURL = newAsset.url.absoluteString!
+        self.dateAdded = Date().description(with: nil)
         
         // Get song's time
         let cmTimeSecs = CMTimeGetSeconds(newAsset.duration)
         let intTime = Int64(round(cmTimeSecs))
         let minutes = (intTime % 3600) / 60
         let seconds = (intTime % 3600) % 60
-        var timeString = "\(minutes):"
+        var time = "\(minutes):"
         
-        // Pad seconds with a zero if a single digit
-        if seconds < 10 {
-            timeString += "0"
+        if seconds < 10 {   // pad seconds with zero
+            time += "0"
         }
-        timeString += "\(seconds)"
+        time += "\(seconds)"
         
-        self.time = timeString
+        self.time = time
     }
     
     
-    init(fileURLString: String, dateAddedString: String, timeString: String)
-    {
-        self.fileURL = fileURLString
-        self.dateAdded = dateAddedString
-        self.time = timeString
+    init(fileURL: String, dateAdded: String, time: String) {
+        self.fileURL = fileURL
+        self.dateAdded = dateAdded
+        self.time = time
     }
     
     
-    func extractMetaData(asset: AVURLAsset)
-    {
-        func splitTrackNumbers(trackNumberString: String)
-        {
-            let trackNumbers = trackNumberString.componentsSeparatedByString("/")   // track number string is represented as "#/#"
+    func extractMetaData(_ asset: AVURLAsset) {
+        func splitTrackNumbers(_ trackNumberString: String) {
+            let trackNumbers = trackNumberString.components(separatedBy: "/")   // track number string is represented as "#/#"
             
-            if trackNumbers.count >= 1  // track number is available
-            {
-                if trackNumbers.count == 2 {    // total track numbers is available
+            if trackNumbers.count >= 1 { // track number available
+                if trackNumbers.count == 2 {    // total track numbers available
                     self.totalTracks = trackNumbers[1]
                 }
                 
@@ -124,20 +109,15 @@ class Song: NSObject
 
         
         // Extract metadata based on file type of song
-        let formats: NSArray = asset.availableMetadataFormats
+        let formats = asset.availableMetadataFormats
         
-        for format in formats as! [NSString]
-        {
-            if format == AVMetadataFormatID3Metadata
-            {
-                let metadataItemArray = asset.metadataForFormat(AVMetadataFormatID3Metadata)
+        for format in formats {
+            if format == AVMetadataFormatID3Metadata {
+                let metadataItemArray = asset.metadata(forFormat: AVMetadataFormatID3Metadata)
                 
-                for metadataItem in metadataItemArray 
-                {
-                    if #available(OSX 10.10, *)
-                    {
-                        switch metadataItem.identifier
-                        {
+                for metadataItem in metadataItemArray {
+                    if #available(OSX 10.10, *) {
+                        switch metadataItem.identifier {
                         case ID3AlbumIdentifier?, ID3AlbumIdentifierII?:                          // Album
                             self.album = metadataItem.stringValue
                         case ID3AlbumArtistIdentifier?, ID3AlbumArtistIdentifierII?:              // Album Artist
@@ -158,7 +138,7 @@ class Song: NSObject
                             self.name = metadataItem.stringValue
                         case ID3TrackNumberIdentifier?, ID3TrackNumberIdentifierII?:              // Track Number
                             splitTrackNumbers(metadataItem.stringValue!)
-                        case ID3YearIdentifier?, ID3YearIdentifierII?, ID3YearIdentifierIII?:      // Year
+                        case ID3YearIdentifier?, ID3YearIdentifierII?, ID3YearIdentifierIII?:     // Year
                             self.year = metadataItem.stringValue
                         case ID3AlbumArtworkIdentifier?, ID3AlbumArtworkIdentifierII?:            // Album Artwork
                             self.artwork = "Artwork"

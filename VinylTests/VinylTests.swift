@@ -1,10 +1,16 @@
-//
-//  VinylTests.swift
-//  VinylTests
-//
-//  Created by Matthew Cibulka on 2015-01-17.
-//  Copyright (c) 2015 Matthew Cibulka. All rights reserved.
-//
+/*******************************************************************************************************************************************************************************
+*
+*   Project: Vinyl
+*
+*   Directory: VinylTests
+*   File Name: VinylTests.swift
+*
+*   Date Created: January 17, 2015
+*   Created By: Matthew Cibulka
+*
+*   Copyright (c) 2016 Matthew Cibulka. All rights reserved.
+*
+*******************************************************************************************************************************************************************************/
 
 import Cocoa
 import XCTest
