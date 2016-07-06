@@ -10,38 +10,35 @@
 *
 *   Copyright (c) 2016 Matthew Cibulka. All rights reserved.
 *
-**********************************************************************************************************************************************************************************/
+*******************************************************************************************************************************************************************************/
 
 import Cocoa
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate
 {
+    /* Code to initialize the application */
     func applicationDidFinishLaunching(_ aNotification: Notification)
     {
-        /* Insert code here to initialize your application */
-        let defaultNotificationCenter = NotificationCenter.default()
-        defaultNotificationCenter.post(name: Notification.Name(rawValue: "LoadLibrary"), object: nil)
-        
-        
         let defaultFM = FileManager.default()
-        let desktopDir = try! defaultFM.urlForDirectory(.desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)    // disable error propogation with '!', we know the desktop directory will be returned
-        var dataPath = desktopDir
+        let libraryName = "VinylLibrary"
         
+        NotificationCenter.default().post(name: Notification.Name(rawValue: "LoadLibrary"), object: nil)
+    
+        let desktopDir = try! defaultFM.urlForDirectory(.desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+        var libPath = desktopDir
+    
         do {
-            try dataPath.appendPathComponent("VinylLibrary", isDirectory: true)
+            try libPath.appendPathComponent(libraryName, isDirectory: true)
         } catch {}
         
-        
-        // If the library folder doesn't exist, create it
         do {
-            try defaultFM.createDirectory(at: dataPath, withIntermediateDirectories: false, attributes: nil)
+            try defaultFM.createDirectory(at: libPath, withIntermediateDirectories: false, attributes: nil)
         } catch {}
     }
 
-    func applicationWillTerminate(_ aNotification: Notification)
-    {
-        /* Insert code here to tear down your application */
-    }
+    
+    /* Code to tear down the application */
+    func applicationWillTerminate(_ aNotification: Notification) {}
 }
 

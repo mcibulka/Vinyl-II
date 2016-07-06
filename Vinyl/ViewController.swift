@@ -20,50 +20,44 @@ class ViewController: NSViewController
     @IBOutlet weak var songArrayTableView: NSTableView!
     @IBOutlet var songArrayController: NSArrayController!
     
-    var songArray = [Song]()
-    var temporarySongArray = [Song]()
+    var songs = [Song]()
+    var tempSongs = [Song]()
     
     var audioPlayer = AVAudioPlayer()
     let seekInterval = 15.0
     
-    var firstSongPlayed = false
-    var currentlyPlayingIndex = 0
+    var firstPlay = false
+    var playIndex = 0
     
     
-    override func viewDidLoad()
-    {
-        let defaultNotificationCenter = NotificationCenter.default()
-        defaultNotificationCenter.addObserver(self, selector:#selector(ViewController.loadLibrary(_:)), name:"LoadLibrary", object:nil)
+    override func viewDidLoad() {
+        NotificationCenter.default().addObserver(self, selector:#selector(ViewController.loadLibrary(_:)), name:"LoadLibrary", object:nil)
     }
     
     
-    func loadLibrary(_ aNotification:Notification)
-    {
-        let mainBundle = Bundle.main()
-        let path = mainBundle.pathForResource("songsList", ofType: "txt")
-        let songsListFileContent = try? String(contentsOfFile: path!, encoding: String.Encoding.utf8)
+    func loadLibrary(_ aNotification:Notification) {
+        let path = Bundle.main().pathForResource("songsList", ofType: "txt")
+        let contents = try? String(contentsOfFile: path!, encoding: String.Encoding.utf8)
         
         print("LOADING...\n")
         
         // If there are previously added songs, populate the song array
-        if songsListFileContent != ""
-        {
-            let entryArray = songsListFileContent!.components(separatedBy: "\n")
+        if contents != "" {
+            let entries = contents!.components(separatedBy: "\n")
 
-            for entry in entryArray
-            {
-                let entryComponentsArray = entry.components(separatedBy: ";")
-                let existingSongFileURL = entryComponentsArray[0]
-                let existingSongDateAdded = entryComponentsArray[1]
-                let existingSongTime = entryComponentsArray[2]
+            for entry in entries {
+                let components = entry.components(separatedBy: ";")
+                let songURL = components[0]
+                let dateAdded = components[1]
+                let songTime = components[2]
                 
-                let existingAsset = AVURLAsset(url: URL(string: existingSongFileURL)!, options: nil)
+                let asset = AVURLAsset(url: URL(string: songURL)!, options: nil)
                 
-                let existingSong = Song(fileURLString: existingSongFileURL, dateAddedString: existingSongDateAdded, timeString: existingSongTime)
-                existingSong.extractMetaData(existingAsset)
-                print(existingSong.fileURL)
+                let song = Song(fileURL: songURL, dateAdded: dateAdded, time: songTime)
+                song.extractMetaData(asset)
+                print(song.fileURL)
 
-                songArrayController.addObject(existingSong)
+                songArrayController.addObject(song)
             }
         }
         else {
@@ -74,44 +68,37 @@ class ViewController: NSViewController
     }
     
     
-    func saveLibrary()
-    {
-        let mainBundle = Bundle.main()
-        let path = mainBundle.pathForResource("songsList", ofType: "txt")
-        
-        var songsToWrite = ""
+    func saveLibrary() {
+        let path = Bundle.main().pathForResource("songsList", ofType: "txt")
+        var contents = ""
      
         print("\nSAVING...\n")
         
         // Cycle through songs and create one continuous string of their file paths
-        for index in 0..<songArray.count
-        {
-            if index != songArray.count - 1 {
-                songsToWrite += songArray[index].fileURL + ";" + songArray[index].dateAdded + ";" + songArray[index].time + "\n"
+        for i in 0..<songs.count {
+            if i != songs.count - 1 {
+                contents += songs[i].fileURL + ";" + songs[i].dateAdded + ";" + songs[i].time + "\n"
             }
             else {
-                songsToWrite += songArray[index].fileURL + ";" + songArray[index].dateAdded + ";" + songArray[index].time    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
+                contents += songs[i].fileURL + ";" + songs[i].dateAdded + ";" + songs[i].time    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
             }
         }
         
         do {
-            try songsToWrite.write(toFile: path!, atomically: true, encoding: String.Encoding.utf8)
-        } catch _ {
-        }
-        print(songsToWrite)
+            try contents.write(toFile: path!, atomically: true, encoding: String.Encoding.utf8)
+        } catch {}
+        print(contents)
         
         print("\nSAVE COMPLETE.")
     }
     
     
-    func addSongs(_ songsToAdd: NSArray)
-    {
+    func addSongs(_ songsToAdd: NSArray) {
         /* FUNCTION: isDirectory
         ** INPUT: NSURL
         ** RETURN: true if the NSURL is a directory, false if not a directory
         */
-        func isDirectory(_ path: URL) -> Bool
-        {
+        func isDirectory(_ path: URL) -> Bool {
             let defaultFileManager = FileManager.default()
             var isDirectory: ObjCBool = ObjCBool(false)
             
@@ -126,8 +113,7 @@ class ViewController: NSViewController
         ** INPUT: NSURL of a directory
         ** RETURN: An NSArray of NSURLS that were contained in the directory
         */
-        func directoryIterator(_ directory: URL) -> NSArray
-        {
+        func directoryIterator(_ directory: URL) -> NSArray {
             let defaultFileManager = FileManager.default()
             let filelist = try? defaultFileManager.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil, options: [])
 
@@ -139,33 +125,32 @@ class ViewController: NSViewController
         ** INPUT: Copies a song from the supplied NSURL to the library folder
         ** RETURN: none
         */
-        func copySongToLibrary(_ sourceURL: URL, songToCopy: Song)
-        {
+        func copySongToLibrary(_ sourceURL: URL, songToCopy: Song) {
             let defaultFM = FileManager.default()
-            let desktopDir = try! defaultFM.urlForDirectory(.desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-            var dataPath = desktopDir
+            let desktop = try! defaultFM.urlForDirectory(.desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+            var path = desktop
             
             do {
-                try dataPath.appendPathComponent("VinylLibrary", isDirectory: true)
+                try path.appendPathComponent("VinylLibrary", isDirectory: true)
             } catch {}
             
             
             /*Construct Copy To Path*/
             // Add artist to the path
             do {
-                try dataPath.appendPathComponent(songToCopy.albumArtist!.replacingOccurrences(of: "/", with: ":"))   // Ensure "/" are not interpreted as directories
+                try path.appendPathComponent(songToCopy.albumArtist!.replacingOccurrences(of: "/", with: ":"))   // Ensure "/" are not interpreted as directories
             } catch {}
             
             do {
-                try defaultFM.createDirectory(at: dataPath, withIntermediateDirectories: false, attributes: nil)
+                try defaultFM.createDirectory(at: path, withIntermediateDirectories: false, attributes: nil)
             } catch {}
             
             do {
-                try dataPath.appendPathComponent(songToCopy.album!.replacingOccurrences(of: "/", with: ":"))
+                try path.appendPathComponent(songToCopy.album!.replacingOccurrences(of: "/", with: ":"))
             } catch {}
                 
             do {
-                try defaultFM.createDirectory(at: dataPath, withIntermediateDirectories: false, attributes: nil)
+                try defaultFM.createDirectory(at: path, withIntermediateDirectories: false, attributes: nil)
             } catch {}
         
             
@@ -177,17 +162,17 @@ class ViewController: NSViewController
             }
             
             do {
-                try dataPath.appendPathComponent(trackNumber + " " + songToCopy.name!.replacingOccurrences(of: "/", with: ":"))
+                try path.appendPathComponent(trackNumber + " " + songToCopy.name!.replacingOccurrences(of: "/", with: ":"))
             } catch {}
             
             do {
-                try dataPath.appendPathExtension("mp3")
+                try path.appendPathExtension("mp3")
             } catch {}
             
-            songToCopy.fileURL = dataPath.absoluteString!
+            songToCopy.fileURL = path.absoluteString!
             
             do {
-                try defaultFM.copyItem(at: sourceURL, to: dataPath)
+                try defaultFM.copyItem(at: sourceURL, to: path)
             } catch {}
         }
         
@@ -196,8 +181,7 @@ class ViewController: NSViewController
         
 //        if songURL.absoluteString != nil
 //        {
-            if isDirectory(songURL)
-            {
+            if isDirectory(songURL) {
                 songsToAddCopy.removeLastObject()
                 addSongs(directoryIterator(songURL))
                 
@@ -206,8 +190,7 @@ class ViewController: NSViewController
                     addSongs(songsToAddCopy)
                 }
             }
-            else
-            {
+            else {
                 // Only add MP3 files
                 if songURL.pathExtension?.lowercased() == "mp3"
                 {
@@ -216,10 +199,8 @@ class ViewController: NSViewController
                     
                     let newSong = Song(newAsset: newAsset)
                     newSong.extractMetaData(newAsset)
-                    
                     copySongToLibrary(songURL, songToCopy: newSong)
-
-                    temporarySongArray.insert(newSong, at: 0)
+                    tempSongs.insert(newSong, at: 0)
                 }
                 
                 songsToAddCopy.removeLastObject()
@@ -232,24 +213,20 @@ class ViewController: NSViewController
     }
     
     
-    @IBAction func addToLibrary(_ sender: NSMenuItem)
-    {
-        let addToLibraryOpenPanel = NSOpenPanel()
-        addToLibraryOpenPanel.allowsMultipleSelection = true
-        addToLibraryOpenPanel.canChooseDirectories = true
-        addToLibraryOpenPanel.canChooseFiles = true
+    @IBAction func addToLibrary(_ sender: NSMenuItem) {
+        let addPanel = NSOpenPanel()
+        addPanel.allowsMultipleSelection = true
+        addPanel.canChooseDirectories = true
+        addPanel.canChooseFiles = true
         
         // Only add songs if the user clicks OK
-        if addToLibraryOpenPanel.runModal() == NSFileHandlingPanelOKButton
-        {
+        if addPanel.runModal() == NSFileHandlingPanelOKButton {
             print("ADDING...\n")
-            addSongs(addToLibraryOpenPanel.urls)
+            addSongs(addPanel.urls)
             
-            if temporarySongArray.count > 0
-            {
-                songArrayController.add(contentsOf: temporarySongArray)
-                temporarySongArray.removeAll()
-
+            if tempSongs.count > 0 {
+                songArrayController.add(contentsOf: tempSongs)
+                tempSongs.removeAll()
                 saveLibrary()
             }
             
@@ -258,36 +235,31 @@ class ViewController: NSViewController
     }
     
     
-    @IBAction func clickPrevious(_ sender: NSToolbarItem)
-    {        
-        if songArray.count > 0
-        {
+    @IBAction func clickPrevious(_ sender: NSToolbarItem) {
+        if songs.count > 0 {
             if audioPlayer.currentTime > 1.0 {  // restart song from beginning
                 audioPlayer.currentTime = 0
             }
-            else
-            {
-                currentlyPlayingIndex -= 1
+            else {
+                playIndex -= 1
     
-                // Jump from the start of the table to the end to loop playback
-                if currentlyPlayingIndex == -1 {
-                    currentlyPlayingIndex = songArray.count - 1
+                if playIndex == -1 {    // jump from start of table to end to loop playback
+                    playIndex = songs.count - 1
                 }
     
                 if audioPlayer.isPlaying {
-                    loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: true)
+                    cueSong(songs[playIndex].fileURL, play: true)
                 }
                 else {
-                    loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: false)
+                    cueSong(songs[playIndex].fileURL, play: false)
                 }
             }
         }
     }
     
     
-    @IBAction func clickSeekBackward(_ sender: NSToolbarItem)
-    {
-        if songArray.count > 0
+    @IBAction func clickSeekBackward(_ sender: NSToolbarItem) {
+        if songs.count > 0
         {
             let seekTo = audioPlayer.currentTime - seekInterval
             
@@ -301,42 +273,35 @@ class ViewController: NSViewController
     }
     
     
-    @IBAction func clickPlay(_ sender: NSToolbarItem)
-    {
-        let defaultNotificationCenter = NotificationCenter.default()
+    @IBAction func clickPlay(_ sender: NSToolbarItem) {
+        let defaultNC = NotificationCenter.default()
         
-        if sender.image?.name() == "Play"
-        {
-            if songArray.count > 0
-            {
-                if firstSongPlayed == false
-                {
-                    loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: true)
-                    firstSongPlayed = true
-                    defaultNotificationCenter.post(name: Notification.Name(rawValue: "EnableOtherPlaybackButtons"), object: nil)
+        if sender.image?.name() == "Play" {
+            if songs.count > 0 {
+                if firstPlay == false {
+                    cueSong(songs[playIndex].fileURL, play: true)
+                    firstPlay = true
+                    defaultNC.post(name: Notification.Name(rawValue: "EnableOtherPlaybackButtons"), object: nil)
                 }
                 
-                defaultNotificationCenter.post(name: Notification.Name(rawValue: "DisplayPauseImage"), object: nil)
+                defaultNC.post(name: Notification.Name(rawValue: "DisplayPauseImage"), object: nil)
             }
         }
-        else    // Image must be "Pause"
-        {
+        else {  // Image must be "Pause"
             if audioPlayer.isPlaying == true {
                 audioPlayer.pause()
-                defaultNotificationCenter.post(name: Notification.Name(rawValue: "DisplayPlayImage"), object: nil)
+                defaultNC.post(name: Notification.Name(rawValue: "DisplayPlayImage"), object: nil)
             }
             else {
                 audioPlayer.play()
-                defaultNotificationCenter.post(name: Notification.Name(rawValue: "DisplayPauseImage"), object: nil)
+                defaultNC.post(name: Notification.Name(rawValue: "DisplayPauseImage"), object: nil)
             }
         }
     }
     
     
-    @IBAction func clickSeekForward(_ sender: NSToolbarItem)
-    {
-        if songArray.count > 0
-        {
+    @IBAction func clickSeekForward(_ sender: NSToolbarItem) {
+        if songs.count > 0 {
             let seekTo = audioPlayer.currentTime + seekInterval
             
             if seekTo < audioPlayer.duration {
@@ -353,57 +318,46 @@ class ViewController: NSViewController
     }
     
     
-    @IBAction func clickNext(_ sender: NSToolbarItem)
-    {
-        if songArray.count > 0
-        {
-            currentlyPlayingIndex += 1
-            
-            // Jump from the end of the table to the start to loop playback
-            if currentlyPlayingIndex == songArray.count {
-                currentlyPlayingIndex = 0
+    @IBAction func clickNext(_ sender: NSToolbarItem) {
+        if songs.count > 0 {
+            playIndex += 1
+        
+            if playIndex == songs.count {   // jump from end of table to start to loop playback
+                playIndex = 0
             }
             
             if audioPlayer.isPlaying {
-                loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: true)
+                cueSong(songs[playIndex].fileURL, play: true)
             }
             else {
-                loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: false)
+                cueSong(songs[playIndex].fileURL, play: false)
             }
-            
-            
         }
     }
     
     
-    func doubleClick()
-    {
-        let defaultNotificationCenter = NotificationCenter.default()
+    func doubleClick() {
+        let defaultNC = NotificationCenter.default()
         
-        // Ensure the double click occurs on a song in the table
-        if songArrayTableView.selectedRow != -1
-        {
-            currentlyPlayingIndex = songArrayTableView.selectedRow
-            loadSongForPlayback(songArray[currentlyPlayingIndex].fileURL, beginPlaying: true)
+        if songArrayTableView.selectedRow != -1 {   // ensure double click occurs on a song within table
+            playIndex = songArrayTableView.selectedRow
+            cueSong(songs[playIndex].fileURL, play: true)
             
-            if firstSongPlayed == false
-            {
-                defaultNotificationCenter.post(name: Notification.Name(rawValue: "EnableOtherPlaybackButtons"), object: nil)
-            
-                firstSongPlayed = true
+            if firstPlay == false {
+                defaultNC.post(name: Notification.Name(rawValue: "EnableOtherPlaybackButtons"), object: nil)
+                firstPlay = true
             }
             
-            defaultNotificationCenter.post(name: Notification.Name(rawValue: "DisplayPauseImage"), object: nil)
+            defaultNC.post(name: Notification.Name(rawValue: "DisplayPauseImage"), object: nil)
         }
     }
     
     
-    func loadSongForPlayback(_ fileURL: String, beginPlaying: Bool)
-    {
+    func cueSong(_ fileURL: String, play: Bool) {
         audioPlayer = try! AVAudioPlayer(contentsOf: URL(string: fileURL)!)
         audioPlayer.prepareToPlay()
         
-        if beginPlaying == true {
+        if play == true {
             audioPlayer.play()
         }
     }
