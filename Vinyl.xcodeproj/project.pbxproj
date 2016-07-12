@@ -95,10 +95,10 @@
 		346EF19F1A6AF19300E52499 /* Vinyl */ = {
 			isa = PBXGroup;
 			children = (
+				349A781F1A6E295F00EF7A73 /* Song.swift */,
 				346EF1A21A6AF19300E52499 /* AppDelegate.swift */,
 				346EF1A41A6AF19300E52499 /* ViewController.swift */,
 				34BC43191AB0046200EE7104 /* MyNSToolbar.swift */,
-				349A781F1A6E295F00EF7A73 /* Song.swift */,
 				346EF1A91A6AF19300E52499 /* Images.xcassets */,
 				346EF1AB1A6AF19300E52499 /* Main.storyboard */,
 				346EF1A61A6AF19300E52499 /* Vinyl.xcdatamodeld */,

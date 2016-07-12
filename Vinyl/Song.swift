@@ -18,13 +18,13 @@ import AVFoundation
 class Song: NSObject
 {
     var dateAdded: String
-    var fileURL: String
+    var path: String
     var time: String
 
     var album: String?
     var albumArtist: String?
     var artist: String?
-    var beatsPerMinute: String?
+    var BPM: String?
     var comments: String?
     var composer: String?
     var genre: String?
@@ -38,7 +38,7 @@ class Song: NSObject
     
     
     init(newAsset: AVURLAsset) {
-        self.fileURL = newAsset.url.absoluteString!
+        self.path = "\(newAsset.url)"
         self.dateAdded = Date().description(with: nil)
         
         // Get song's time
@@ -57,8 +57,8 @@ class Song: NSObject
     }
     
     
-    init(fileURL: String, dateAdded: String, time: String) {
-        self.fileURL = fileURL
+    init(path: String, dateAdded: String, time: String) {
+        self.path = path
         self.dateAdded = dateAdded
         self.time = time
     }
@@ -125,7 +125,7 @@ class Song: NSObject
                         case ID3ArtistIdentifier?, ID3ArtistIdentifierII?:                        // Artist
                             self.artist = metadataItem.stringValue
                         case ID3BeatsPerMinuteIdentiifier?, ID3BeatsPerMinuteIdentiifierII?:      // Beats Per Minute
-                            self.beatsPerMinute = metadataItem.stringValue
+                            self.BPM = metadataItem.stringValue
                         case ID3CommentsIdentifier?, ID3CommentsIdentifierII?:                    // Comments
                             self.comments = metadataItem.stringValue
                         case ID3ComposerIdentifier?, ID3ComposerIdentifierII?:                    // Composer
@@ -168,6 +168,6 @@ class Song: NSObject
     
     func toString()->String
     {
-        return("\nAlbum: \(self.album)\nAlbum Artist: \(self.albumArtist)\nArtist: \(self.artist)\nBeats Per Minute: \(self.beatsPerMinute)\nComments: \(self.comments)\nComposer: \(self.composer)\nDate Added: \(self.dateAdded)\nGenre: \(self.genre)\nGrouping: \(self.grouping)\nName: \(self.name)\nTime: \(self.time)\nTrack Number: \(self.trackNumber)\nYear: \(self.year)\nFile URL: \(self.fileURL)\nArtwork: \(self.artwork)")
+        return("\nAlbum: \(self.album)\nAlbum Artist: \(self.albumArtist)\nArtist: \(self.artist)\nBeats Per Minute: \(self.BPM)\nComments: \(self.comments)\nComposer: \(self.composer)\nDate Added: \(self.dateAdded)\nGenre: \(self.genre)\nGrouping: \(self.grouping)\nName: \(self.name)\nTime: \(self.time)\nTrack Number: \(self.trackNumber)\nYear: \(self.year)\nFile URL: \(self.path)\nArtwork: \(self.artwork)")
     }
 }
