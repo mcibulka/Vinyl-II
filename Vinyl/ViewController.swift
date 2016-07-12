@@ -17,17 +17,17 @@ import AVFoundation
 
 class ViewController: NSViewController
 {
-    @IBOutlet weak var songArrayTableView: NSTableView!
-    @IBOutlet var songArrayController: NSArrayController!
+    @IBOutlet weak var songsTable: NSTableView!
+    @IBOutlet var songsController: NSArrayController!
     
     var songs = [Song]()
     var tempSongs = [Song]()
     
-    var audioPlayer = AVAudioPlayer()
-    let seekInterval = 15.0
+    var player = AVAudioPlayer()
+    let seek = 15.0
     
     var firstPlay = false
-    var playIndex = 0
+    var p = 0
     
     
     override func viewDidLoad() {
@@ -47,17 +47,17 @@ class ViewController: NSViewController
 
             for entry in entries {
                 let components = entry.components(separatedBy: ";")
-                let songURL = components[0]
+                let path = components[0]
                 let dateAdded = components[1]
-                let songTime = components[2]
+                let time = components[2]
                 
-                let asset = AVURLAsset(url: URL(string: songURL)!, options: nil)
+                let asset = AVURLAsset(url: URL(string: path)!, options: nil)
                 
-                let song = Song(fileURL: songURL, dateAdded: dateAdded, time: songTime)
+                let song = Song(path: path, dateAdded: dateAdded, time: time)
                 song.extractMetaData(asset)
-                print(song.fileURL)
+                print(song.path)
 
-                songArrayController.addObject(song)
+                songsController.addObject(song)
             }
         }
         else {
@@ -77,10 +77,10 @@ class ViewController: NSViewController
         // Cycle through songs and create one continuous string of their file paths
         for i in 0..<songs.count {
             if i != songs.count - 1 {
-                contents += songs[i].fileURL + ";" + songs[i].dateAdded + ";" + songs[i].time + "\n"
+                contents += songs[i].path + ";" + songs[i].dateAdded + ";" + songs[i].time + "\n"
             }
             else {
-                contents += songs[i].fileURL + ";" + songs[i].dateAdded + ";" + songs[i].time    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
+                contents += songs[i].path + ";" + songs[i].dateAdded + ";" + songs[i].time    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
             }
         }
         
@@ -169,7 +169,7 @@ class ViewController: NSViewController
                 try path.appendPathExtension("mp3")
             } catch {}
             
-            songToCopy.fileURL = path.absoluteString!
+            songToCopy.path = path.absoluteString!
             
             do {
                 try defaultFM.copyItem(at: sourceURL, to: path)
@@ -225,7 +225,7 @@ class ViewController: NSViewController
             addSongs(addPanel.urls)
             
             if tempSongs.count > 0 {
-                songArrayController.add(contentsOf: tempSongs)
+                songsController.add(contentsOf: tempSongs)
                 tempSongs.removeAll()
                 saveLibrary()
             }
@@ -237,21 +237,21 @@ class ViewController: NSViewController
     
     @IBAction func clickPrevious(_ sender: NSToolbarItem) {
         if songs.count > 0 {
-            if audioPlayer.currentTime > 1.0 {  // restart song from beginning
-                audioPlayer.currentTime = 0
+            if player.currentTime > 1.0 {  // restart song from beginning
+                player.currentTime = 0
             }
             else {
-                playIndex -= 1
+                p -= 1
     
-                if playIndex == -1 {    // jump from start of table to end to loop playback
-                    playIndex = songs.count - 1
+                if p == -1 {    // jump from start of table to end to loop playback
+                    p = songs.count - 1
                 }
     
-                if audioPlayer.isPlaying {
-                    cueSong(songs[playIndex].fileURL, play: true)
+                if player.isPlaying {
+                    cueSong(songs[p].path, play: true)
                 }
                 else {
-                    cueSong(songs[playIndex].fileURL, play: false)
+                    cueSong(songs[p].path, play: false)
                 }
             }
         }
@@ -261,13 +261,13 @@ class ViewController: NSViewController
     @IBAction func clickSeekBackward(_ sender: NSToolbarItem) {
         if songs.count > 0
         {
-            let seekTo = audioPlayer.currentTime - seekInterval
+            let seekTo = player.currentTime - seek
             
             if seekTo >= 0 {
-                audioPlayer.currentTime = seekTo
+                player.currentTime = seekTo
             }
             else {
-                audioPlayer.currentTime = audioPlayer.duration + seekTo     // seekTo is actually a negative number in this case, causing it to be subtracted from duration
+                player.currentTime = player.duration + seekTo     // seekTo is actually a negative number in this case, causing it to be subtracted from duration
             }
         }
     }
@@ -279,7 +279,7 @@ class ViewController: NSViewController
         if sender.image?.name() == "Play" {
             if songs.count > 0 {
                 if firstPlay == false {
-                    cueSong(songs[playIndex].fileURL, play: true)
+                    cueSong(songs[p].path, play: true)
                     firstPlay = true
                     defaultNC.post(name: Notification.Name(rawValue: "EnableOtherPlaybackButtons"), object: nil)
                 }
@@ -288,12 +288,12 @@ class ViewController: NSViewController
             }
         }
         else {  // Image must be "Pause"
-            if audioPlayer.isPlaying == true {
-                audioPlayer.pause()
+            if player.isPlaying == true {
+                player.pause()
                 defaultNC.post(name: Notification.Name(rawValue: "DisplayPlayImage"), object: nil)
             }
             else {
-                audioPlayer.play()
+                player.play()
                 defaultNC.post(name: Notification.Name(rawValue: "DisplayPauseImage"), object: nil)
             }
         }
@@ -302,17 +302,17 @@ class ViewController: NSViewController
     
     @IBAction func clickSeekForward(_ sender: NSToolbarItem) {
         if songs.count > 0 {
-            let seekTo = audioPlayer.currentTime + seekInterval
+            let seekTo = player.currentTime + seek
             
-            if seekTo < audioPlayer.duration {
-                audioPlayer.currentTime = seekTo
+            if seekTo < player.duration {
+                player.currentTime = seekTo
             }
-            else if seekTo == audioPlayer.duration {
-                audioPlayer.currentTime = 0
-                audioPlayer.play()
+            else if seekTo == player.duration {
+                player.currentTime = 0
+                player.play()
             }
             else {
-                audioPlayer.currentTime = seekTo - audioPlayer.duration
+                player.currentTime = seekTo - player.duration
             }
         }
     }
@@ -320,17 +320,17 @@ class ViewController: NSViewController
     
     @IBAction func clickNext(_ sender: NSToolbarItem) {
         if songs.count > 0 {
-            playIndex += 1
+            p += 1
         
-            if playIndex == songs.count {   // jump from end of table to start to loop playback
-                playIndex = 0
+            if p == songs.count {   // jump from end of table to start to loop playback
+                p = 0
             }
             
-            if audioPlayer.isPlaying {
-                cueSong(songs[playIndex].fileURL, play: true)
+            if player.isPlaying {
+                cueSong(songs[p].path, play: true)
             }
             else {
-                cueSong(songs[playIndex].fileURL, play: false)
+                cueSong(songs[p].path, play: false)
             }
         }
     }
@@ -339,9 +339,9 @@ class ViewController: NSViewController
     func doubleClick() {
         let defaultNC = NotificationCenter.default()
         
-        if songArrayTableView.selectedRow != -1 {   // ensure double click occurs on a song within table
-            playIndex = songArrayTableView.selectedRow
-            cueSong(songs[playIndex].fileURL, play: true)
+        if songsTable.selectedRow != -1 {   // ensure double click occurs on a song within table
+            p = songsTable.selectedRow
+            cueSong(songs[p].path, play: true)
             
             if firstPlay == false {
                 defaultNC.post(name: Notification.Name(rawValue: "EnableOtherPlaybackButtons"), object: nil)
@@ -354,11 +354,11 @@ class ViewController: NSViewController
     
     
     func cueSong(_ fileURL: String, play: Bool) {
-        audioPlayer = try! AVAudioPlayer(contentsOf: URL(string: fileURL)!)
-        audioPlayer.prepareToPlay()
+        player = try! AVAudioPlayer(contentsOf: URL(string: fileURL)!)
+        player.prepareToPlay()
         
         if play == true {
-            audioPlayer.play()
+            player.play()
         }
     }
 }
