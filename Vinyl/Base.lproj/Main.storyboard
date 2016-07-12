@@ -629,7 +629,7 @@
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="q5K-jY-3M6">
-                                                            <rect key="frame" x="1" y="1" width="0.0" height="0.0"/>
+                                                            <rect key="frame" x="1" y="1" width="-3" height="0.0"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kFF-CB-whz">
