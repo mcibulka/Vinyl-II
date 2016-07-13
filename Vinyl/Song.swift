@@ -125,7 +125,7 @@ class Song: NSObject
                         case ID3ArtistIdentifier?, ID3ArtistIdentifierII?:                        // Artist
                             artist = metadataItem.stringValue
                         case ID3BeatsPerMinuteIdentiifier?, ID3BeatsPerMinuteIdentiifierII?:      // Beats Per Minute
-                            self.BPM = metadataItem.stringValue
+                            BPM = metadataItem.stringValue
                         case ID3CommentsIdentifier?, ID3CommentsIdentifierII?:                    // Comments
                             comments = metadataItem.stringValue
                         case ID3ComposerIdentifier?, ID3ComposerIdentifierII?:                    // Composer
@@ -168,6 +168,6 @@ class Song: NSObject
     
     func toString()->String
     {
-        return("\nAlbum: \(self.album)\nAlbum Artist: \(self.albumArtist)\nArtist: \(self.artist)\nBeats Per Minute: \(self.BPM)\nComments: \(self.comments)\nComposer: \(self.composer)\nDate Added: \(self.dateAdded)\nGenre: \(self.genre)\nGrouping: \(self.grouping)\nName: \(self.name)\nTime: \(self.time)\nTrack Number: \(self.trackNumber)\nYear: \(self.year)\nFile URL: \(self.path)\nArtwork: \(self.artwork)")
+        return("\nAlbum: \(album)\nAlbum Artist: \(albumArtist)\nArtist: \(artist)\nBeats Per Minute: \(BPM)\nComments: \(comments)\nComposer: \(composer)\nDate Added: \(dateAdded)\nGenre: \(genre)\nGrouping: \(grouping)\nName: \(name)\nTime: \(time)\nTrack Number: \(trackNumber)\nYear: \(year)\nFile URL: \(path)\nArtwork: \(artwork)")
     }
 }
