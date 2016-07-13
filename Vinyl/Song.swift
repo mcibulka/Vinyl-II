@@ -38,22 +38,22 @@ class Song: NSObject
     
     
     init(newAsset: AVURLAsset) {
-        self.path = "\(newAsset.url)"
-        self.dateAdded = Date().description(with: nil)
+        path = "\(newAsset.url)"
+        dateAdded = Date().description(with: nil)
         
         // Get song's time
         let cmTimeSecs = CMTimeGetSeconds(newAsset.duration)
         let intTime = Int64(round(cmTimeSecs))
         let minutes = (intTime % 3600) / 60
         let seconds = (intTime % 3600) % 60
-        var time = "\(minutes):"
+        var timeStr = "\(minutes):"
         
         if seconds < 10 {   // pad seconds with zero
-            time += "0"
+            timeStr += "0"
         }
-        time += "\(seconds)"
+        timeStr += "\(seconds)"
         
-        self.time = time
+        time = timeStr
     }
     
     
@@ -65,15 +65,15 @@ class Song: NSObject
     
     
     func extractMetaData(_ asset: AVURLAsset) {
-        func splitTrackNumbers(_ trackNumberString: String) {
-            let trackNumbers = trackNumberString.components(separatedBy: "/")   // track number string is represented as "#/#"
+        func splitTrackNumbers(_ trackNumberStr: String) {
+            let trackNumbers = trackNumberStr.components(separatedBy: "/")   // track number string is represented as "#/#"
             
             if trackNumbers.count >= 1 { // track number available
                 if trackNumbers.count == 2 {    // total track numbers available
-                    self.totalTracks = trackNumbers[1]
+                    totalTracks = trackNumbers[1]
                 }
                 
-                self.trackNumber = trackNumbers[0]
+                trackNumber = trackNumbers[0]
             }
         }
         
@@ -106,7 +106,7 @@ class Song: NSObject
         let ID3YearIdentifierII = "id3/TYER"
         let ID3YearIdentifierIII = "id3/TDRC"           // TYER was deprecated in 2.4
         let ID3AlbumArtworkIdentifierII = "id3/APIC"
-
+        
         
         // Extract metadata based on file type of song
         let formats = asset.availableMetadataFormats
@@ -119,29 +119,29 @@ class Song: NSObject
                     if #available(OSX 10.10, *) {
                         switch metadataItem.identifier {
                         case ID3AlbumIdentifier?, ID3AlbumIdentifierII?:                          // Album
-                            self.album = metadataItem.stringValue
+                            album = metadataItem.stringValue
                         case ID3AlbumArtistIdentifier?, ID3AlbumArtistIdentifierII?:              // Album Artist
-                            self.albumArtist = metadataItem.stringValue
+                            albumArtist = metadataItem.stringValue
                         case ID3ArtistIdentifier?, ID3ArtistIdentifierII?:                        // Artist
-                            self.artist = metadataItem.stringValue
+                            artist = metadataItem.stringValue
                         case ID3BeatsPerMinuteIdentiifier?, ID3BeatsPerMinuteIdentiifierII?:      // Beats Per Minute
-                            self.BPM = metadataItem.stringValue
+                            BPM = metadataItem.stringValue
                         case ID3CommentsIdentifier?, ID3CommentsIdentifierII?:                    // Comments
-                            self.comments = metadataItem.stringValue
+                            comments = metadataItem.stringValue
                         case ID3ComposerIdentifier?, ID3ComposerIdentifierII?:                    // Composer
-                            self.composer = metadataItem.stringValue
+                            composer = metadataItem.stringValue
                         case ID3GenreIdentifier?, ID3GenreIdentifierII?:                          // Genre
-                            self.genre = metadataItem.stringValue
+                            genre = metadataItem.stringValue
                         case ID3GroupingIdentifier?, ID3GroupingIdentifierII?:                    // Grouping
-                            self.grouping = metadataItem.stringValue
+                            grouping = metadataItem.stringValue
                         case ID3NameIdentifier?, ID3NameIdentifierII?:                            // Name
-                            self.name = metadataItem.stringValue
+                            name = metadataItem.stringValue
                         case ID3TrackNumberIdentifier?, ID3TrackNumberIdentifierII?:              // Track Number
                             splitTrackNumbers(metadataItem.stringValue!)
                         case ID3YearIdentifier?, ID3YearIdentifierII?, ID3YearIdentifierIII?:     // Year
-                            self.year = metadataItem.stringValue
+                            year = metadataItem.stringValue
                         case ID3AlbumArtworkIdentifier?, ID3AlbumArtworkIdentifierII?:            // Album Artwork
-                            self.artwork = "Artwork"
+                            artwork = "Artwork"
                         default:
                             break
                         }
@@ -156,18 +156,18 @@ class Song: NSObject
         }
         
         
-        if self.albumArtist == nil {
-            self.albumArtist = self.artist
+        if albumArtist == nil {
+            albumArtist = artist
         }
         
-        if self.name == nil {
-            self.name = (asset.URL.lastPathComponent! as NSString).stringByDeletingPathExtension
+        if name == nil {
+            name = (asset.url.lastPathComponent! as NSString).deletingPathExtension
         }
     }
     
     
     func toString()->String
     {
-        return("\nAlbum: \(self.album)\nAlbum Artist: \(self.albumArtist)\nArtist: \(self.artist)\nBeats Per Minute: \(self.BPM)\nComments: \(self.comments)\nComposer: \(self.composer)\nDate Added: \(self.dateAdded)\nGenre: \(self.genre)\nGrouping: \(self.grouping)\nName: \(self.name)\nTime: \(self.time)\nTrack Number: \(self.trackNumber)\nYear: \(self.year)\nFile URL: \(self.path)\nArtwork: \(self.artwork)")
+        return("\nAlbum: \(album)\nAlbum Artist: \(albumArtist)\nArtist: \(artist)\nBeats Per Minute: \(BPM)\nComments: \(comments)\nComposer: \(composer)\nDate Added: \(dateAdded)\nGenre: \(genre)\nGrouping: \(grouping)\nName: \(name)\nTime: \(time)\nTrack Number: \(trackNumber)\nYear: \(year)\nFile URL: \(path)\nArtwork: \(artwork)")
     }
 }
