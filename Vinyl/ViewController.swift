@@ -21,7 +21,6 @@ class ViewController: NSViewController
     @IBOutlet var songsController: NSArrayController!
     
     var songs = [Song]()
-    var tempSongs = [Song]()
     
     var player = AVAudioPlayer()
     let seek = 15.0
@@ -94,33 +93,6 @@ class ViewController: NSViewController
     
     
     func addSongs(_ songsToAdd: NSArray) {
-        /* FUNCTION: isDirectory
-        ** INPUT: NSURL
-        ** RETURN: true if the NSURL is a directory, false if not a directory
-        */
-        func isDirectory(_ path: URL) -> Bool {
-            let defaultFileManager = FileManager.default()
-            var isDirectory: ObjCBool = ObjCBool(false)
-            
-            if defaultFileManager.fileExists(atPath: path.path!, isDirectory: &isDirectory) {}
-            
-            if isDirectory { return true }
-            else { return false }
-        }
-        
-        
-        /* FUNCTION: directoryIterator
-        ** INPUT: NSURL of a directory
-        ** RETURN: An NSArray of NSURLS that were contained in the directory
-        */
-        func directoryIterator(_ directory: URL) -> NSArray {
-            let defaultFileManager = FileManager.default()
-            let filelist = try? defaultFileManager.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil, options: [])
-
-            return filelist!
-        }
-        
-        
         /* FUNCTION: copySongToLibrary
         ** INPUT: Copies a song from the supplied NSURL to the library folder
         ** RETURN: none
@@ -175,63 +147,56 @@ class ViewController: NSViewController
                 try defaultFM.copyItem(at: sourceURL, to: path)
             } catch {}
         }
+
+        let localFM = FileManager()
+        let resourceKeys = [URLResourceKey.isDirectoryKey, URLResourceKey.nameKey]
+        let resourceKeysStr = [URLResourceKey.isDirectoryKey.rawValue, URLResourceKey.nameKey.rawValue]
+        let directoryEnumerator = localFM.enumerator(at: songsToAdd[0] as! URL, includingPropertiesForKeys: resourceKeysStr, options: [.skipsHiddenFiles, .skipsPackageDescendants], errorHandler: nil)!
         
-        let songsToAddCopy = songsToAdd.mutableCopy() as! NSMutableArray
-        let songURL = songsToAddCopy.lastObject as! URL
+        var fileURLs: [NSURL] = []
+        for case let fileURL as NSURL in directoryEnumerator {
+            guard let resourceValues = try? fileURL.resourceValues(forKeys: resourceKeys),
+                let isDirectory = resourceValues[URLResourceKey.isDirectoryKey] as? Bool,
+                let name = resourceValues[URLResourceKey.nameKey] as? String
+                else {
+                    continue
+            }
+            
+            if isDirectory {
+                if name == "_extras" {
+                    directoryEnumerator.skipDescendants()
+                }
+            } else {
+                fileURLs.append(fileURL)
+            }
+        }
         
-//        if songURL.absoluteString != nil
-//        {
-            if isDirectory(songURL) {
-                songsToAddCopy.removeLastObject()
-                addSongs(directoryIterator(songURL))
+        for fileURL in fileURLs {
+            if fileURL.pathExtension?.lowercased() == "mp3"
+            {
+                // Copy song and get its new URL
+                let newAsset = AVURLAsset(url: fileURL as URL, options: nil)
                 
-                // 1 to skip the directory which is saved as the first element in the array
-                if songsToAddCopy.count > 1 {
-                    addSongs(songsToAddCopy)
-                }
+                let newSong = Song(newAsset: newAsset)
+                newSong.extractMetaData(newAsset)
+                copySongToLibrary(fileURL as URL, songToCopy: newSong)
+                songsController.addObject(newSong)
             }
-            else {
-                // Only add MP3 files
-                if songURL.pathExtension?.lowercased() == "mp3"
-                {
-                    // Copy song and get its new URL
-                    let newAsset = AVURLAsset(url: songURL as URL, options: nil)
-                    
-                    let newSong = Song(newAsset: newAsset)
-                    newSong.extractMetaData(newAsset)
-                    copySongToLibrary(songURL, songToCopy: newSong)
-                    tempSongs.insert(newSong, at: 0)
-                }
-                
-                songsToAddCopy.removeLastObject()
-                
-                if songsToAddCopy.count > 0 {
-                    addSongs(songsToAddCopy)
-                }
-            }
-//        }
+        }
     }
     
     
     @IBAction func addToLibrary(_ sender: NSMenuItem) {
         let addPanel = NSOpenPanel()
-        addPanel.allowsMultipleSelection = true
         addPanel.canChooseDirectories = true
-        addPanel.canChooseFiles = true
         
         // Only add songs if the user clicks OK
         if addPanel.runModal() == NSFileHandlingPanelOKButton {
             print("ADDING...\n")
             addSongs(addPanel.urls)
-            
-            if tempSongs.count > 0 {
-                songsController.add(contentsOf: tempSongs)
-                tempSongs.removeAll()
-                saveLibrary()
-            }
-            
             print("\nADD Complete.\n\n")
         }
+        saveLibrary()
     }
     
     
