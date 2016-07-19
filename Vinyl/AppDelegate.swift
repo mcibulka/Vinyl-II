@@ -10,23 +10,35 @@
 *
 *   Copyright (c) 2016 Matthew Cibulka. All rights reserved.
 *
-**********************************************************************************************************************************************************************************/
+*******************************************************************************************************************************************************************************/
 
 import Cocoa
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate
 {
-    func applicationDidFinishLaunching(aNotification: NSNotification)
+    /* Code to initialize the application */
+    func applicationDidFinishLaunching(_ aNotification: Notification)
     {
-        /* Insert code here to initialize your application */
-        let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
-        defaultNotificationCenter.postNotificationName("LoadLibrary", object: nil)
+        let defaultFM = FileManager.default()
+        let libraryName = "VinylLibrary"
+        
+        NotificationCenter.default().post(name: Notification.Name(rawValue: "LoadLibrary"), object: nil)
+    
+        let desktopDir = try! defaultFM.urlForDirectory(.desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+        var libPath = desktopDir
+    
+        do {
+            try libPath.appendPathComponent(libraryName, isDirectory: true)
+        } catch {}
+        
+        do {
+            try defaultFM.createDirectory(at: libPath, withIntermediateDirectories: false, attributes: nil)
+        } catch {}
     }
 
-    func applicationWillTerminate(aNotification: NSNotification)
-    {
-        /* Insert code here to tear down your application */
-    }
+    
+    /* Code to tear down the application */
+    func applicationWillTerminate(_ aNotification: Notification) {}
 }
 

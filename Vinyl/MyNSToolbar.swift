@@ -23,37 +23,28 @@ class MyNSToolbar: NSToolbar
     @IBOutlet weak var next: NSToolbarItem!
     
     
-    override func validateVisibleItems()
-    {
-        let defaultNotificationCenter = NSNotificationCenter.defaultCenter()
-
-        defaultNotificationCenter.addObserver(self, selector: #selector(MyNSToolbar.enableOtherPlaybackButtons(_:)), name:"EnableOtherPlaybackButtons", object: nil)
-        defaultNotificationCenter.addObserver(self, selector: #selector(MyNSToolbar.displayPauseImage(_:)), name:"DisplayPauseImage", object: nil)
-        defaultNotificationCenter.addObserver(self, selector: #selector(MyNSToolbar.displayPlayImage(_:)), name:"DisplayPlayImage", object: nil)
+    override func validateVisibleItems() {
+        let defaultNC = NotificationCenter.default()
+        defaultNC.addObserver(self, selector: #selector(MyNSToolbar.enableOtherPlaybackButtons(_:)), name:"EnableOtherPlaybackButtons", object: nil)
+        defaultNC.addObserver(self, selector: #selector(MyNSToolbar.displayPauseImage(_:)), name:"DisplayPauseImage", object: nil)
+        defaultNC.addObserver(self, selector: #selector(MyNSToolbar.displayPlayImage(_:)), name:"DisplayPlayImage", object: nil)
     }
     
     
-    func enableOtherPlaybackButtons(aNotification: NSNotification)
-    {
-        previous.enabled = true
-        seekBackward.enabled = true
-        seekForward.enabled = true
-        next.enabled = true
+    func enableOtherPlaybackButtons(_ aNotification: Notification) {
+        previous.isEnabled = true
+        seekBackward.isEnabled = true
+        seekForward.isEnabled = true
+        next.isEnabled = true
     }
     
     
-    func displayPauseImage(aNotification: NSNotification)
-    {
-        let mainBundle = NSBundle.mainBundle()
-     
-        playPause.image = NSImage(byReferencingFile: mainBundle.pathForResource("Pause", ofType: ".png")!)
+    func displayPauseImage(_ aNotification: Notification) {
+        playPause.image = NSImage(byReferencingFile: Bundle.main().pathForResource("Pause", ofType: ".png")!)
     }
     
     
-    func displayPlayImage(aNotification: NSNotification)
-    {
-        let mainBundle = NSBundle.mainBundle()
-        
-        playPause.image = NSImage(byReferencingFile: mainBundle.pathForResource("Play", ofType: ".png")!)
+    func displayPlayImage(_ aNotification: Notification) {
+        playPause.image = NSImage(byReferencingFile: Bundle.main().pathForResource("Play", ofType: ".png")!)
     }
 }

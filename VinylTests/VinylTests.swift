@@ -1,10 +1,16 @@
-//
-//  VinylTests.swift
-//  VinylTests
-//
-//  Created by Matthew Cibulka on 2015-01-17.
-//  Copyright (c) 2015 Matthew Cibulka. All rights reserved.
-//
+/*******************************************************************************************************************************************************************************
+*
+*   Project: Vinyl
+*
+*   Directory: VinylTests
+*   File Name: VinylTests.swift
+*
+*   Date Created: January 17, 2015
+*   Created By: Matthew Cibulka
+*
+*   Copyright (c) 2016 Matthew Cibulka. All rights reserved.
+*
+*******************************************************************************************************************************************************************************/
 
 import Cocoa
 import XCTest
@@ -28,7 +34,7 @@ class VinylTests: XCTestCase {
     
     func testPerformanceExample() {
         // This is an example of a performance test case.
-        self.measureBlock() {
+        self.measure() {
             // Put the code you want to measure the time of here.
         }
     }
