@@ -163,12 +163,8 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
             }
             
             if isDirectory {
-                if name == "_extras" {
-                    directoryEnumerator.skipDescendants()
-                }
-            } else {
-                fileURLs.append(fileURL)
-            }
+                if name == "_extras" { directoryEnumerator.skipDescendants() }
+            } else { fileURLs.append(fileURL) }
         }
         
         for fileURL in fileURLs {
