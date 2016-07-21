@@ -15,7 +15,7 @@
 import Cocoa
 import AVFoundation
 
-class ViewController: NSViewController
+class ViewController: NSViewController, AVAudioPlayerDelegate
 {
     @IBOutlet weak var songsTable: NSTableView!
     @IBOutlet var songsController: NSArrayController!
@@ -163,12 +163,8 @@ class ViewController: NSViewController
             }
             
             if isDirectory {
-                if name == "_extras" {
-                    directoryEnumerator.skipDescendants()
-                }
-            } else {
-                fileURLs.append(fileURL)
-            }
+                if name == "_extras" { directoryEnumerator.skipDescendants() }
+            } else { fileURLs.append(fileURL) }
         }
         
         for fileURL in fileURLs {
@@ -202,22 +198,16 @@ class ViewController: NSViewController
     
     @IBAction func clickPrevious(_ sender: NSToolbarItem) {
         if songs.count > 0 {
-            if player.currentTime > 1.0 {  // restart song from beginning
-                player.currentTime = 0
-            }
+            if player.currentTime > 1.0 { player.currentTime = 0 }  // restart song from beginning
             else {
                 p -= 1
     
-                if p == -1 {    // jump from start of table to end to loop playback
-                    p = songs.count - 1
-                }
-    
-                if player.isPlaying {
-                    cueSong(songs[p].path, play: true)
-                }
-                else {
-                    cueSong(songs[p].path, play: false)
-                }
+                if p == -1 { p = songs.count - 1 }   // jump from start of table to end to loop playback
+                
+                if player.isPlaying { cueSong(songs[p].path, play: true) }
+                else { cueSong(songs[p].path, play: false) }
+                
+                songsTable.selectRowIndexes(IndexSet(integer: p), byExtendingSelection: false)
             }
         }
     }
@@ -228,12 +218,8 @@ class ViewController: NSViewController
         {
             let seekTo = player.currentTime - seek
             
-            if seekTo >= 0 {
-                player.currentTime = seekTo
-            }
-            else {
-                player.currentTime = player.duration + seekTo     // seekTo is actually a negative number in this case, causing it to be subtracted from duration
-            }
+            if seekTo >= 0 { player.currentTime = seekTo }
+            else { player.currentTime = player.duration + seekTo }     // seekTo is actually a negative number in this case, causing it to be subtracted from duration
         }
     }
     
@@ -250,6 +236,7 @@ class ViewController: NSViewController
                 }
                 
                 defaultNC.post(name: Notification.Name(rawValue: "DisplayPauseImage"), object: nil)
+                songsTable.selectRowIndexes(IndexSet(integer: p), byExtendingSelection: false)
             }
         }
         else {  // Image must be "Pause"
@@ -269,16 +256,12 @@ class ViewController: NSViewController
         if songs.count > 0 {
             let seekTo = player.currentTime + seek
             
-            if seekTo < player.duration {
-                player.currentTime = seekTo
-            }
+            if seekTo < player.duration { player.currentTime = seekTo }
             else if seekTo == player.duration {
                 player.currentTime = 0
                 player.play()
             }
-            else {
-                player.currentTime = seekTo - player.duration
-            }
+            else { player.currentTime = seekTo - player.duration }
         }
     }
     
@@ -287,16 +270,12 @@ class ViewController: NSViewController
         if songs.count > 0 {
             p += 1
         
-            if p == songs.count {   // jump from end of table to start to loop playback
-                p = 0
-            }
+            if p == songs.count { p = 0 }   // jump from end of table to start to loop playback
             
-            if player.isPlaying {
-                cueSong(songs[p].path, play: true)
-            }
-            else {
-                cueSong(songs[p].path, play: false)
-            }
+            if player.isPlaying { cueSong(songs[p].path, play: true) }
+            else { cueSong(songs[p].path, play: false) }
+            
+            songsTable.selectRowIndexes(IndexSet(integer: p), byExtendingSelection: false)
         }
     }
     
@@ -320,10 +299,21 @@ class ViewController: NSViewController
     
     func cueSong(_ fileURL: String, play: Bool) {
         player = try! AVAudioPlayer(contentsOf: URL(string: fileURL)!)
+        player.delegate = self
         player.prepareToPlay()
         
-        if play == true {
-            player.play()
+        if play == true { player.play() }
+    }
+    
+    
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        if flag == true {
+            if p != songs.count-1 {
+                p += 1
+                cueSong(songs[p].path, play: true)
+                songsTable.selectRowIndexes(IndexSet(integer: p), byExtendingSelection: false)
+            }
+            else { NotificationCenter.default().post(name: Notification.Name(rawValue: "DisplayPlayImage"), object: nil) }
         }
     }
 }
