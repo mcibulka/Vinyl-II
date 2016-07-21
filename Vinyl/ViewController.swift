@@ -15,14 +15,15 @@
 import Cocoa
 import AVFoundation
 
+
 class ViewController: NSViewController
 {
     @IBOutlet weak var songsTable: NSTableView!
     @IBOutlet var songsController: NSArrayController!
     
-    var songs = [Song]()
-    
     var player = AVAudioPlayer()
+    
+    var songs = [Song]()
     let seek = 15.0
     
     var firstPlay = false
@@ -36,7 +37,7 @@ class ViewController: NSViewController
     
     func loadLibrary(_ aNotification:Notification) {
         let path = Bundle.main().pathForResource("songsList", ofType: "txt")
-        let contents = try? String(contentsOfFile: path!, encoding: String.Encoding.utf8)
+        let contents = try? String(contentsOfFile: path!, encoding: String.Encoding.utf8)   // do-catch?
         
         print("LOADING...\n")
         
@@ -85,7 +86,7 @@ class ViewController: NSViewController
         
         do {
             try contents.write(toFile: path!, atomically: true, encoding: String.Encoding.utf8)
-        } catch {}
+        } catch {}  // default catch for antything that could happen
         print(contents)
         
         print("\nSAVE COMPLETE.")
@@ -102,28 +103,21 @@ class ViewController: NSViewController
             let desktop = try! defaultFM.urlForDirectory(.desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
             var path = desktop
             
-            do {
-                try path.appendPathComponent("VinylLibrary", isDirectory: true)
-            } catch {}
+            try! path.appendPathComponent("VinylLibrary", isDirectory: true)
             
             
             /*Construct Copy To Path*/
-            // Add artist to the path
-            do {
-                try path.appendPathComponent(songToCopy.albumArtist!.replacingOccurrences(of: "/", with: ":"))   // Ensure "/" are not interpreted as directories
-            } catch {}
+            try! path.appendPathComponent(songToCopy.albumArtist!.replacingOccurrences(of: "/", with: ":"))   // Ensure "/" are not interpreted as directories
             
             do {
                 try defaultFM.createDirectory(at: path, withIntermediateDirectories: false, attributes: nil)
-            } catch {}
+            } catch {}  // permissions
             
-            do {
-                try path.appendPathComponent(songToCopy.album!.replacingOccurrences(of: "/", with: ":"))
-            } catch {}
+            try! path.appendPathComponent(songToCopy.album!.replacingOccurrences(of: "/", with: ":"))
                 
             do {
                 try defaultFM.createDirectory(at: path, withIntermediateDirectories: false, attributes: nil)
-            } catch {}
+            } catch {}  // permissions
         
             
             // Create own file name to ensure a consistent naming convention, "<Track Number><Space><Track Name>.mp3"
@@ -133,19 +127,14 @@ class ViewController: NSViewController
                 trackNumber.insert("0", at: trackNumber.startIndex)
             }
             
-            do {
-                try path.appendPathComponent(trackNumber + " " + songToCopy.name!.replacingOccurrences(of: "/", with: ":"))
-            } catch {}
-            
-            do {
-                try path.appendPathExtension("mp3")
-            } catch {}
+            try! path.appendPathComponent(trackNumber + " " + songToCopy.name!.replacingOccurrences(of: "/", with: ":"))
+            try! path.appendPathExtension("mp3")
             
             songToCopy.path = path.absoluteString!
             
             do {
                 try defaultFM.copyItem(at: sourceURL, to: path)
-            } catch {}
+            } catch {}  // sufficient HD space, permissions
         }
 
         let localFM = FileManager()
@@ -172,9 +161,8 @@ class ViewController: NSViewController
         }
         
         for fileURL in fileURLs {
-            if fileURL.pathExtension?.lowercased() == "mp3"
+            if fileURL.pathExtension?.lowercased() == "mp3"     // Copy song and get its new URL
             {
-                // Copy song and get its new URL
                 let newAsset = AVURLAsset(url: fileURL as URL, options: nil)
                 
                 let newSong = Song(newAsset: newAsset)
@@ -319,7 +307,7 @@ class ViewController: NSViewController
     
     
     func cueSong(_ fileURL: String, play: Bool) {
-        player = try! AVAudioPlayer(contentsOf: URL(string: fileURL)!)
+        player = try! AVAudioPlayer(contentsOf: URL(string: fileURL)!)  // investigate potential errors
         player.prepareToPlay()
         
         if play == true {
@@ -327,4 +315,3 @@ class ViewController: NSViewController
         }
     }
 }
-

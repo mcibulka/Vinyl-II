@@ -28,13 +28,11 @@ class AppDelegate: NSObject, NSApplicationDelegate
         let desktopDir = try! defaultFM.urlForDirectory(.desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
         var libPath = desktopDir
     
-        do {
-            try libPath.appendPathComponent(libraryName, isDirectory: true)
-        } catch {}
+        try! libPath.appendPathComponent(libraryName, isDirectory: true)
         
         do {
             try defaultFM.createDirectory(at: libPath, withIntermediateDirectories: false, attributes: nil)
-        } catch {}
+        } catch {}  // sufficient HD space, user permissions
     }
 
     
