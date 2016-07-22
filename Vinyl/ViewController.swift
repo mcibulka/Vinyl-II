@@ -163,8 +163,12 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
             }
             
             if isDirectory {
-                if name == "_extras" { directoryEnumerator.skipDescendants() }
-            } else { fileURLs.append(fileURL) }
+                if name == "_extras" {
+                    directoryEnumerator.skipDescendants()
+                }
+            } else {
+                fileURLs.append(fileURL)
+            }
         }
         
         for fileURL in fileURLs {
@@ -198,7 +202,9 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     
     @IBAction func clickPrevious(_ sender: NSToolbarItem) {
         if songs.count > 0 {
-            if player.currentTime > 1.0 { player.currentTime = 0 }  // restart song from beginning
+            if player.currentTime > 1.0 {  // restart song from beginning
+                player.currentTime = 0
+            }
             else {
                 p -= 1
     
