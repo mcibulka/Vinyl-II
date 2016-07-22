@@ -20,12 +20,14 @@ xcuserdata/
 ## Other
 *.moved-aside
 *.xcuserstate
+*.DS_Store
 
 ## Obj-C/Swift specific
 *.hmap
 *.ipa
 *.dSYM.zip
 *.dSYM
+*.swift.orig
 
 ## Playgrounds
 timeline.xctimeline
