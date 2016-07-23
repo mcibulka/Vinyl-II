@@ -32,7 +32,17 @@ class AppDelegate: NSObject, NSApplicationDelegate
         
         do {
             try defaultFM.createDirectory(at: libPath, withIntermediateDirectories: false, attributes: nil)
-        } catch {}  // sufficient HD space, user permissions
+        }
+        catch NSCocoaError.fileWriteFileExistsError {}  // do nothing
+        catch NSCocoaError.fileWriteNoPermissionError {
+            print("Error creating Vinyl Library directory. File write permissions.")
+        }
+        catch NSCocoaError.fileWriteOutOfSpaceError {
+            print("Error creating Vinyl Library directory. Out of space.")
+        }
+        catch let error as NSError {
+            print("Error creating Vinyl Library directory. Other. Domain: \(error.domain), Code: \(error.code)")
+        }
     }
 
     

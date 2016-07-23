@@ -16,7 +16,7 @@ import Cocoa
 import AVFoundation
 
 
-class ViewController: NSViewController
+class ViewController: NSViewController, AVAudioPlayerDelegate
 {
     @IBOutlet weak var songsTable: NSTableView!
     @IBOutlet var songsController: NSArrayController!
@@ -37,34 +37,37 @@ class ViewController: NSViewController
     
     func loadLibrary(_ aNotification:Notification) {
         let path = Bundle.main().pathForResource("songsList", ofType: "txt")
-        let contents = try? String(contentsOfFile: path!, encoding: String.Encoding.utf8)   // do-catch?
-        
-        print("LOADING...\n")
-        
-        // If there are previously added songs, populate the song array
-        if contents != "" {
-            let entries = contents!.components(separatedBy: "\n")
-
-            for entry in entries {
-                let components = entry.components(separatedBy: ";")
-                let path = components[0]
-                let dateAdded = components[1]
-                let time = components[2]
+        do {
+            let contents = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
+            
+            print("LOADING...\n")
+            
+            // If there are previously added songs, populate the song array
+            if contents != "" {
+                let entries = contents.components(separatedBy: "\n")
                 
-                let asset = AVURLAsset(url: URL(string: path)!, options: nil)
-                
-                let song = Song(path: path, dateAdded: dateAdded, time: time)
-                song.extractMetaData(asset)
-                print(song.path)
-
-                songsController.addObject(song)
+                for entry in entries {
+                    let components = entry.components(separatedBy: ";")
+                    let path = components[0]
+                    let dateAdded = components[1]
+                    let time = components[2]
+                    
+                    let asset = AVURLAsset(url: URL(string: path)!, options: nil)
+                    
+                    let song = Song(path: path, dateAdded: dateAdded, time: time)
+                    song.extractMetaData(asset)
+                    print(song.path)
+                    
+                    songsController.addObject(song)
+                }
             }
+            else { print("File empty.") }
+            
+            print("\nLOAD COMPLETE.\n\n")
         }
-        else {
-            print("File empty.")
+        catch let error as NSError {
+            print("Error loading library data from songsList. Other. Domain: \(error.domain), Code: \(error.code)")
         }
-        
-        print("\nLOAD COMPLETE.\n\n")
     }
     
     
@@ -76,28 +79,23 @@ class ViewController: NSViewController
         
         // Cycle through songs and create one continuous string of their file paths
         for i in 0..<songs.count {
-            if i != songs.count - 1 {
-                contents += songs[i].path + ";" + songs[i].dateAdded + ";" + songs[i].time + "\n"
-            }
-            else {
-                contents += songs[i].path + ";" + songs[i].dateAdded + ";" + songs[i].time    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
-            }
+            if i != songs.count - 1 { contents += songs[i].path+";"+songs[i].dateAdded+";"+songs[i].time+"\n" }
+            else { contents += songs[i].path+";"+songs[i].dateAdded+";"+songs[i].time }    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
         }
         
         do {
             try contents.write(toFile: path!, atomically: true, encoding: String.Encoding.utf8)
-        } catch {}  // default catch for antything that could happen
-        print(contents)
+        }
+        catch let error as NSError {
+            print("Error saving library data to songsList. Other. Domain: \(error.domain), Code: \(error.code)")
+        }
         
+        print(contents)
         print("\nSAVE COMPLETE.")
     }
     
     
     func addSongs(_ songsToAdd: NSArray) {
-        /* FUNCTION: copySongToLibrary
-        ** INPUT: Copies a song from the supplied NSURL to the library folder
-        ** RETURN: none
-        */
         func copySongToLibrary(_ sourceURL: URL, songToCopy: Song) {
             let defaultFM = FileManager.default()
             let desktop = try! defaultFM.urlForDirectory(.desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
@@ -111,21 +109,34 @@ class ViewController: NSViewController
             
             do {
                 try defaultFM.createDirectory(at: path, withIntermediateDirectories: false, attributes: nil)
-            } catch {}  // permissions
+            }
+            catch NSCocoaError.fileWriteFileExistsError {}  // do nothing
+            catch NSCocoaError.fileWriteNoPermissionError {
+                print("Error creating Album Artist directory in library folder. File write permissions.")
+            }
+            catch let error as NSError {
+                print("Error creating Album Artist directory in library folder. Other. Domain: \(error.domain), Code: \(error.code)")
+            }
             
+                
             try! path.appendPathComponent(songToCopy.album!.replacingOccurrences(of: "/", with: ":"))
                 
             do {
                 try defaultFM.createDirectory(at: path, withIntermediateDirectories: false, attributes: nil)
-            } catch {}  // permissions
-        
+            }
+            catch NSCocoaError.fileWriteFileExistsError {}  // do nothing
+            catch NSCocoaError.fileWriteNoPermissionError {
+                print("Error creating Album directory in library folder. File write permissions.")
+            }
+            catch let error as NSError {
+                print("Error creating Album directory in library folder. Other. Domain: \(error.domain), Code: \(error.code)")
+            }
+            
             
             // Create own file name to ensure a consistent naming convention, "<Track Number><Space><Track Name>.mp3"
             var trackNumber = songToCopy.trackNumber!
             
-            if trackNumber.characters.count == 1 {   // Track number is a single digit
-                trackNumber.insert("0", at: trackNumber.startIndex)
-            }
+            if trackNumber.characters.count == 1 { trackNumber.insert("0", at: trackNumber.startIndex) }   // Track number is a single digit
             
             try! path.appendPathComponent(trackNumber + " " + songToCopy.name!.replacingOccurrences(of: "/", with: ":"))
             try! path.appendPathExtension("mp3")
@@ -134,7 +145,17 @@ class ViewController: NSViewController
             
             do {
                 try defaultFM.copyItem(at: sourceURL, to: path)
-            } catch {}  // sufficient HD space, permissions
+            }
+            catch NSCocoaError.fileWriteFileExistsError {}  // do nothing
+            catch NSCocoaError.fileWriteNoPermissionError {
+                print("Error copying song to Vinyl Library. File write permissions.")
+            }
+            catch NSCocoaError.fileWriteOutOfSpaceError {
+                print("Error copying song to Vinyl Library. Out of space.")
+            }
+            catch let error as NSError {
+                print("Error copying song to Vinyl Library. Other. Domain: \(error.domain) Code: \(error.code)")
+            }
         }
 
         let localFM = FileManager()
@@ -147,17 +168,10 @@ class ViewController: NSViewController
             guard let resourceValues = try? fileURL.resourceValues(forKeys: resourceKeys),
                 let isDirectory = resourceValues[URLResourceKey.isDirectoryKey] as? Bool,
                 let name = resourceValues[URLResourceKey.nameKey] as? String
-                else {
-                    continue
-            }
+                else { continue }
             
-            if isDirectory {
-                if name == "_extras" {
-                    directoryEnumerator.skipDescendants()
-                }
-            } else {
-                fileURLs.append(fileURL)
-            }
+            if isDirectory { if name == "_extras" { directoryEnumerator.skipDescendants() } }
+            else { fileURLs.append(fileURL) }
         }
         
         for fileURL in fileURLs {
@@ -190,22 +204,14 @@ class ViewController: NSViewController
     
     @IBAction func clickPrevious(_ sender: NSToolbarItem) {
         if songs.count > 0 {
-            if player.currentTime > 1.0 {  // restart song from beginning
-                player.currentTime = 0
-            }
+            if player.currentTime > 1.0 { player.currentTime = 0 }  // restart song from beginning
             else {
                 p -= 1
     
-                if p == -1 {    // jump from start of table to end to loop playback
-                    p = songs.count - 1
-                }
-    
-                if player.isPlaying {
-                    cueSong(songs[p].path, play: true)
-                }
-                else {
-                    cueSong(songs[p].path, play: false)
-                }
+                if p == -1 { p = songs.count - 1 }   // jump from start of table to end to loop playback
+                
+                if player.isPlaying { cueSong(songs[p].path, play: true) }
+                else { cueSong(songs[p].path, play: false) }
             }
         }
     }
@@ -216,12 +222,8 @@ class ViewController: NSViewController
         {
             let seekTo = player.currentTime - seek
             
-            if seekTo >= 0 {
-                player.currentTime = seekTo
-            }
-            else {
-                player.currentTime = player.duration + seekTo     // seekTo is actually a negative number in this case, causing it to be subtracted from duration
-            }
+            if seekTo >= 0 { player.currentTime = seekTo }
+            else { player.currentTime = player.duration + seekTo }    // seekTo is actually a negative number in this case, causing it to be subtracted from duration
         }
     }
     
@@ -257,16 +259,12 @@ class ViewController: NSViewController
         if songs.count > 0 {
             let seekTo = player.currentTime + seek
             
-            if seekTo < player.duration {
-                player.currentTime = seekTo
-            }
+            if seekTo < player.duration { player.currentTime = seekTo }
             else if seekTo == player.duration {
                 player.currentTime = 0
                 player.play()
             }
-            else {
-                player.currentTime = seekTo - player.duration
-            }
+            else { player.currentTime = seekTo - player.duration }
         }
     }
     
@@ -275,16 +273,10 @@ class ViewController: NSViewController
         if songs.count > 0 {
             p += 1
         
-            if p == songs.count {   // jump from end of table to start to loop playback
-                p = 0
-            }
+            if p == songs.count { p = 0 }   // jump from end of table to start to loop playback
             
-            if player.isPlaying {
-                cueSong(songs[p].path, play: true)
-            }
-            else {
-                cueSong(songs[p].path, play: false)
-            }
+            if player.isPlaying { cueSong(songs[p].path, play: true) }
+            else { cueSong(songs[p].path, play: false) }
         }
     }
     
@@ -307,11 +299,19 @@ class ViewController: NSViewController
     
     
     func cueSong(_ fileURL: String, play: Bool) {
-        player = try! AVAudioPlayer(contentsOf: URL(string: fileURL)!)  // investigate potential errors
-        player.prepareToPlay()
-        
-        if play == true {
-            player.play()
+        do {
+            try player = AVAudioPlayer(contentsOf: URL(string: fileURL)!)
+            player.prepareToPlay()
+            
+            if play == true { player.play() }
         }
+        catch let error as NSError {
+            print("Error with audio player. Other. Domain: \(error.domain) Code: \(error.code)")
+        }
+    }
+    
+    
+    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: NSError?) {
+        print("Error with audio player. Decode.")
     }
 }
