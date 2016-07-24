@@ -40,8 +40,6 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
         do {
             let contents = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
             
-            print("LOADING...\n")
-            
             // If there are previously added songs, populate the song array
             if contents != "" {
                 let entries = contents.components(separatedBy: "\n")
@@ -61,9 +59,6 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
                     songsController.addObject(song)
                 }
             }
-            else { print("File empty.") }
-            
-            print("\nLOAD COMPLETE.\n\n")
         }
         catch let error as NSError {
             print("Error loading library data from songsList. Other. Domain: \(error.domain), Code: \(error.code)")
@@ -74,8 +69,6 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     func saveLibrary() {
         let path = Bundle.main().pathForResource("songsList", ofType: "txt")
         var contents = ""
-     
-        print("\nSAVING...\n")
         
         // Cycle through songs and create one continuous string of their file paths
         for i in 0..<songs.count {
@@ -89,9 +82,6 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
         catch let error as NSError {
             print("Error saving library data to songsList. Other. Domain: \(error.domain), Code: \(error.code)")
         }
-        
-        print(contents)
-        print("\nSAVE COMPLETE.")
     }
     
     
@@ -193,11 +183,7 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
         addPanel.canChooseDirectories = true
         
         // Only add songs if the user clicks OK
-        if addPanel.runModal() == NSFileHandlingPanelOKButton {
-            print("ADDING...\n")
-            addSongs(addPanel.urls)
-            print("\nADD Complete.\n\n")
-        }
+        if addPanel.runModal() == NSFileHandlingPanelOKButton { addSongs(addPanel.urls) }
         saveLibrary()
     }
     
