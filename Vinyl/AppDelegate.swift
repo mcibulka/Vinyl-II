@@ -28,13 +28,21 @@ class AppDelegate: NSObject, NSApplicationDelegate
         let desktopDir = try! defaultFM.urlForDirectory(.desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
         var libPath = desktopDir
     
-        do {
-            try libPath.appendPathComponent(libraryName, isDirectory: true)
-        } catch {}
+        try! libPath.appendPathComponent(libraryName, isDirectory: true)
         
         do {
             try defaultFM.createDirectory(at: libPath, withIntermediateDirectories: false, attributes: nil)
-        } catch {}
+        }
+        catch NSCocoaError.fileWriteFileExistsError {}  // do nothing
+        catch NSCocoaError.fileWriteNoPermissionError {
+            print("Error creating Vinyl Library directory. File write permissions.")
+        }
+        catch NSCocoaError.fileWriteOutOfSpaceError {
+            print("Error creating Vinyl Library directory. Out of space.")
+        }
+        catch let error as NSError {
+            print("Error creating Vinyl Library directory. Other. Domain: \(error.domain), Code: \(error.code)")
+        }
     }
 
     

@@ -20,9 +20,9 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     @IBOutlet weak var songsTable: NSTableView!
     @IBOutlet var songsController: NSArrayController!
     
-    var songs = [Song]()
-    
     var player = AVAudioPlayer()
+    
+    var songs = [Song]()
     let seek = 15.0
     
     var firstPlay = false
@@ -36,116 +36,115 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     
     func loadLibrary(_ aNotification:Notification) {
         let path = Bundle.main().pathForResource("songsList", ofType: "txt")
-        let contents = try? String(contentsOfFile: path!, encoding: String.Encoding.utf8)
-        
-        print("LOADING...\n")
-        
-        // If there are previously added songs, populate the song array
-        if contents != "" {
-            let entries = contents!.components(separatedBy: "\n")
-
-            for entry in entries {
-                let components = entry.components(separatedBy: ";")
-                let path = components[0]
-                let dateAdded = components[1]
-                let time = components[2]
+        do {
+            let contents = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
+            
+            // If there are previously added songs, populate the song array
+            if contents != "" {
+                let entries = contents.components(separatedBy: "\n")
                 
-                let asset = AVURLAsset(url: URL(string: path)!, options: nil)
-                
-                let song = Song(path: path, dateAdded: dateAdded, time: time)
-                song.extractMetaData(asset)
-                print(song.path)
-
-                songsController.addObject(song)
+                for entry in entries {
+                    let components = entry.components(separatedBy: ";")
+                    let path = components[0]
+                    let dateAdded = components[1]
+                    let time = components[2]
+                    
+                    let asset = AVURLAsset(url: URL(string: path)!, options: nil)
+                    
+                    let song = Song(path: path, dateAdded: dateAdded, time: time)
+                    song.extractMetaData(asset)
+                    print(song.path)
+                    
+                    songsController.addObject(song)
+                }
             }
         }
-        else {
-            print("File empty.")
+        catch let error as NSError {
+            print("Error loading library data from songsList. Other. Domain: \(error.domain), Code: \(error.code)")
         }
-        
-        print("\nLOAD COMPLETE.\n\n")
     }
     
     
     func saveLibrary() {
         let path = Bundle.main().pathForResource("songsList", ofType: "txt")
         var contents = ""
-     
-        print("\nSAVING...\n")
         
         // Cycle through songs and create one continuous string of their file paths
         for i in 0..<songs.count {
-            if i != songs.count - 1 {
-                contents += songs[i].path + ";" + songs[i].dateAdded + ";" + songs[i].time + "\n"
-            }
-            else {
-                contents += songs[i].path + ";" + songs[i].dateAdded + ";" + songs[i].time    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
-            }
+            if i != songs.count - 1 { contents += songs[i].path+";"+songs[i].dateAdded+";"+songs[i].time+"\n" }
+            else { contents += songs[i].path+";"+songs[i].dateAdded+";"+songs[i].time }    // Don't append a "\n" to the last song in order to avoid loading a nil entry at start up
         }
         
         do {
             try contents.write(toFile: path!, atomically: true, encoding: String.Encoding.utf8)
-        } catch {}
-        print(contents)
-        
-        print("\nSAVE COMPLETE.")
+        }
+        catch let error as NSError {
+            print("Error saving library data to songsList. Other. Domain: \(error.domain), Code: \(error.code)")
+        }
     }
     
     
     func addSongs(_ songsToAdd: NSArray) {
-        /* FUNCTION: copySongToLibrary
-        ** INPUT: Copies a song from the supplied NSURL to the library folder
-        ** RETURN: none
-        */
         func copySongToLibrary(_ sourceURL: URL, songToCopy: Song) {
             let defaultFM = FileManager.default()
             let desktop = try! defaultFM.urlForDirectory(.desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
             var path = desktop
             
-            do {
-                try path.appendPathComponent("VinylLibrary", isDirectory: true)
-            } catch {}
+            try! path.appendPathComponent("VinylLibrary", isDirectory: true)
             
             
             /*Construct Copy To Path*/
-            // Add artist to the path
-            do {
-                try path.appendPathComponent(songToCopy.albumArtist!.replacingOccurrences(of: "/", with: ":"))   // Ensure "/" are not interpreted as directories
-            } catch {}
+            try! path.appendPathComponent(songToCopy.albumArtist!.replacingOccurrences(of: "/", with: ":"))   // Ensure "/" are not interpreted as directories
             
             do {
                 try defaultFM.createDirectory(at: path, withIntermediateDirectories: false, attributes: nil)
-            } catch {}
+            }
+            catch NSCocoaError.fileWriteFileExistsError {}  // do nothing
+            catch NSCocoaError.fileWriteNoPermissionError {
+                print("Error creating Album Artist directory in library folder. File write permissions.")
+            }
+            catch let error as NSError {
+                print("Error creating Album Artist directory in library folder. Other. Domain: \(error.domain), Code: \(error.code)")
+            }
             
-            do {
-                try path.appendPathComponent(songToCopy.album!.replacingOccurrences(of: "/", with: ":"))
-            } catch {}
+                
+            try! path.appendPathComponent(songToCopy.album!.replacingOccurrences(of: "/", with: ":"))
                 
             do {
                 try defaultFM.createDirectory(at: path, withIntermediateDirectories: false, attributes: nil)
-            } catch {}
-        
+            }
+            catch NSCocoaError.fileWriteFileExistsError {}  // do nothing
+            catch NSCocoaError.fileWriteNoPermissionError {
+                print("Error creating Album directory in library folder. File write permissions.")
+            }
+            catch let error as NSError {
+                print("Error creating Album directory in library folder. Other. Domain: \(error.domain), Code: \(error.code)")
+            }
+            
             
             // Create own file name to ensure a consistent naming convention, "<Track Number><Space><Track Name>.mp3"
             var trackNumber = songToCopy.trackNumber!
             
-            if trackNumber.characters.count == 1 {   // Track number is a single digit
-                trackNumber.insert("0", at: trackNumber.startIndex)
-            }
+            if trackNumber.characters.count == 1 { trackNumber.insert("0", at: trackNumber.startIndex) }   // Track number is a single digit
             
-            do {
-                try path.appendPathComponent(trackNumber + " " + songToCopy.name!.replacingOccurrences(of: "/", with: ":"))
-            } catch {}
-            
-            do {
-                try path.appendPathExtension("mp3")
-            } catch {}
+            try! path.appendPathComponent(trackNumber + " " + songToCopy.name!.replacingOccurrences(of: "/", with: ":"))
+            try! path.appendPathExtension("mp3")
             
             songToCopy.path = path.absoluteString!
             
             do {
                 try defaultFM.copyItem(at: sourceURL, to: path)
-            } catch {}
+            }
+            catch NSCocoaError.fileWriteFileExistsError {}  // do nothing
+            catch NSCocoaError.fileWriteNoPermissionError {
+                print("Error copying song to Vinyl Library. File write permissions.")
+            }
+            catch NSCocoaError.fileWriteOutOfSpaceError {
+                print("Error copying song to Vinyl Library. Out of space.")
+            }
+            catch let error as NSError {
+                print("Error copying song to Vinyl Library. Other. Domain: \(error.domain) Code: \(error.code)")
+            }
         }
 
         let localFM = FileManager()
@@ -158,19 +157,15 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
             guard let resourceValues = try? fileURL.resourceValues(forKeys: resourceKeys),
                 let isDirectory = resourceValues[URLResourceKey.isDirectoryKey] as? Bool,
                 let name = resourceValues[URLResourceKey.nameKey] as? String
-                else {
-                    continue
-            }
+                else { continue }
             
-            if isDirectory {
-                if name == "_extras" { directoryEnumerator.skipDescendants() }
-            } else { fileURLs.append(fileURL) }
+            if isDirectory { if name == "_extras" { directoryEnumerator.skipDescendants() } }
+            else { fileURLs.append(fileURL) }
         }
         
         for fileURL in fileURLs {
-            if fileURL.pathExtension?.lowercased() == "mp3"
+            if fileURL.pathExtension?.lowercased() == "mp3"     // Copy song and get its new URL
             {
-                // Copy song and get its new URL
                 let newAsset = AVURLAsset(url: fileURL as URL, options: nil)
                 
                 let newSong = Song(newAsset: newAsset)
@@ -187,11 +182,7 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
         addPanel.canChooseDirectories = true
         
         // Only add songs if the user clicks OK
-        if addPanel.runModal() == NSFileHandlingPanelOKButton {
-            print("ADDING...\n")
-            addSongs(addPanel.urls)
-            print("\nADD Complete.\n\n")
-        }
+        if addPanel.runModal() == NSFileHandlingPanelOKButton { addSongs(addPanel.urls) }
         saveLibrary()
     }
     
@@ -219,7 +210,7 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
             let seekTo = player.currentTime - seek
             
             if seekTo >= 0 { player.currentTime = seekTo }
-            else { player.currentTime = player.duration + seekTo }     // seekTo is actually a negative number in this case, causing it to be subtracted from duration
+            else { player.currentTime = player.duration + seekTo }    // seekTo is actually a negative number in this case, causing it to be subtracted from duration
         }
     }
     
@@ -298,11 +289,16 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     
     
     func cueSong(_ fileURL: String, play: Bool) {
-        player = try! AVAudioPlayer(contentsOf: URL(string: fileURL)!)
-        player.delegate = self
-        player.prepareToPlay()
-        
-        if play == true { player.play() }
+        do {
+            try player = AVAudioPlayer(contentsOf: URL(string: fileURL)!)
+			player.delegate = self
+            player.prepareToPlay()
+            
+            if play == true { player.play() }
+        }
+        catch let error as NSError {
+            print("Error with audio player. Other. Domain: \(error.domain) Code: \(error.code)")
+        }
     }
     
     
@@ -315,6 +311,13 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
             }
             else { NotificationCenter.default().post(name: Notification.Name(rawValue: "DisplayPlayImage"), object: nil) }
         }
+        catch let error as NSError {
+            print("Error with audio player. Other. Domain: \(error.domain) Code: \(error.code)")
+        }
+    }
+    
+    
+    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: NSError?) {
+        print("Error with audio player. Decode.")
     }
 }
-

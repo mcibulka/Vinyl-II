@@ -48,9 +48,7 @@ class Song: NSObject
         let seconds = (intTime % 3600) % 60
         var timeStr = "\(minutes):"
         
-        if seconds < 10 {   // pad seconds with zero
-            timeStr += "0"
-        }
+        if seconds < 10 { timeStr += "0" }   // pad seconds with zero
         timeStr += "\(seconds)"
         
         time = timeStr
@@ -69,9 +67,7 @@ class Song: NSObject
             let trackNumbers = trackNumberStr.components(separatedBy: "/")   // track number string is represented as "#/#"
             
             if trackNumbers.count >= 1 { // track number available
-                if trackNumbers.count == 2 {    // total track numbers available
-                    totalTracks = trackNumbers[1]
-                }
+                if trackNumbers.count == 2 { totalTracks = trackNumbers[1] }    // total track numbers available
                 
                 trackNumber = trackNumbers[0]
             }
@@ -150,19 +146,11 @@ class Song: NSObject
                     }
                 }
             }
-            else {
-                print("\nERROR. Unable to extract metadata for the file format: \(format)\n\n")
-            }
         }
         
         
-        if albumArtist == nil {
-            albumArtist = artist
-        }
-        
-        if name == nil {
-            name = (asset.url.lastPathComponent! as NSString).deletingPathExtension
-        }
+        if albumArtist == nil { albumArtist = artist }
+        if name == nil { name = (asset.url.lastPathComponent! as NSString).deletingPathExtension }
     }
     
     
