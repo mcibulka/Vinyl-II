@@ -311,9 +311,6 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
             }
             else { NotificationCenter.default().post(name: Notification.Name(rawValue: "DisplayPlayImage"), object: nil) }
         }
-        catch let error as NSError {
-            print("Error with audio player. Other. Domain: \(error.domain) Code: \(error.code)")
-        }
     }
     
     
