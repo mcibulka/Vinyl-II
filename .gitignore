@@ -16,6 +16,7 @@ DerivedData/
 *.perspectivev3
 !default.perspectivev3
 xcuserdata/
+*Vinyl.xcodeproj/
 
 ## Other
 *.moved-aside
@@ -65,3 +66,5 @@ playground.xcworkspace
 #fastlane/Preview.html
 #fastlane/screenshots
 #fastlane/test_output
+
+Vinyl.xcodeproj/project.xcworkspace/xcuserdata/Matthew.xcuserdatad/UserInterfaceState.xcuserstate
