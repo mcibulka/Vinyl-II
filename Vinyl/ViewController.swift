@@ -53,7 +53,6 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
                     
                     let song = Song(path: path, dateAdded: dateAdded, time: time)
                     song.extractMetaData(asset)
-                    print(song.path)
                     
                     songsController.addObject(song)
                 }
@@ -164,14 +163,17 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
         }
         
         for fileURL in fileURLs {
-            if fileURL.pathExtension?.lowercased() == "mp3"     // Copy song and get its new URL
+            let songFormats: Set = ["mp3", "m4a"]
+//            if fileURL.pathExtension?.lowercased() in fileFormats
+            if songFormats.contains((fileURL.pathExtension!.lowercased()))     // Copy song and get its new URL
             {
                 let newAsset = AVURLAsset(url: fileURL as URL, options: nil)
                 
                 let newSong = Song(newAsset: newAsset)
                 newSong.extractMetaData(newAsset)
-                copySongToLibrary(fileURL as URL, songToCopy: newSong)
-                songsController.addObject(newSong)
+                print(newSong.toString())
+//                copySongToLibrary(fileURL as URL, songToCopy: newSong)
+//                songsController.addObject(newSong)
             }
         }
     }
@@ -183,7 +185,7 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
         
         // Only add songs if the user clicks OK
         if addPanel.runModal() == NSFileHandlingPanelOKButton { addSongs(addPanel.urls) }
-        saveLibrary()
+//        saveLibrary()
     }
     
     

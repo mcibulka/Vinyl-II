@@ -74,6 +74,12 @@ class Song: NSObject
         }
         
         
+        func splitReleaseDate(_ date: String) {
+            let components = date.components(separatedBy: "-")
+            year = components[0]
+        }
+        
+        
         // Identifiers for ID3 version 2.2
         let ID3AlbumIdentifier = "id3/%00TAL"
         let ID3AlbumArtistIdentifier = "id3/%00TP2"
@@ -138,6 +144,47 @@ class Song: NSObject
                             year = metadataItem.stringValue
                         case ID3AlbumArtworkIdentifier?, ID3AlbumArtworkIdentifierII?:            // Album Artwork
                             artwork = "Artwork"
+                        default:
+                            break
+                        }
+                    } else {
+                        // Fallback on earlier versions
+                    }
+                }
+            }
+            else if format == AVMetadataFormatiTunesMetadata {
+                let metadataItemArray = asset.metadata(forFormat: AVMetadataFormatiTunesMetadata)
+                
+                for metadataItem in metadataItemArray {
+                    if #available(OSX 10.10, *) {
+
+                        if metadataItem.commonKey == AVMetadataCommonKeyArtwork {
+                            artwork = "Artwork"
+                        }
+
+                        switch metadataItem.identifier! {
+                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyAlbum, keySpace: AVMetadataKeySpaceiTunes)!:              // Album
+                            album = metadataItem.stringValue
+                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyAlbumArtist, keySpace: AVMetadataKeySpaceiTunes)!:        // Album Artist
+                            albumArtist = metadataItem.stringValue
+                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyArtist, keySpace: AVMetadataKeySpaceiTunes)!:             // Artist
+                            artist = metadataItem.stringValue
+                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyBeatsPerMin, keySpace: AVMetadataKeySpaceiTunes)!:        // Beats Per Minute
+                            BPM = metadataItem.stringValue
+                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyUserComment, keySpace: AVMetadataKeySpaceiTunes)!:        // Comments
+                            comments = metadataItem.stringValue
+                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyComposer, keySpace: AVMetadataKeySpaceiTunes)!:           // Composer
+                            composer = metadataItem.stringValue
+                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyGenreID, keySpace: AVMetadataKeySpaceiTunes)!:            // Genre
+                            genre = metadataItem.stringValue
+                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyGrouping, keySpace: AVMetadataKeySpaceiTunes)!:           // Grouping
+                            grouping = metadataItem.stringValue
+                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeySongName, keySpace: AVMetadataKeySpaceiTunes)!:           // Name
+                            name = metadataItem.stringValue
+                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyTrackNumber, keySpace: AVMetadataKeySpaceiTunes)!:        // Track Number, default to 0 until able to extract
+                            trackNumber = "0"
+                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyReleaseDate, keySpace: AVMetadataKeySpaceiTunes)!:        // Year
+                            splitReleaseDate(metadataItem.stringValue!)
                         default:
                             break
                         }
