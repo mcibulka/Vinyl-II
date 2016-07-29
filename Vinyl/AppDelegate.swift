@@ -18,20 +18,20 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate
 {
     /* Code to initialize the application */
-    func applicationDidFinishLaunching(_ aNotification: Notification)
+    func applicationDidFinishLaunching(_ aNotification:Notification)
     {
         let defaultFM = FileManager.default()
         let libraryName = "VinylLibrary"
         
-        NotificationCenter.default().post(name: Notification.Name(rawValue: "LoadLibrary"), object: nil)
+        NotificationCenter.default().post(name: Notification.Name(rawValue:"LoadLibrary"), object:nil)
     
-        let desktopDir = try! defaultFM.urlForDirectory(.desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-        var libPath = desktopDir
+        let desktop = try! defaultFM.urlForDirectory(.desktopDirectory, in:.userDomainMask, appropriateFor:nil, create:false)
+        var library = desktop
     
-        try! libPath.appendPathComponent(libraryName, isDirectory: true)
+        try! library.appendPathComponent(libraryName, isDirectory:true)
         
         do {
-            try defaultFM.createDirectory(at: libPath, withIntermediateDirectories: false, attributes: nil)
+            try defaultFM.createDirectory(at:library, withIntermediateDirectories:false, attributes:nil)
         }
         catch NSCocoaError.fileWriteFileExistsError {}  // do nothing
         catch NSCocoaError.fileWriteNoPermissionError {
@@ -47,6 +47,6 @@ class AppDelegate: NSObject, NSApplicationDelegate
 
     
     /* Code to tear down the application */
-    func applicationWillTerminate(_ aNotification: Notification) {}
+    func applicationWillTerminate(_ aNotification:Notification) {}
 }
 

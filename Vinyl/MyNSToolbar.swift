@@ -31,7 +31,7 @@ class MyNSToolbar: NSToolbar
     }
     
     
-    func enableOtherPlaybackButtons(_ aNotification: Notification) {
+    func enableOtherPlaybackButtons(_ aNotification:Notification) {
         previous.isEnabled = true
         seekBackward.isEnabled = true
         seekForward.isEnabled = true
@@ -39,12 +39,12 @@ class MyNSToolbar: NSToolbar
     }
     
     
-    func displayPauseImage(_ aNotification: Notification) {
-        playPause.image = NSImage(byReferencingFile: Bundle.main().pathForResource("Pause", ofType: ".png")!)
+    func displayPauseImage(_ aNotification:Notification) {
+        playPause.image = NSImage(byReferencingFile: Bundle.main().pathForResource("Pause", ofType:".png")!)
     }
     
     
-    func displayPlayImage(_ aNotification: Notification) {
-        playPause.image = NSImage(byReferencingFile: Bundle.main().pathForResource("Play", ofType: ".png")!)
+    func displayPlayImage(_ aNotification:Notification) {
+        playPause.image = NSImage(byReferencingFile: Bundle.main().pathForResource("Play", ofType:".png")!)
     }
 }
