@@ -12,11 +12,12 @@
 *
 *******************************************************************************************************************************************************************************/
 
-import Foundation
 import AVFoundation
+import Foundation
 
 class Song: NSObject
 {
+    var format: String
     var dateAdded: String
     var path: String
     var time: String
@@ -37,33 +38,35 @@ class Song: NSObject
     var artwork: String?
     
     
-    init(newAsset: AVURLAsset) {
-        path = "\(newAsset.url)"
-        dateAdded = Date().description(with: nil)
+    init(_ asset:AVURLAsset, _ format:String) {
+        path = "\(asset.url)"
+        dateAdded = Date().description(with:nil)
         
         // Get song's time
-        let cmTimeSecs = CMTimeGetSeconds(newAsset.duration)
-        let intTime = Int64(round(cmTimeSecs))
+        let cmTime = CMTimeGetSeconds(asset.duration)
+        let intTime = Int64(round(cmTime))
         let minutes = (intTime % 3600) / 60
         let seconds = (intTime % 3600) % 60
-        var timeStr = "\(minutes):"
+        var time = "\(minutes):"
         
-        if seconds < 10 { timeStr += "0" }   // pad seconds with zero
-        timeStr += "\(seconds)"
+        if seconds < 10 { time += "0" }   // pad seconds with zero
+        time += "\(seconds)"
         
-        time = timeStr
+        self.time = time
+        self.format = format
     }
     
     
-    init(path: String, dateAdded: String, time: String) {
+    init(_ path:String, _ dateAdded:String, _ time:String, _ format:String) {
         self.path = path
         self.dateAdded = dateAdded
         self.time = time
+        self.format = format
     }
     
     
-    func extractMetaData(_ asset: AVURLAsset) {
-        func splitTrackNumbers(_ trackNumberStr: String) {
+    func extractMetaData(_ asset:AVURLAsset) {
+        func splitTrackNumbers(_ trackNumberStr:String) {
             let trackNumbers = trackNumberStr.components(separatedBy: "/")   // track number string is represented as "#/#"
             
             if trackNumbers.count >= 1 { // track number available
@@ -74,7 +77,7 @@ class Song: NSObject
         }
         
         
-        func splitReleaseDate(_ date: String) {
+        func splitReleaseDate(_ date:String) {
             let components = date.components(separatedBy: "-")
             year = components[0]
         }
@@ -115,9 +118,9 @@ class Song: NSObject
         
         for format in formats {
             if format == AVMetadataFormatID3Metadata {
-                let metadataItemArray = asset.metadata(forFormat: AVMetadataFormatID3Metadata)
+                let metadataItems = asset.metadata(forFormat:AVMetadataFormatID3Metadata)
                 
-                for metadataItem in metadataItemArray {
+                for metadataItem in metadataItems {
                     if #available(OSX 10.10, *) {
                         switch metadataItem.identifier {
                         case ID3AlbumIdentifier?, ID3AlbumIdentifierII?:                          // Album
@@ -153,37 +156,36 @@ class Song: NSObject
                 }
             }
             else if format == AVMetadataFormatiTunesMetadata {
-                let metadataItemArray = asset.metadata(forFormat: AVMetadataFormatiTunesMetadata)
+                let metadataItems = asset.metadata(forFormat:AVMetadataFormatiTunesMetadata)
                 
-                for metadataItem in metadataItemArray {
+                for metadataItem in metadataItems {
                     if #available(OSX 10.10, *) {
-
                         if metadataItem.commonKey == AVMetadataCommonKeyArtwork {
                             artwork = "Artwork"
                         }
 
                         switch metadataItem.identifier! {
-                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyAlbum, keySpace: AVMetadataKeySpaceiTunes)!:              // Album
+                        case AVMetadataItem.identifier(forKey:AVMetadataiTunesMetadataKeyAlbum, keySpace:AVMetadataKeySpaceiTunes)!:              // Album
                             album = metadataItem.stringValue
-                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyAlbumArtist, keySpace: AVMetadataKeySpaceiTunes)!:        // Album Artist
+                        case AVMetadataItem.identifier(forKey:AVMetadataiTunesMetadataKeyAlbumArtist, keySpace:AVMetadataKeySpaceiTunes)!:        // Album Artist
                             albumArtist = metadataItem.stringValue
-                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyArtist, keySpace: AVMetadataKeySpaceiTunes)!:             // Artist
+                        case AVMetadataItem.identifier(forKey:AVMetadataiTunesMetadataKeyArtist, keySpace:AVMetadataKeySpaceiTunes)!:             // Artist
                             artist = metadataItem.stringValue
-                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyBeatsPerMin, keySpace: AVMetadataKeySpaceiTunes)!:        // Beats Per Minute
+                        case AVMetadataItem.identifier(forKey:AVMetadataiTunesMetadataKeyBeatsPerMin, keySpace:AVMetadataKeySpaceiTunes)!:        // Beats Per Minute
                             BPM = metadataItem.stringValue
-                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyUserComment, keySpace: AVMetadataKeySpaceiTunes)!:        // Comments
+                        case AVMetadataItem.identifier(forKey:AVMetadataiTunesMetadataKeyUserComment, keySpace:AVMetadataKeySpaceiTunes)!:        // Comments
                             comments = metadataItem.stringValue
-                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyComposer, keySpace: AVMetadataKeySpaceiTunes)!:           // Composer
+                        case AVMetadataItem.identifier(forKey:AVMetadataiTunesMetadataKeyComposer, keySpace:AVMetadataKeySpaceiTunes)!:           // Composer
                             composer = metadataItem.stringValue
-                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyGenreID, keySpace: AVMetadataKeySpaceiTunes)!:            // Genre
+                        case AVMetadataItem.identifier(forKey:AVMetadataiTunesMetadataKeyGenreID, keySpace:AVMetadataKeySpaceiTunes)!:            // Genre - requires further processing
                             genre = metadataItem.stringValue
-                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyGrouping, keySpace: AVMetadataKeySpaceiTunes)!:           // Grouping
+                        case AVMetadataItem.identifier(forKey:AVMetadataiTunesMetadataKeyGrouping, keySpace:AVMetadataKeySpaceiTunes)!:           // Grouping
                             grouping = metadataItem.stringValue
-                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeySongName, keySpace: AVMetadataKeySpaceiTunes)!:           // Name
+                        case AVMetadataItem.identifier(forKey:AVMetadataiTunesMetadataKeySongName, keySpace:AVMetadataKeySpaceiTunes)!:           // Name
                             name = metadataItem.stringValue
-                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyTrackNumber, keySpace: AVMetadataKeySpaceiTunes)!:        // Track Number, default to 0 until able to extract
-                            trackNumber = "0"
-                        case AVMetadataItem.identifier(forKey: AVMetadataiTunesMetadataKeyReleaseDate, keySpace: AVMetadataKeySpaceiTunes)!:        // Year
+                        case AVMetadataItem.identifier(forKey:AVMetadataiTunesMetadataKeyTrackNumber, keySpace:AVMetadataKeySpaceiTunes)!:        // Track Number - requires further processing
+                            trackNumber = "-"
+                        case AVMetadataItem.identifier(forKey:AVMetadataiTunesMetadataKeyReleaseDate, keySpace:AVMetadataKeySpaceiTunes)!:        // Year
                             splitReleaseDate(metadataItem.stringValue!)
                         default:
                             break
@@ -203,6 +205,6 @@ class Song: NSObject
     
     func toString()->String
     {
-        return("\nAlbum: \(album)\nAlbum Artist: \(albumArtist)\nArtist: \(artist)\nBeats Per Minute: \(BPM)\nComments: \(comments)\nComposer: \(composer)\nDate Added: \(dateAdded)\nGenre: \(genre)\nGrouping: \(grouping)\nName: \(name)\nTime: \(time)\nTrack Number: \(trackNumber)\nYear: \(year)\nFile URL: \(path)\nArtwork: \(artwork)")
+        return("\nAlbum: \(album)\nAlbum Artist: \(albumArtist)\nArtist: \(artist)\nBeats Per Minute: \(BPM)\nComments: \(comments)\nComposer: \(composer)\nDate Added: \(dateAdded)\nGenre: \(genre)\nGrouping: \(grouping)\nName: \(name)\nTime: \(time)\nTrack Number: \(trackNumber)\nYear: \(year)\nFile URL: \(path)\nArtwork: \(artwork)\nFormat: \(format)\n")
     }
 }
