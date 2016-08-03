@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="11129.15" systemVersion="15F34" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="11129.15" systemVersion="15G31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11129.15"/>
@@ -397,6 +397,11 @@
                                     </connections>
                                 </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="PpA-Gj-sP6"/>
+                                <toolbarItem implicitItemIdentifier="0010BFE0-8F9C-44A5-91E4-5B48F22602D3" label="Repeater" paletteLabel="Repeater" tag="-1" image="Repeat" id="2E4-iO-81p" userLabel="Repeater">
+                                    <connections>
+                                        <action selector="clickRepeat:" target="Oky-zY-oP4" id="IE1-Rh-Ppf"/>
+                                    </connections>
+                                </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="A7C28504-ECA4-4B47-A363-A90CA86DC6BD" label="Volume Slider" paletteLabel="Volume Slider" id="Uu9-Au-dyu" userLabel="Volume Slider">
                                     <nil key="toolTip"/>
                                     <size key="minSize" width="96" height="21"/>
@@ -455,11 +460,14 @@
                                 <toolbarItem reference="HJB-Bh-Om6"/>
                                 <toolbarItem reference="V6E-0a-sfe"/>
                                 <toolbarItem reference="PpA-Gj-sP6"/>
+                                <toolbarItem reference="2E4-iO-81p"/>
+                                <toolbarItem reference="PpA-Gj-sP6"/>
                             </defaultToolbarItems>
                             <connections>
                                 <outlet property="next" destination="V6E-0a-sfe" id="Xfg-yh-yEP"/>
                                 <outlet property="playPause" destination="sjn-4D-tGb" id="8Sc-Ot-3FS"/>
                                 <outlet property="previous" destination="atY-Qz-14D" id="1aW-cc-wwU"/>
+                                <outlet property="repeater" destination="2E4-iO-81p" id="YLU-C4-TfC"/>
                                 <outlet property="seekBackward" destination="cYr-dh-QuN" id="75i-uK-go1"/>
                                 <outlet property="seekForward" destination="HJB-Bh-Om6" id="VbN-xD-POm"/>
                             </connections>
@@ -1079,6 +1087,7 @@
         <image name="Next" width="72" height="72"/>
         <image name="Play" width="72" height="72"/>
         <image name="Previous" width="72" height="72"/>
+        <image name="Repeat" width="1024" height="1024"/>
         <image name="Seek-Backward" width="72" height="72"/>
         <image name="Seek-Forward" width="72" height="72"/>
     </resources>

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		342F43E61D517FDA003347FF /* Repeat.png in Resources */ = {isa = PBXBuildFile; fileRef = 342F43E51D517FDA003347FF /* Repeat.png */; };
 		346EF1A31A6AF19300E52499 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346EF1A21A6AF19300E52499 /* AppDelegate.swift */; };
 		346EF1A51A6AF19300E52499 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346EF1A41A6AF19300E52499 /* ViewController.swift */; };
 		346EF1A81A6AF19300E52499 /* Vinyl.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 346EF1A61A6AF19300E52499 /* Vinyl.xcdatamodeld */; };
@@ -16,6 +17,7 @@
 		3473B5541AB5267700A982AA /* Next.png in Resources */ = {isa = PBXBuildFile; fileRef = 3473B5521AB5267700A982AA /* Next.png */; };
 		3473B5551AB5267700A982AA /* Previous.png in Resources */ = {isa = PBXBuildFile; fileRef = 3473B5531AB5267700A982AA /* Previous.png */; };
 		349A78201A6E295F00EF7A73 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349A781F1A6E295F00EF7A73 /* Song.swift */; };
+		34BA8ABA1D5185A600B0D594 /* Repeat-Single.png in Resources */ = {isa = PBXBuildFile; fileRef = 34BA8AB91D5185A600B0D594 /* Repeat-Single.png */; };
 		34BC43181AA8122A00EE7104 /* songsList.txt in Resources */ = {isa = PBXBuildFile; fileRef = 34BC43171AA8122A00EE7104 /* songsList.txt */; };
 		34BC431A1AB0046200EE7104 /* MyNSToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BC43191AB0046200EE7104 /* MyNSToolbar.swift */; };
 		34BC432E1AB3C1D600EE7104 /* Play.png in Resources */ = {isa = PBXBuildFile; fileRef = 34BC432D1AB3C1D600EE7104 /* Play.png */; };
@@ -35,6 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		342F43E51D517FDA003347FF /* Repeat.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Repeat.png; sourceTree = "<group>"; };
 		346EF19D1A6AF19300E52499 /* Vinyl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vinyl.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		346EF1A11A6AF19300E52499 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		346EF1A21A6AF19300E52499 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -48,6 +51,7 @@
 		3473B5521AB5267700A982AA /* Next.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Next.png; sourceTree = "<group>"; };
 		3473B5531AB5267700A982AA /* Previous.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Previous.png; sourceTree = "<group>"; };
 		349A781F1A6E295F00EF7A73 /* Song.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
+		34BA8AB91D5185A600B0D594 /* Repeat-Single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Repeat-Single.png"; sourceTree = "<group>"; };
 		34BC43171AA8122A00EE7104 /* songsList.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = songsList.txt; sourceTree = "<group>"; };
 		34BC43191AB0046200EE7104 /* MyNSToolbar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyNSToolbar.swift; sourceTree = "<group>"; };
 		34BC432D1AB3C1D600EE7104 /* Play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Play.png; sourceTree = "<group>"; };
@@ -137,6 +141,8 @@
 			isa = PBXGroup;
 			children = (
 				3473B5531AB5267700A982AA /* Previous.png */,
+				342F43E51D517FDA003347FF /* Repeat.png */,
+				34BA8AB91D5185A600B0D594 /* Repeat-Single.png */,
 				34BC43351AB3C7D200EE7104 /* Seek-Backward.png */,
 				34BC432D1AB3C1D600EE7104 /* Play.png */,
 				34BC432F1AB3C29800EE7104 /* Pause.png */,
@@ -231,7 +237,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				34BC43341AB3C66E00EE7104 /* Seek-Forward.png in Resources */,
+				34BA8ABA1D5185A600B0D594 /* Repeat-Single.png in Resources */,
 				34BC43301AB3C29800EE7104 /* Pause.png in Resources */,
+				342F43E61D517FDA003347FF /* Repeat.png in Resources */,
 				3473B5541AB5267700A982AA /* Next.png in Resources */,
 				346EF1AA1A6AF19300E52499 /* Images.xcassets in Resources */,
 				3473B5551AB5267700A982AA /* Previous.png in Resources */,

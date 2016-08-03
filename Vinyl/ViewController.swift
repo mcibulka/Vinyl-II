@@ -270,6 +270,18 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     }
     
     
+    @IBAction func clickRepeat(_ sender:NSToolbarItem) {
+        let defaultNC = NotificationCenter.default()
+        
+        if sender.image?.name() == "Repeat" {
+            defaultNC.post(name:Notification.Name(rawValue:"DisplayRepeatSingleImage"), object:nil)
+        }
+        else {  // Image must be "Repeat-Single"
+            defaultNC.post(name:Notification.Name(rawValue:"DisplayRepeatImage"), object:nil)
+        }
+    }
+    
+    
     func doubleClick() {
         let defaultNC = NotificationCenter.default()
         
