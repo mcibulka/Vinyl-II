@@ -26,6 +26,8 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     let seek = 15.0
     
     var firstPlay = false
+    var repeatSingle = false
+    var repeatAll = false
     var p = 0
     
     
@@ -275,9 +277,17 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
         
         if sender.image?.name() == "Repeat" {
             defaultNC.post(name:Notification.Name(rawValue:"DisplayRepeatSingleImage"), object:nil)
+            repeatSingle = true
         }
-        else {  // Image must be "Repeat-Single"
+        else if sender.image?.name() == "Repeat-Single" {
+            defaultNC.post(name:Notification.Name(rawValue:"DisplayRepeatAllImage"), object:nil)
+            repeatSingle = false
+            repeatAll = true
+        }
+        else {  // Must be "Repeat-All"
             defaultNC.post(name:Notification.Name(rawValue:"DisplayRepeatImage"), object:nil)
+            repeatSingle = false
+            repeatAll = false
         }
     }
     
@@ -294,6 +304,7 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
                 firstPlay = true
             }
             
+            songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
             defaultNC.post(name:Notification.Name(rawValue:"DisplayPauseImage"), object:nil)
         }
     }
@@ -315,12 +326,22 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     
     func audioPlayerDidFinishPlaying(_ player:AVAudioPlayer, successfully flag:Bool) {
         if flag == true {
-            if p != songs.count-1 {
-                p += 1
+            if repeatSingle == true {
+                cueSong(songs[p].path, play:true)
+            }
+            else if repeatAll == true {
+                p = 0
                 cueSong(songs[p].path, play:true)
                 songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
             }
-            else { NotificationCenter.default().post(name:Notification.Name(rawValue:"DisplayPlayImage"), object:nil) }
+            else {
+                if p != songs.count-1 {
+                    p += 1
+                    cueSong(songs[p].path, play:true)
+                    songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+                }
+                else { NotificationCenter.default().post(name:Notification.Name(rawValue:"DisplayPlayImage"), object:nil) }
+            }
         }
     }
     

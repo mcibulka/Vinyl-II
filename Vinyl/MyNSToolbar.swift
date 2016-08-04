@@ -31,6 +31,7 @@ class MyNSToolbar: NSToolbar
         defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayPlayImage(_:)), name:"DisplayPlayImage", object: nil)
         defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayRepeatImage(_:)), name:"DisplayRepeatImage", object: nil)
         defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayRepeatSingleImage(_:)), name:"DisplayRepeatSingleImage", object: nil)
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayRepeatAllImage(_:)), name:"DisplayRepeatAllImage", object: nil)
     }
     
     
@@ -59,5 +60,10 @@ class MyNSToolbar: NSToolbar
     
     func displayRepeatSingleImage(_ aNotification:Notification) {
         repeater.image = NSImage(named:"Repeat-Single")
+    }
+    
+    
+    func displayRepeatAllImage(_ aNotification:Notification) {
+        repeater.image = NSImage(named:"Repeat-All")
     }
 }
