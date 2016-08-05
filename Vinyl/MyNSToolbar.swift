@@ -33,6 +33,8 @@ class MyNSToolbar: NSToolbar
         defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayRepeatImage(_:)), name:"DisplayRepeatImage", object: nil)
         defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayRepeatSingleImage(_:)), name:"DisplayRepeatSingleImage", object: nil)
         defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayRepeatAllImage(_:)), name:"DisplayRepeatAllImage", object: nil)
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayShuffleOnImage(_:)), name:"DisplayShuffleOnImage", object: nil)
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayShuffleOffImage(_:)), name:"DisplayShuffleOffImage", object: nil)
     }
     
     
@@ -66,5 +68,15 @@ class MyNSToolbar: NSToolbar
     
     func displayRepeatAllImage(_ aNotification:Notification) {
         repeater.image = NSImage(named:"Repeat-All")
+    }
+    
+    
+    func displayShuffleOnImage(_ aNotification:Notification) {
+        shuffler.image = NSImage(named:"Shuffle-On")
+    }
+    
+    
+    func displayShuffleOffImage(_ aNotification:Notification) {
+        shuffler.image = NSImage(named:"Shuffle-Off")
     }
 }

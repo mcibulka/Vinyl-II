@@ -28,6 +28,7 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     var firstPlay = false
     var repeatSingle = false
     var repeatAll = false
+    var shuffle = false
     var p = 0
     
     
@@ -293,7 +294,16 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     
     
     @IBAction func clickShuffle(_ sender:NSToolbarItem) {
-        print("Shuffle!")
+        let defaultNC = NotificationCenter.default()
+        
+        if sender.image?.name() == "Shuffle-Off" {
+            defaultNC.post(name:Notification.Name(rawValue:"DisplayShuffleOnImage"), object:nil)
+            shuffle = true
+        }
+        else {  // Must be "Shuffle-On"
+            defaultNC.post(name:Notification.Name(rawValue:"DisplayShuffleOffImage"), object:nil)
+            shuffle = false
+        }
     }
     
     
@@ -339,13 +349,20 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
                 cueSong(songs[p].path, play:true)
                 songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
             }
-            else {
-                if p != songs.count-1 {
-                    p += 1
+            else {  // Repeat is disabled
+                if shuffle == true {
+                    p = Int(arc4random_uniform(UInt32(songs.count)) + 0)
                     cueSong(songs[p].path, play:true)
                     songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
                 }
-                else { NotificationCenter.default().post(name:Notification.Name(rawValue:"DisplayPlayImage"), object:nil) }
+                else {
+                    if p != songs.count-1 {
+                        p += 1
+                        cueSong(songs[p].path, play:true)
+                        songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+                    }
+                    else { NotificationCenter.default().post(name:Notification.Name(rawValue:"DisplayPlayImage"), object:nil) }
+                }
             }
         }
     }
