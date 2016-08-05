@@ -292,6 +292,11 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     }
     
     
+    @IBAction func clickShuffle(_ sender:NSToolbarItem) {
+        print("Shuffle!")
+    }
+    
+    
     func doubleClick() {
         let defaultNC = NotificationCenter.default()
         

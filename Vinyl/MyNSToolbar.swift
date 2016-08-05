@@ -22,6 +22,7 @@ class MyNSToolbar: NSToolbar
     @IBOutlet weak var seekForward: NSToolbarItem!
     @IBOutlet weak var next: NSToolbarItem!
     @IBOutlet weak var repeater: NSToolbarItem!
+    @IBOutlet weak var shuffler: NSToolbarItem!
     
     
     override func validateVisibleItems() {

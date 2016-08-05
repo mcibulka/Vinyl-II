@@ -402,6 +402,11 @@
                                         <action selector="clickRepeat:" target="Oky-zY-oP4" id="IE1-Rh-Ppf"/>
                                     </connections>
                                 </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="A9403D3F-E94B-4073-A886-D50188D5EEB1" label="Shuffler" paletteLabel="Shuffler" tag="-1" image="Shuffle-Off" id="y8e-ru-f1H" userLabel="Shuffler">
+                                    <connections>
+                                        <action selector="clickShuffle:" target="Oky-zY-oP4" id="ecF-RR-iXl"/>
+                                    </connections>
+                                </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="A7C28504-ECA4-4B47-A363-A90CA86DC6BD" label="Volume Slider" paletteLabel="Volume Slider" id="Uu9-Au-dyu" userLabel="Volume Slider">
                                     <nil key="toolTip"/>
                                     <size key="minSize" width="96" height="21"/>
@@ -461,6 +466,7 @@
                                 <toolbarItem reference="V6E-0a-sfe"/>
                                 <toolbarItem reference="PpA-Gj-sP6"/>
                                 <toolbarItem reference="2E4-iO-81p"/>
+                                <toolbarItem reference="y8e-ru-f1H"/>
                                 <toolbarItem reference="PpA-Gj-sP6"/>
                             </defaultToolbarItems>
                             <connections>
@@ -470,6 +476,7 @@
                                 <outlet property="repeater" destination="2E4-iO-81p" id="YLU-C4-TfC"/>
                                 <outlet property="seekBackward" destination="cYr-dh-QuN" id="75i-uK-go1"/>
                                 <outlet property="seekForward" destination="HJB-Bh-Om6" id="VbN-xD-POm"/>
+                                <outlet property="shuffler" destination="y8e-ru-f1H" id="HdR-HS-O3w"/>
                             </connections>
                         </toolbar>
                     </window>
@@ -1090,5 +1097,6 @@
         <image name="Repeat" width="1024" height="1024"/>
         <image name="Seek-Backward" width="72" height="72"/>
         <image name="Seek-Forward" width="72" height="72"/>
+        <image name="Shuffle-Off" width="1024" height="1024"/>
     </resources>
 </document>
