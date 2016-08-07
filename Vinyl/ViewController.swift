@@ -342,26 +342,30 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     func audioPlayerDidFinishPlaying(_ player:AVAudioPlayer, successfully flag:Bool) {
         if flag == true {
             if repeatSingle == true {
-                cueSong(songs[p].path, play:true)
+                cueSong(songs[p].path, play:true)   // p is unchanged
             }
-            else if repeatAll == true {
-                p = 0
-                cueSong(songs[p].path, play:true)
-                songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
-            }
-            else {  // Repeat is disabled
+            else {
                 if shuffle == true {
                     p = Int(arc4random_uniform(UInt32(songs.count)) + 0)
                     cueSong(songs[p].path, play:true)
                     songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
                 }
                 else {
-                    if p != songs.count-1 {
-                        p += 1
+                    if repeatAll == true {
+                        if p != songs.count - 1 { p += 1 }
+                        else { p = 0 }
+                        
                         cueSong(songs[p].path, play:true)
                         songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
                     }
-                    else { NotificationCenter.default().post(name:Notification.Name(rawValue:"DisplayPlayImage"), object:nil) }
+                    else {
+                        if p != songs.count - 1 {
+                            p += 1
+                            cueSong(songs[p].path, play:true)
+                            songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+                        }
+                        else { NotificationCenter.default().post(name:Notification.Name(rawValue:"DisplayPlayImage"), object:nil) }
+                    }
                 }
             }
         }
