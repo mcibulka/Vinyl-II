@@ -23,6 +23,7 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     var player = AVAudioPlayer()
     
     var songs = [Song]()
+    var played = [Bool]()
     let seek = 15.0
     
     var firstPlay = false
@@ -57,6 +58,7 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
                     let song = Song(path, dateAdded, time, format)
                     song.extractMetaData(asset)
                     songsController.addObject(song)
+                    played.append(false)
                 }
             }
         }
@@ -174,6 +176,7 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
                 song.extractMetaData(asset)
                 copySongToLibrary(source:fileURL as URL, song:song)
                 songsController.addObject(song)
+                played.append(false)
             }
         }
     }
@@ -339,8 +342,31 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     }
     
     
+    func shuffleNext() {
+        if played.contains(false) {
+            repeat {
+                p = Int(arc4random_uniform(UInt32(songs.count)) + 0)
+            } while played[p] == true
+            
+            cueSong(songs[p].path, play:true)
+            songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+        }
+    }
+    
+    
+    func lastPlayed() {
+        let defaultNC = NotificationCenter.default()
+        
+        songsTable.deselectRow(p)
+        defaultNC.post(name:Notification.Name(rawValue:"DisplayPlayImage"), object:nil)
+        defaultNC.post(name:Notification.Name(rawValue:"DisableOtherPlaybackButtons"), object:nil)
+    }
+    
+    
     func audioPlayerDidFinishPlaying(_ player:AVAudioPlayer, successfully flag:Bool) {
         if flag == true {
+            played[p] = true
+            
             if repeatSingle == true {
                 cueSong(songs[p].path, play:true)
             }
@@ -351,9 +377,7 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
             }
             else {  // Repeat is disabled
                 if shuffle == true {
-                    p = Int(arc4random_uniform(UInt32(songs.count)) + 0)
-                    cueSong(songs[p].path, play:true)
-                    songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+                    shuffleNext()
                 }
                 else {
                     if p != songs.count-1 {
@@ -361,7 +385,7 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
                         cueSong(songs[p].path, play:true)
                         songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
                     }
-                    else { NotificationCenter.default().post(name:Notification.Name(rawValue:"DisplayPlayImage"), object:nil) }
+                    else { lastPlayed() }
                 }
             }
         }

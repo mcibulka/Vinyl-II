@@ -23,7 +23,7 @@ class AppDelegate: NSObject, NSApplicationDelegate
         let defaultFM = FileManager.default()
         let libraryName = "VinylLibrary"
         
-        NotificationCenter.default().post(name: Notification.Name(rawValue:"LoadLibrary"), object:nil)
+        NotificationCenter.default().post(name:Notification.Name(rawValue:"LoadLibrary"), object:nil)
     
         let desktop = try! defaultFM.urlForDirectory(.desktopDirectory, in:.userDomainMask, appropriateFor:nil, create:false)
         var library = desktop

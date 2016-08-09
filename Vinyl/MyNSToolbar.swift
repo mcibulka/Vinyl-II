@@ -27,6 +27,7 @@ class MyNSToolbar: NSToolbar
     
     override func validateVisibleItems() {
         let defaultNC = NotificationCenter.default()
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.disableOtherPlaybackButtons(_:)), name:"DisableOtherPlaybackButtons", object: nil)
         defaultNC.addObserver(self, selector:#selector(MyNSToolbar.enableOtherPlaybackButtons(_:)), name:"EnableOtherPlaybackButtons", object: nil)
         defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayPauseImage(_:)), name:"DisplayPauseImage", object: nil)
         defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayPlayImage(_:)), name:"DisplayPlayImage", object: nil)
@@ -35,6 +36,13 @@ class MyNSToolbar: NSToolbar
         defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayRepeatAllImage(_:)), name:"DisplayRepeatAllImage", object: nil)
         defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayShuffleOnImage(_:)), name:"DisplayShuffleOnImage", object: nil)
         defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayShuffleOffImage(_:)), name:"DisplayShuffleOffImage", object: nil)
+    }
+    
+    func disableOtherPlaybackButtons( _ aNotification:Notification) {
+        previous.isEnabled = false
+        seekBackward.isEnabled = false
+        seekForward.isEnabled = false
+        next.isEnabled = false
     }
     
     
