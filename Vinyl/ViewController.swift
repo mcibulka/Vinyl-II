@@ -27,6 +27,7 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     let seek = 15.0
     
     var firstPlay = false
+    var repeatOff = true
     var repeatSingle = false
     var repeatAll = false
     var shuffle = false
@@ -60,6 +61,9 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
                     songsController.addObject(song)
                     played.append(false)
                 }
+                
+                cueSong(songs[p].path, play:false)
+                songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
             }
         }
         catch let error as NSError {
@@ -263,15 +267,71 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     
     
     @IBAction func clickNext(_ sender:NSToolbarItem) {
-        if songs.count > 0 {
-            p += 1
+        p = songsTable.selectedRow
         
-            if p == songs.count { p = 0 }   // jump from end of table to start to loop playback
+        if songs.count == 1 {
+            player.currentTime = 0.0
             
-            if player.isPlaying { cueSong(songs[p].path, play:true) }
-            else { cueSong(songs[p].path, play:false) }
+            if repeatOff {
+                if player.isPlaying {
+                    player.stop()
+                }
+            }
+        }
+        else if songs.count > 1 {
+            if repeatOff {
+                if p == songs.count - 1 {
+                    if player.isPlaying {
+                        player.stop()
+                    }
+                    
+                    p = 0
+                    cueSong(songs[p].path, play:false)
+                }
+                else {
+                    p += 1
+                    
+                    if player.isPlaying {
+                        cueSong(songs[p].path, play:true)
+                    }
+                    else {
+                        cueSong(songs[p].path, play:false)
+                    }
+                }
+                
+                songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+            }
             
-            songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+            
+            if repeatSingle {
+                if player.isPlaying {
+                    cueSong(songs[p].path, play:true)
+                }
+                else {
+                    player.currentTime = 0.0
+                }
+            }
+            
+            
+            if repeatAll {
+                if p >= 0 {
+                    if p == songs.count - 1 {
+                        p = 0
+                    }
+                    else {
+                        p += 1
+                    }
+                    
+                    songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+                    
+                    if player.isPlaying {
+                        cueSong(songs[p].path, play:true)
+                    }
+                    else {
+                        cueSong(songs[p].path, play:false)
+                    }
+                }
+            }
         }
     }
     
@@ -282,16 +342,19 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
         if sender.image?.name() == "Repeat" {
             defaultNC.post(name:Notification.Name(rawValue:"DisplayRepeatSingleImage"), object:nil)
             repeatSingle = true
+            repeatOff = false
         }
         else if sender.image?.name() == "Repeat-Single" {
             defaultNC.post(name:Notification.Name(rawValue:"DisplayRepeatAllImage"), object:nil)
             repeatSingle = false
             repeatAll = true
+            repeatOff = false
         }
         else {  // Must be "Repeat-All"
             defaultNC.post(name:Notification.Name(rawValue:"DisplayRepeatImage"), object:nil)
             repeatSingle = false
             repeatAll = false
+            repeatOff = true
         }
     }
     
