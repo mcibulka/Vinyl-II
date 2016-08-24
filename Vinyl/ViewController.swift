@@ -197,17 +197,54 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
     
     
     @IBAction func clickPrevious(_ sender:NSToolbarItem) {
-        if songs.count > 0 {
-            if player.currentTime > 1.0 { player.currentTime = 0 }  // restart song from beginning
-            else {
-                p -= 1
-    
-                if p == -1 { p = songs.count - 1 }   // jump from start of table to end to loop playback
+        p = songsTable.selectedRow
+        
+        if songs.count == 1 {
+            player.currentTime = 0.0
+            
+            // placeholder, if repeatOff, Previous should be disabled
+        }
+        else if songs.count > 1 {
+            if player.currentTime > 1.0 { player.currentTime = 0 }  // single click will start song from beginning
+            else {  // double click intends to play previous song
+                if repeatOff {
+                    if p != 0 {
+                        p -= 1
+                    }
                 
-                if player.isPlaying { cueSong(songs[p].path, play:true) }
-                else { cueSong(songs[p].path, play:false) }
+                    songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+                    
+                    if player.isPlaying {
+                        cueSong(songs[p].path, play:true)
+                    }
+                    else {
+                        cueSong(songs[p].path, play:false)
+                    }
+                }
                 
-                songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+                
+                if repeatSingle {
+                    player.currentTime = 0.0
+                }
+                
+                
+                if repeatAll {
+                    if p == 0 {
+                        p = songs.count - 1
+                    }
+                    else {
+                        p -= 1
+                    }
+                    
+                    songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+                    
+                    if player.isPlaying {
+                        cueSong(songs[p].path, play:true)
+                    }
+                    else {
+                        cueSong(songs[p].path, play:false)
+                    }
+                }
             }
         }
     }
@@ -314,7 +351,7 @@ class ViewController: NSViewController, AVAudioPlayerDelegate
             
             
             if repeatAll {
-                if p >= 0 {
+                if p >= 0 { // unnecessary?
                     if p == songs.count - 1 {
                         p = 0
                     }
