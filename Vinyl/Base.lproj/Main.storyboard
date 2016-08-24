@@ -1049,6 +1049,7 @@
                                                         <string key="NSSelectorName">doubleClick</string>
                                                     </dictionary>
                                                 </binding>
+                                                <outlet property="delegate" destination="XfG-lQ-9wD" id="XWk-Vb-mCM"/>
                                             </connections>
                                         </tableView>
                                     </subviews>
