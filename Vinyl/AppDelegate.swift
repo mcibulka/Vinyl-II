@@ -20,24 +20,23 @@ class AppDelegate: NSObject, NSApplicationDelegate
     /* Code to initialize the application */
     func applicationDidFinishLaunching(_ aNotification:Notification)
     {
-        let defaultFM = FileManager.default()
+        let defaultFM = FileManager.default
         let libraryName = "VinylLibrary"
         
-        NotificationCenter.default().post(name:Notification.Name(rawValue:"LoadLibrary"), object:nil)
+        NotificationCenter.default.post(name:Notification.Name(rawValue:"LoadLibrary"), object:nil)
     
-        let desktop = try! defaultFM.urlForDirectory(.desktopDirectory, in:.userDomainMask, appropriateFor:nil, create:false)
+        let desktop = try! defaultFM.url(for:.desktopDirectory, in:.userDomainMask, appropriateFor:nil, create:false)
         var library = desktop
-    
-        try! library.appendPathComponent(libraryName, isDirectory:true)
+        library.appendPathComponent(libraryName, isDirectory:true)
         
         do {
             try defaultFM.createDirectory(at:library, withIntermediateDirectories:false, attributes:nil)
         }
-        catch NSCocoaError.fileWriteFileExistsError {}  // do nothing
-        catch NSCocoaError.fileWriteNoPermissionError {
+        catch CocoaError.fileWriteFileExists {}  // do nothing
+        catch CocoaError.fileWriteNoPermission {
             print("Error creating Vinyl Library directory. File write permissions.")
         }
-        catch NSCocoaError.fileWriteOutOfSpaceError {
+        catch CocoaError.fileWriteOutOfSpace {
             print("Error creating Vinyl Library directory. Out of space.")
         }
         catch let error as NSError {

@@ -26,17 +26,24 @@ class MyNSToolbar: NSToolbar
     
     
     override func validateVisibleItems() {
-        let defaultNC = NotificationCenter.default()
-        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.disableOtherPlaybackButtons(_:)), name:"DisableOtherPlaybackButtons", object: nil)
-        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.enableOtherPlaybackButtons(_:)), name:"EnableOtherPlaybackButtons", object: nil)
-        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayPauseImage(_:)), name:"DisplayPauseImage", object: nil)
-        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayPlayImage(_:)), name:"DisplayPlayImage", object: nil)
-        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayRepeatImage(_:)), name:"DisplayRepeatImage", object: nil)
-        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayRepeatSingleImage(_:)), name:"DisplayRepeatSingleImage", object: nil)
-        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayRepeatAllImage(_:)), name:"DisplayRepeatAllImage", object: nil)
-        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayShuffleOnImage(_:)), name:"DisplayShuffleOnImage", object: nil)
-        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayShuffleOffImage(_:)), name:"DisplayShuffleOffImage", object: nil)
+        let defaultNC = NotificationCenter.default
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.disableOtherPlaybackButtons(_:)), name:Notification.Name(rawValue:"DisableOtherPlaybackButtons"), object:nil)
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.enableOtherPlaybackButtons(_:)), name:Notification.Name(rawValue:"EnableOtherPlaybackButtons"), object:nil)
+        
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.disableNext(_:)), name:Notification.Name(rawValue:"DisableNext"), object:nil)
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.checkNextEnabled(_:)), name:Notification.Name(rawValue:"CheckNextEnabled"), object:nil)
+        
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayPauseImage(_:)), name:Notification.Name(rawValue:"DisplayPauseImage"), object:nil)
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayPlayImage(_:)), name:Notification.Name(rawValue:"DisplayPlayImage"), object:nil)
+        
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayRepeatImage(_:)), name:Notification.Name(rawValue:"DisplayRepeatImage"), object:nil)
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayRepeatSingleImage(_:)), name:Notification.Name(rawValue:"DisplayRepeatSingleImage"), object:nil)
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayRepeatAllImage(_:)), name:Notification.Name(rawValue:"DisplayRepeatAllImage"), object:nil)
+        
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayShuffleOnImage(_:)), name:Notification.Name(rawValue:"DisplayShuffleOnImage"), object:nil)
+        defaultNC.addObserver(self, selector:#selector(MyNSToolbar.displayShuffleOffImage(_:)), name:Notification.Name(rawValue:"DisplayShuffleOffImage"), object:nil)
     }
+    
     
     func disableOtherPlaybackButtons( _ aNotification:Notification) {
         previous.isEnabled = false
@@ -54,13 +61,23 @@ class MyNSToolbar: NSToolbar
     }
     
     
+    func disableNext( _ aNotification:Notification) {
+        next.isEnabled = false
+    }
+    
+    
+    func checkNextEnabled( _ aNotification:Notification) {
+        if !next.isEnabled { next.isEnabled = true }
+    }
+    
+    
     func displayPauseImage(_ aNotification:Notification) {
-        playPause.image = NSImage(byReferencingFile:Bundle.main().pathForResource("Pause", ofType:".png")!)
+        playPause.image = NSImage(byReferencingFile:Bundle.main.path(forResource:"Pause", ofType:".png")!)
     }
     
     
     func displayPlayImage(_ aNotification:Notification) {
-        playPause.image = NSImage(byReferencingFile:Bundle.main().pathForResource("Play", ofType:".png")!)
+        playPause.image = NSImage(byReferencingFile:Bundle.main.path(forResource:"Play", ofType:".png")!)
     }
 
     

@@ -199,7 +199,7 @@ class Song: NSObject
         
         
         if albumArtist == nil { albumArtist = artist }
-        if name == nil { name = (asset.url.lastPathComponent! as NSString).deletingPathExtension }
+        if name == nil { name = (asset.url.lastPathComponent as NSString).deletingPathExtension }
     }
     
     

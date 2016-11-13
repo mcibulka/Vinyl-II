@@ -35,17 +35,26 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     
     
     override func viewDidLoad() {
-        NotificationCenter.default().addObserver(self, selector:#selector(ViewController.loadLibrary(_:)), name:"LoadLibrary", object:nil)
+        NotificationCenter.default.addObserver(self, selector:#selector(ViewController.loadLibrary(_:)), name:NSNotification.Name(rawValue: "LoadLibrary"), object:nil)
     }
     
     
     func tableViewSelectionDidChange(_ notification: Notification) {
-        p = songsTable.selectedRow
+        let defaultNC = NotificationCenter.default
+        
+        if p == songs.count - 1 {
+            if repeatOff {
+                defaultNC.post(name:Notification.Name(rawValue:"DisableNext"), object:nil)
+            }
+        }
+        else {
+            defaultNC.post(name:Notification.Name(rawValue:"CheckNextEnabled"), object:nil)
+        }
     }
     
     
     func loadLibrary(_ aNotification:Notification) {
-        let path = Bundle.main().pathForResource("songsList", ofType:"txt")
+        let path = Bundle.main.path(forResource:"songsList", ofType:"txt")
         do {
             let contents = try String(contentsOfFile:path!, encoding:String.Encoding.utf8)
             
@@ -67,7 +76,7 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
                     played.append(false)
                 }
                 
-                cueSong(songs[p].path, play:false)
+                cueSong(play:false)
                 songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
             }
         }
@@ -78,7 +87,7 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     
     
     func saveLibrary() {
-        let path = Bundle.main().pathForResource("songsList", ofType:"txt")
+        let path = Bundle.main.path(forResource:"songsList", ofType:"txt")
         var contents = ""
         
         // Cycle through songs and create one continuous string of their file paths
@@ -97,21 +106,21 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     
     func addSongs(_ songsToAdd:NSArray) {
         func copySongToLibrary(source:URL, song:Song) {
-            let defaultFM = FileManager.default()
-            let desktop = try! defaultFM.urlForDirectory(.desktopDirectory, in:.userDomainMask, appropriateFor:nil, create:false)
+            let defaultFM = FileManager.default
+            let desktop = try! defaultFM.url(for:.desktopDirectory, in:.userDomainMask, appropriateFor:nil, create:false)
             var path = desktop
             
-            try! path.appendPathComponent("VinylLibrary", isDirectory:true)
+            path.appendPathComponent("VinylLibrary", isDirectory:true)
 
             
             /*Construct Copy To Path*/
-            try! path.appendPathComponent(song.albumArtist!.replacingOccurrences(of:"/", with:":"))   // Ensure "/" are not interpreted as directories
+            path.appendPathComponent(song.albumArtist!.replacingOccurrences(of:"/", with:":"))   // Ensure "/" are not interpreted as directories
             
             do {
                 try defaultFM.createDirectory(at:path, withIntermediateDirectories:false, attributes:nil)
             }
-            catch NSCocoaError.fileWriteFileExistsError {}  // do nothing
-            catch NSCocoaError.fileWriteNoPermissionError {
+            catch CocoaError.fileWriteFileExists {}  // do nothing
+            catch CocoaError.fileWriteNoPermission {
                 print("Error creating Album Artist directory in library folder. File write permissions.")
             }
             catch let error as NSError {
@@ -119,13 +128,13 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
             }
             
                 
-            try! path.appendPathComponent(song.album!.replacingOccurrences(of:"/", with:":"))
+            path.appendPathComponent(song.album!.replacingOccurrences(of:"/", with:":"))
                 
             do {
                 try defaultFM.createDirectory(at:path, withIntermediateDirectories:false, attributes:nil)
             }
-            catch NSCocoaError.fileWriteFileExistsError {}  // do nothing
-            catch NSCocoaError.fileWriteNoPermissionError {
+            catch CocoaError.fileWriteFileExists {}  // do nothing
+            catch CocoaError.fileWriteNoPermission {
                 print("Error creating Album directory in library folder. File write permissions.")
             }
             catch let error as NSError {
@@ -138,19 +147,19 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
             
             if trackNumber.characters.count == 1 { trackNumber.insert("0", at:trackNumber.startIndex) }   // Track number is a single digit
             
-            try! path.appendPathComponent(trackNumber + " " + song.name!.replacingOccurrences(of:"/", with:":"))
-            try! path.appendPathExtension(song.format)
+            path.appendPathComponent(trackNumber + " " + song.name!.replacingOccurrences(of:"/", with:":"))
+            path.appendPathExtension(song.format)
             
-            song.path = path.absoluteString!
+            song.path = path.absoluteString
             
             do {
                 try defaultFM.copyItem(at:source, to:path)
             }
-            catch NSCocoaError.fileWriteFileExistsError {}  // do nothing
-            catch NSCocoaError.fileWriteNoPermissionError {
+            catch CocoaError.fileWriteFileExists {}  // do nothing
+            catch CocoaError.fileWriteNoPermission {
                 print("Error copying song to Vinyl Library. File write permissions.")
             }
-            catch NSCocoaError.fileWriteOutOfSpaceError {
+            catch CocoaError.fileWriteOutOfSpace {
                 print("Error copying song to Vinyl Library. Out of space.")
             }
             catch let error as NSError {
@@ -160,8 +169,7 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
 
         let localFM = FileManager()
         let resourceKeys = [URLResourceKey.isDirectoryKey, URLResourceKey.nameKey]
-        let resourceKeysStr = [URLResourceKey.isDirectoryKey.rawValue, URLResourceKey.nameKey.rawValue]
-        let directoryEnumerator = localFM.enumerator(at:songsToAdd[0] as! URL, includingPropertiesForKeys:resourceKeysStr, options:[.skipsHiddenFiles, .skipsPackageDescendants], errorHandler:nil)!
+        let directoryEnumerator = localFM.enumerator(at:songsToAdd[0] as! URL, includingPropertiesForKeys:resourceKeys, options:[.skipsHiddenFiles, .skipsPackageDescendants], errorHandler:nil)!
         
         var fileURLs: [NSURL] = []
         for case let fileURL as NSURL in directoryEnumerator {
@@ -196,7 +204,7 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
         addPanel.canChooseDirectories = true
         
         // Only add songs if the user clicks OK
-        if addPanel.runModal() == NSFileHandlingPanelOKButton { addSongs(addPanel.urls) }
+        if addPanel.runModal() == NSFileHandlingPanelOKButton { addSongs(addPanel.urls as NSArray) }
         saveLibrary()
     }
     
@@ -205,14 +213,22 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
         if player.currentTime > 1.0 { player.currentTime = 0.0 }  // single click will start song from beginning
         else {  // double click intends to play previous song
             if repeatOff {
-                p -= 1
-                songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
-                
-                if player.isPlaying {
-                    cueSong(songs[p].path, play:true)
-                }
-                else {
-                    cueSong(songs[p].path, play:false)
+                if p != 0 {
+                    if shuffle {
+                        shuffleNext()
+                    }
+                    else {
+                        p -= 1
+                    }
+                    
+                    songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)        // CHECK
+                    
+                    if player.isPlaying {
+                        cueSong(play:true)
+                    }
+                    else {
+                        cueSong(play:false)
+                    }
                 }
             }
             
@@ -221,20 +237,26 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
             }
             
             if repeatAll {
-                if p == 0 {
-                    p = songs.count - 1
+                if shuffle {
+                    shuffleNext()
                 }
                 else {
-                    p -= 1
+                    if p == 0 {
+                        p = songs.count - 1
+                    }
+                    else {
+                        p -= 1
+                    }
                 }
                 
-                songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+                
+                songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)        // CHECK
                 
                 if player.isPlaying {
-                    cueSong(songs[p].path, play:true)
+                    cueSong(play:true)
                 }
                 else {
-                    cueSong(songs[p].path, play:false)
+                    cueSong(play:false)
                 }
             }
         }
@@ -253,12 +275,12 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     
     
     @IBAction func clickPlay(_ sender:NSToolbarItem) {
-        let defaultNC = NotificationCenter.default()
+        let defaultNC = NotificationCenter.default
         
         if sender.image?.name() == "Play" {
             if songs.count > 0 {
                 if !firstPlay {
-                    cueSong(songs[p].path, play: true)
+                    cueSong(play:true)
                     firstPlay = true
                     defaultNC.post(name:Notification.Name(rawValue:"EnableOtherPlaybackButtons"), object:nil)
                 }
@@ -296,14 +318,20 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     
     @IBAction func clickNext(_ sender:NSToolbarItem) {
         if repeatOff {
-            p += 1
-            songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
-            
-            if player.isPlaying {
-                cueSong(songs[p].path, play:true)
+            if shuffle {
+                shuffleNext()
             }
             else {
-                cueSong(songs[p].path, play:false)
+                p += 1
+            }
+            
+            songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)            // CHECK
+            
+            if player.isPlaying {
+                cueSong(play:true)
+            }
+            else {
+                cueSong(play:false)
             }
         }
         
@@ -312,30 +340,36 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
         }
         
         if repeatAll {
-            if p == songs.count - 1 {
-                p = 0
+            if shuffle {
+                shuffleNext()
             }
             else {
-                p += 1
+                if p == songs.count - 1 {
+                    p = 0
+                }
+                else {
+                    p += 1
+                }
             }
             
-            songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+            songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)            // CHECK
             
             if player.isPlaying {
-                cueSong(songs[p].path, play:true)
+                cueSong(play:true)
             }
             else {
-                cueSong(songs[p].path, play:false)
+                cueSong(play:false)
             }
         }
     }
     
     
     @IBAction func clickRepeat(_ sender:NSToolbarItem) {
-        let defaultNC = NotificationCenter.default()
+        let defaultNC = NotificationCenter.default
         
         if sender.image?.name() == "Repeat" {
             defaultNC.post(name:Notification.Name(rawValue:"DisplayRepeatSingleImage"), object:nil)
+            defaultNC.post(name:Notification.Name(rawValue:"CheckNextEnabled"), object:nil)
             repeatSingle = true
             repeatOff = false
         }
@@ -347,6 +381,11 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
         }
         else {  // Must be "Repeat-All"
             defaultNC.post(name:Notification.Name(rawValue:"DisplayRepeatImage"), object:nil)
+            
+            if p == songs.count - 1 {
+                defaultNC.post(name:Notification.Name(rawValue:"DisableNext"), object:nil)
+            }
+            
             repeatSingle = false
             repeatAll = false
             repeatOff = true
@@ -355,7 +394,7 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     
     
     @IBAction func clickShuffle(_ sender:NSToolbarItem) {
-        let defaultNC = NotificationCenter.default()
+        let defaultNC = NotificationCenter.default
         
         if sender.image?.name() == "Shuffle-Off" {
             defaultNC.post(name:Notification.Name(rawValue:"DisplayShuffleOnImage"), object:nil)
@@ -369,15 +408,21 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     
     
     func doubleClick() {
-        let defaultNC = NotificationCenter.default()
+        let defaultNC = NotificationCenter.default
         
         if songsTable.selectedRow != -1 {   // ensure double click occurs on a song within table
             p = songsTable.selectedRow
-            cueSong(songs[p].path, play:true)
+            cueSong(play:true)
             
             if !firstPlay {
                 defaultNC.post(name:Notification.Name(rawValue:"EnableOtherPlaybackButtons"), object:nil)
                 firstPlay = true
+            }
+            
+            if p == songs.count - 1 {
+                if repeatOff {
+                    defaultNC.post(name:Notification.Name(rawValue:"DisableNext"), object:nil)
+                }
             }
             
             songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
@@ -386,13 +431,16 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     }
     
     
-    func cueSong(_ fileURL:String, play:Bool) {
+    func cueSong(play:Bool) {
         do {
-            try player = AVAudioPlayer(contentsOf:URL(string:fileURL)!)
+            try player = AVAudioPlayer(contentsOf:URL(string:songs[p].path)!)
 			player.delegate = self
             player.prepareToPlay()
             
-            if play == true { player.play() }
+            if play == true {
+                player.play()
+                songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+            }
         }
         catch let error as NSError {
             print("Error with audio player. Other. Domain: \(error.domain) Code: \(error.code)")
@@ -405,15 +453,18 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
             repeat {
                 p = Int(arc4random_uniform(UInt32(songs.count)) + 0)
             } while played[p] == true
-            
-            cueSong(songs[p].path, play:true)
-            songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
         }
     }
     
     
+    func nextSong() {
+        if p != songs.count - 1 { p += 1 }
+        else { p = 0 }
+    }
+    
+    
     func lastPlayed() {
-        let defaultNC = NotificationCenter.default()
+        let defaultNC = NotificationCenter.default
         
         songsTable.deselectRow(p)
         defaultNC.post(name:Notification.Name(rawValue:"DisplayPlayImage"), object:nil)
@@ -426,13 +477,17 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
             played[p] = true
             
             if repeatSingle {
-                cueSong(songs[p].path, play:true)
+                cueSong(play:true)
             }
             
             if repeatAll {
-                p = 0
-                cueSong(songs[p].path, play:true)
-                songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+                if shuffle {
+                    shuffleNext()
+                }
+                else {
+                    nextSong()
+                    cueSong(play:true)
+                }
             }
                 
             if repeatOff {
@@ -442,8 +497,7 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
                 else {
                     if p != songs.count - 1 {
                         p += 1
-                        cueSong(songs[p].path, play:true)
-                        songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
+                        cueSong(play:true)
                     }
                     else { lastPlayed() }
                 }
@@ -452,7 +506,7 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     }
     
     
-    func audioPlayerDecodeErrorDidOccur(_ player:AVAudioPlayer, error:NSError?) {
+    func audioPlayerDecodeErrorDidOccur(_ player:AVAudioPlayer, error:Error?) {
         print("Error with audio player. Decode.")
     }
 }
