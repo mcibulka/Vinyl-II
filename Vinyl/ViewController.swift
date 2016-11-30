@@ -23,6 +23,10 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     var player = AVAudioPlayer()
     
     var songs = [Song]()
+    
+    var playlist = [Int]()
+    var p = 0
+    
     var played = [Bool]()
     let seek = 15.0
     
@@ -31,7 +35,6 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     var repeatSingle = false
     var repeatAll = false
     var shuffle = false
-    var p = 0
     
     
     override func viewDidLoad() {
@@ -39,21 +42,15 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     }
     
     
-    func tableViewSelectionDidChange(_ notification: Notification) {
-        let defaultNC = NotificationCenter.default
-        
-        if p == songs.count - 1 {
-            if repeatOff {
-                defaultNC.post(name:Notification.Name(rawValue:"DisableNext"), object:nil)
+    func loadLibrary(_ aNotification:Notification) {
+        func buildPlaylist()
+        {
+            for i in 0...songs.count - 1 {
+                playlist.append(i)
             }
         }
-        else {
-            defaultNC.post(name:Notification.Name(rawValue:"CheckNextEnabled"), object:nil)
-        }
-    }
-    
-    
-    func loadLibrary(_ aNotification:Notification) {
+        
+        
         let path = Bundle.main.path(forResource:"songsList", ofType:"txt")
         do {
             let contents = try String(contentsOfFile:path!, encoding:String.Encoding.utf8)
@@ -76,6 +73,7 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
                     played.append(false)
                 }
                 
+                buildPlaylist()
                 cueSong(play:false)
                 songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
             }
@@ -114,7 +112,7 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
 
             
             /*Construct Copy To Path*/
-            path.appendPathComponent(song.albumArtist!.replacingOccurrences(of:"/", with:":"))   // Ensure "/" are not interpreted as directories
+            path.appendPathComponent(song.albumArtist!.replacingOccurrences(of:"/", with:":"))   // Ensure '/' are not interpreted as directories
             
             do {
                 try defaultFM.createDirectory(at:path, withIntermediateDirectories:false, attributes:nil)
@@ -142,7 +140,7 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
             }
             
             
-            // Create own file name to ensure a consistent naming convention, "<Track Number><Space><Track Name>.mp3"
+            // Create own file name to ensure a consistent naming convention, "<Track Number><Space><Track Name>.<Format>"
             var trackNumber = song.trackNumber!
             
             if trackNumber.characters.count == 1 { trackNumber.insert("0", at:trackNumber.startIndex) }   // Track number is a single digit
@@ -210,25 +208,22 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     
     
     @IBAction func clickPrevious(_ sender:NSToolbarItem) {
+        func cue() {
+            if player.isPlaying {
+                cueSong(play:true)
+            }
+            else {
+                cueSong(play:false)
+            }
+        }
+        
+        
         if player.currentTime > 1.0 { player.currentTime = 0.0 }  // single click will start song from beginning
         else {  // double click intends to play previous song
             if repeatOff {
                 if p != 0 {
-                    if shuffle {
-                        shuffleNext()
-                    }
-                    else {
-                        p -= 1
-                    }
-                    
-                    songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)        // CHECK
-                    
-                    if player.isPlaying {
-                        cueSong(play:true)
-                    }
-                    else {
-                        cueSong(play:false)
-                    }
+                    p -= 1
+                    cue()
                 }
             }
             
@@ -237,27 +232,12 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
             }
             
             if repeatAll {
-                if shuffle {
-                    shuffleNext()
-                }
-                else {
-                    if p == 0 {
-                        p = songs.count - 1
-                    }
-                    else {
-                        p -= 1
-                    }
+                if p == 0 {                 // repeat from end of table if first song is currently playing
+                    p = playlist.count      // NOTE: index value corrected after condition exits
                 }
                 
-                
-                songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)        // CHECK
-                
-                if player.isPlaying {
-                    cueSong(play:true)
-                }
-                else {
-                    cueSong(play:false)
-                }
+                p -= 1
+                cue()
             }
         }
     }
@@ -286,7 +266,6 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
                 }
                 
                 defaultNC.post(name:Notification.Name(rawValue:"DisplayPauseImage"), object:nil)
-                songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
             }
         }
         else {  // Image must be "Pause"
@@ -317,22 +296,19 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     
     
     @IBAction func clickNext(_ sender:NSToolbarItem) {
-        if repeatOff {
-            if shuffle {
-                shuffleNext()
-            }
-            else {
-                p += 1
-            }
-            
-            songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)            // CHECK
-            
+        func cue() {
             if player.isPlaying {
                 cueSong(play:true)
             }
             else {
                 cueSong(play:false)
             }
+        }
+        
+        
+        if repeatOff {
+            p += 1
+            cue()
         }
         
         if repeatSingle {
@@ -340,26 +316,12 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
         }
         
         if repeatAll {
-            if shuffle {
-                shuffleNext()
-            }
-            else {
-                if p == songs.count - 1 {
-                    p = 0
-                }
-                else {
-                    p += 1
-                }
+            if p == playlist.count - 1 {   // repeat from start of table if last song is currently playing
+                p = -1                     // NOTE: index value corrected after condition exits
             }
             
-            songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)            // CHECK
-            
-            if player.isPlaying {
-                cueSong(play:true)
-            }
-            else {
-                cueSong(play:false)
-            }
+            p += 1
+            cue()
         }
     }
     
@@ -399,10 +361,29 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
         if sender.image?.name() == "Shuffle-Off" {
             defaultNC.post(name:Notification.Name(rawValue:"DisplayShuffleOnImage"), object:nil)
             shuffle = true
+            shufflePlaylist()
         }
         else {  // Must be "Shuffle-On"
             defaultNC.post(name:Notification.Name(rawValue:"DisplayShuffleOffImage"), object:nil)
             shuffle = false
+        }
+    }
+    
+    
+    func shufflePlaylist() {
+        playlist.removeAll(keepingCapacity:true)
+        playlist.append(p)     // first song is song currently playing / cued
+        played[p] = true
+        
+        for _ in 1...songs.count {
+            repeat {
+                let r = Int(arc4random_uniform(UInt32(songs.count)) + 0)
+                
+                if played[r] == false {
+                    playlist.append(r)
+                    played[r] = true
+                }
+            } while played.contains(false)
         }
     }
     
@@ -432,36 +413,22 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     
     
     func cueSong(play:Bool) {
+        songsTable.selectRowIndexes(IndexSet(integer:playlist[p]), byExtendingSelection:false)
+        
         do {
-            try player = AVAudioPlayer(contentsOf:URL(string:songs[p].path)!)
+            try player = AVAudioPlayer(contentsOf:URL(string:songs[playlist[p]].path)!)
 			player.delegate = self
             player.prepareToPlay()
             
             if play == true {
                 player.play()
-                songsTable.selectRowIndexes(IndexSet(integer:p), byExtendingSelection:false)
             }
         }
         catch let error as NSError {
             print("Error with audio player. Other. Domain: \(error.domain) Code: \(error.code)")
         }
     }
-    
-    
-    func shuffleNext() {
-        if played.contains(false) {
-            repeat {
-                p = Int(arc4random_uniform(UInt32(songs.count)) + 0)
-            } while played[p] == true
-        }
-    }
-    
-    
-    func nextSong() {
-        if p != songs.count - 1 { p += 1 }
-        else { p = 0 }
-    }
-    
+
     
     func lastPlayed() {
         let defaultNC = NotificationCenter.default
@@ -474,32 +441,24 @@ class ViewController: NSViewController, NSTableViewDelegate, AVAudioPlayerDelega
     
     func audioPlayerDidFinishPlaying(_ player:AVAudioPlayer, successfully flag:Bool) {
         if flag {
-            played[p] = true
-            
             if repeatSingle {
                 cueSong(play:true)
             }
-            
-            if repeatAll {
-                if shuffle {
-                    shuffleNext()
-                }
-                else {
-                    nextSong()
+            else {
+                p += 1
+
+                if p < playlist.count {
                     cueSong(play:true)
                 }
-            }
-                
-            if repeatOff {
-                if shuffle {
-                    shuffleNext()
-                }
                 else {
-                    if p != songs.count - 1 {
-                        p += 1
+                    if repeatAll {
+                        p = 0
                         cueSong(play:true)
                     }
-                    else { lastPlayed() }
+                    
+                    if repeatOff {
+                        lastPlayed()
+                    }
                 }
             }
         }
